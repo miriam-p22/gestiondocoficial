@@ -1,0 +1,30 @@
+/* Contenedor principal de la etiqueta y el campo */
+.form-group {
+    text-align: left;
+    margin-bottom: 15px;
+    flex-shrink: 0; /* Evita que los grupos de formulario se encojan */
+}
+
+/* Estilo para la etiqueta */
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Estilos para todos los campos de entrada */
+.form-group textarea,
+.form-group select,
+.form-group input[type="text"],
+.form-group input[type="date"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: none; 
+    font-size: 14px;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif; 
+}

@@ -1,0 +1,46 @@
+.campo-reutilizable {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.input-reutilizable {
+  width: 100%;         /* más largo dentro del card */
+  max-width: 550px;   /* Ancho del campo */
+  padding: 12px;      /* aumenta altura */
+  border: 1px solid #a1a1a1;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.input-reutilizable:focus {
+  outline: none;
+  border-color: #555b5b;
+}
+
+/*ICONO DEL OJITO*/
+.campo-reutilizable {
+position: relative;
+}
+
+.input-reutilizable {
+width: 100%;
+padding: 12px 45px 12px 12px;
+font-size: 15px;
+border: 1px solid #c7c7c7;
+border-radius: 8px;
+outline: none;
+}
+
+.password-icon {
+position: absolute;
+right: 40px;     /* Ajústalo para moverlo */
+top: 50%;
+transform: translateY(-50%);
+cursor: pointer;
+font-size: 1.2em;
+color: #555;
+}
+

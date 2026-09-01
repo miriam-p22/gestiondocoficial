@@ -1,0 +1,126 @@
+/* Overlay (fondo oscuro que cubre toda la pantalla) */
+.modal-overlay {
+    position: fixed; 
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente y oscuro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Asegura que esté por encima de todo */
+}
+
+/* Contenido del modal (el cuadro blanco) */
+.modal-content {
+    background-color: white;
+    padding: 30px 40px; 
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px; 
+    width: 90%; 
+    animation: fadeInScale 0.3s ease-out;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+/* Input de la clave */
+.modal-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 25px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box; 
+    outline: none; 
+}
+
+.modal-input:focus {
+    border-color: #555b5b; /* Borde al enfocar */
+    box-shadow: 0 0 0 2px rgba(85, 91, 91, 0.2);
+}
+
+/* Contenedor de botones */
+.modal-buttons {
+    display: flex;
+    justify-content: space-around; /* Espacio entre los botones */
+    gap: 15px; 
+}
+
+/* Estilos de los botones */
+.modal-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+    flex-grow: 1; /* Para que ocupen el espacio disponible */
+}
+
+.modal-btn.confirmar {
+    background-color: #555b5b; /* Color similar al botón de login */
+    color: white;
+}
+
+.modal-btn.confirmar:hover {
+    background-color: #404646;
+}
+
+.modal-btn.cancelar {
+    background-color: #e0e0e0; /* Un gris más claro */
+    color: #333;
+}
+
+.modal-btn.cancelar:hover {
+    background-color: #d0d0d0;
+}
+
+/* Animación de aparición */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Media Query para pantallas más pequeñas (móviles) */
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 20px 25px;
+        width: 95%; /* Ocupa más ancho en móviles */
+    }
+    .modal-buttons {
+        flex-direction: column; /* Botones apilados en móviles */
+        gap: 10px;
+    }
+    .modal-btn {
+        width: 100%; 
+    }
+}
+.msg-error {
+  color: #d62828;
+  margin-top: 10px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.msg-ok {
+  color: #2d862d;
+  margin-top: 10px;
+  font-weight: bold;
+  text-align: center;
+}

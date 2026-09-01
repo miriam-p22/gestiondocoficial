@@ -1,0 +1,95 @@
+/* ======================================================
+   BASE
+====================================================== */
+
+.status-badge {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  min-width: 85px;
+  height: 28px;
+
+  padding: 4px 10px;
+
+  border-radius: 9999px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  text-align: center;
+
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+/* ======================================================
+   USUARIOS
+====================================================== */
+
+.status-badge-activo {
+  color: #1e7e34;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
+.status-badge-inactivo {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
+
+/* ======================================================
+   DOCUMENTOS
+====================================================== */
+
+/* Turnado */
+
+.status-badge-turnado {
+  color: #315f78;
+  background-color: #dcecf4;
+  border: 1px solid #c4dce8;
+}
+
+/* Recibido */
+
+.status-badge-recibido {
+  color: #246439;
+  background-color: #e0f2e4;
+  border: 1px solid #c7e3cd;
+}
+
+/* En proceso */
+
+.status-badge-en-proceso {
+  color: #82621a;
+  background-color: #fff3cd;
+  border: 1px solid #f1dfa8;
+}
+
+/* Atendido */
+
+.status-badge-atendido {
+  color: #176332;
+  background-color: #cfeeda;
+  border: 1px solid #b5dec3;
+}
+
+/* Devuelto */
+
+.status-badge-devuelto {
+  color: #95591d;
+  background-color: #fff0df;
+  border: 1px solid #edd3b8;
+}
+
+/* Vencido */
+
+.status-badge-vencido {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+}

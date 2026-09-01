@@ -1,0 +1,34 @@
+/* Clase base para el contenedor principal de contenido */
+.content-section, .card {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 6px; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    margin: 0;
+    
+    /* Configuración flexible para que el contenido dentro de la card se acomode */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0; 
+    min-height: 0; 
+    overflow-y: auto; /* Permite scroll interno si es necesario  */
+}
+
+/* Estilos para el Título dentro de la Card */
+.card-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #333;
+    flex-shrink: 0; 
+    text-align: left; 
+}
+
+/* Ajuste específico para el título en el formulario*/
+.card.form-component h2 {
+    font-size: 17px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+    text-align: center; /* Alineación centrada para el título del formulario */
+}

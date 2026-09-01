@@ -1,0 +1,14 @@
+.filters {
+  display: flex; /*coloca los filtros uno al lado del otro*/
+  gap: 20px; /*agrega separación entre ellos*/
+  margin-bottom: 15px; /*agrega espacio debajo*/
+}
+.modal-dashboard-ancho {
+  width: 90% !important;
+  max-width: 700px !important;
+}
+
+.modal-dashboard-ancho .modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}

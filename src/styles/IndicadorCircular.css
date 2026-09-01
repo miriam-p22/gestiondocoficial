@@ -1,0 +1,65 @@
+/* ============================================
+   INDICADOR CIRCULAR – IndicadorCircular.jsx 
+   ============================================ */
+   .indicadores-contenedor {
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center; 
+    padding: 10px 0;
+    gap: 25px;
+    height: 100%;
+}
+
+.indicador {
+    text-align: center;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.titulo-indicador {
+    margin-top: 15px;
+    font-weight: bold;
+    color: #555;
+    font-size: 0.9em;
+}
+
+.circulo-progreso {
+    position: relative;
+    width: 97px;
+    height: 97px;
+    border-radius: 50%;
+    background: #e0e0e0; 
+    margin: 0 auto 15px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.circulo-progreso .valor {
+    position: absolute;
+    z-index: 2; 
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Colores dinámicos por clase */
+.indicador.green {
+    --color-segmento: #4CAF50;
+}
+
+.indicador.yellow {
+    --color-segmento: #FFC107;
+}
+
+.indicador.red {
+    --color-segmento: #F44336;
+}

@@ -1,0 +1,291 @@
+/* ======================================================
+   DIRECCIONES IP
+====================================================== */
+
+.direcciones-ip-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ======================================================
+   ENCABEZADO
+====================================================== */
+
+.direcciones-ip-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 8px;
+}
+
+.direcciones-ip-header > div:first-child {
+  flex: 1;
+}
+
+.direcciones-ip-subtitle {
+  margin: 8px 0 0;
+  color: #748087;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ======================================================
+   BOTONES SUPERIORES
+====================================================== */
+
+.direcciones-ip-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.direcciones-ip-header-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 7px 14px;
+  white-space: nowrap;
+}
+
+.btn-secondary-ip {
+  background: #eef3f5;
+  color: #4d626b;
+  border: 1px solid #d9e3e6;
+}
+
+/* ======================================================
+   BUSCADOR
+====================================================== */
+
+/*
+  Separamos visualmente el buscador de los botones
+  y de la tabla.
+*/
+
+.direcciones-ip-page .search-container,
+.direcciones-ip-page .filter-container,
+.direcciones-ip-page .filtro-busqueda {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+/* ======================================================
+   CARD / TABLA
+====================================================== */
+
+.card-direcciones-ip {
+  min-height: 300px;
+  overflow-x: auto;
+  margin-top: 4px;
+}
+
+.ips-loading {
+  padding: 35px;
+  text-align: center;
+  color: #839097;
+  font-size: 12px;
+}
+
+/* ======================================================
+   CELDA ÁREA
+====================================================== */
+
+.ip-area-cell {
+  padding: 4px 0;
+}
+
+.ip-area-cell strong {
+  color: #3e4d54;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* ======================================================
+   DIRECCIÓN IP
+====================================================== */
+
+.ip-address-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #41545d;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.ip-address-cell svg {
+  color: #6f8c99;
+  flex-shrink: 0;
+}
+
+/* ======================================================
+   ETIQUETAS
+====================================================== */
+
+.ip-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ip-badge-rh {
+  background: #e8f1f5;
+  color: #426879;
+}
+
+.ip-badge-area {
+  background: #f0f2f3;
+  color: #66747a;
+}
+
+/* ======================================================
+   ACCIONES DE LA TABLA
+====================================================== */
+
+.direcciones-ip-page .actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /*
+    Este gap evita que editar y eliminar
+    aparezcan amontonados.
+  */
+  gap: 10px;
+
+  min-width: 105px;
+}
+
+.direcciones-ip-page .actions-cell .btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 36px;
+
+  padding: 0;
+  margin: 0;
+
+  border-radius: 7px;
+}
+
+.direcciones-ip-page .actions-cell .btn-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ======================================================
+   FORMULARIO DEL MODAL
+====================================================== */
+
+.registro-ip-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.registro-ip-error {
+  padding: 10px 12px;
+
+  border: 1px solid #f0cccc;
+  border-radius: 7px;
+
+  background: #fff4f4;
+  color: #934c4c;
+
+  font-size: 11px;
+}
+
+.registro-ip-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  color: #536269;
+  font-size: 11px;
+
+  cursor: pointer;
+}
+
+.registro-ip-check input {
+  width: 15px;
+  height: 15px;
+
+  flex-shrink: 0;
+}
+
+.registro-ip-help {
+  padding: 10px 12px;
+
+  border: 1px solid #dde7ea;
+  border-radius: 7px;
+
+  background: #f5f8f9;
+
+  color: #77858b;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* ======================================================
+   MODAL ELIMINAR
+====================================================== */
+
+.ip-delete-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ip-delete-content p {
+  margin: 0;
+}
+
+.ip-delete-warning {
+  color: #7b8589;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 900px) {
+  .direcciones-ip-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .direcciones-ip-header-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .direcciones-ip-header-actions {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .direcciones-ip-header-actions button {
+    flex: 1;
+  }
+
+  .direcciones-ip-page .actions-cell {
+    gap: 7px;
+    min-width: 90px;
+  }
+}

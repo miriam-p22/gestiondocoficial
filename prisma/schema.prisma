@@ -1,0 +1,297 @@
+generator client {
+  provider   = "prisma-client-js"
+  output     = "../node_modules/.prisma/client"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Rol {
+  id         Int          @id @default(autoincrement())
+  nombre_rol String       @unique(map: "uq_roles_nombre") @db.VarChar(255)
+  permisos   RolPermiso[]
+  usuarios   Usuario[]
+
+  @@map("roles")
+}
+
+model Area {
+  id                  Int                 @id @default(autoincrement())
+  nombre_area         String              @unique @db.VarChar(255)
+  usuarios            Usuario[]
+  niveles             Nivel[]
+  documentos          Documento[]
+  ips                 Ip[]
+  dispersionesDestino DispersionDestino[]
+  eventosDocumento    DocumentoEvento[]
+
+  @@map("areas")
+}
+
+model Privilegio {
+  id                Int          @id @default(autoincrement())
+  titulo_privilegio String       @unique @db.VarChar(255)
+  roles             RolPermiso[]
+
+  @@map("privilegios")
+}
+
+model ClaveRh {
+  id    Int    @id @default(autoincrement())
+  clave String @db.VarChar(255)
+
+  @@map("claverh")
+}
+
+model Clasificacion {
+  id                  Int             @id @default(autoincrement())
+  area_administrativa String?         @db.VarChar(255)
+  codigo_asignado     String?         @db.VarChar(255)
+  ubicacion           String?         @db.VarChar(255)
+  funcion             String?         @db.VarChar(255)
+  archivosFisicos     ArchivoFisico[]
+  documentos          Documento[]
+
+  @@map("clasificaciones")
+}
+
+model Usuario {
+  id                 Int             @id @default(autoincrement())
+  id_rol             Int
+  id_area            Int
+  nombre_completo    String          @db.VarChar(255)
+  numero_trab        Int?
+  correo_electronico String?         @db.VarChar(255)
+  nombre_usuario     String?         @db.VarChar(255)
+  contrasenia        String?         @db.VarChar(255)
+  status             Boolean         @default(false)
+  fecha_creacion     DateTime        @default(now())
+  archivosFisicos    ArchivoFisico[] @relation("ArchivoFisicoUsuario")
+  configuraciones    Configuracion[]
+  organigramas       Organigrama[]
+  area               Area            @relation(fields: [id_area], references: [id])
+  rol                Rol             @relation(fields: [id_rol], references: [id])
+  notificacions      Notificacion[]
+
+  @@index([id_area], map: "usuarios_id_area_fkey")
+  @@index([id_rol], map: "usuarios_id_rol_fkey")
+  @@map("usuarios")
+}
+
+model RolPermiso {
+  id_rol           Int
+  id_privilegio    Int
+  fecha_asignacion DateTime   @default(now())
+  privilegio       Privilegio @relation(fields: [id_privilegio], references: [id])
+  rol              Rol        @relation(fields: [id_rol], references: [id])
+
+  @@id([id_rol, id_privilegio])
+  @@index([id_privilegio], map: "roles_permisos_id_privilegio_fkey")
+  @@map("roles_permisos")
+}
+
+model Organigrama {
+  id                 Int       @id @default(autoincrement())
+  id_usuario         Int
+  titulo             String?   @db.VarChar(255)
+  version            Int?
+  fecha_solicitud    DateTime  @default(now())
+  fecha_autorizacion DateTime?
+  autorizado         Boolean?
+  estado             String    @default("edicion") @db.VarChar(30)
+  observaciones      String?   @db.VarChar(1000)
+  niveles            Nivel[]
+  usuario            Usuario   @relation(fields: [id_usuario], references: [id])
+
+  @@index([id_usuario], map: "organigramas_id_usuario_fkey")
+  @@map("organigramas")
+}
+
+model Nivel {
+  id                Int         @id @default(autoincrement())
+  id_organigrama    Int
+  id_area           Int
+  nivel             Int?
+  area_superior     String?     @db.VarChar(255)
+  id_nivel_superior Int?
+  area              Area        @relation(fields: [id_area], references: [id])
+  organigrama       Organigrama @relation(fields: [id_organigrama], references: [id])
+
+  superior     Nivel?  @relation("JerarquiaNiveles", fields: [id_nivel_superior], references: [id])
+  subordinados Nivel[] @relation("JerarquiaNiveles")
+
+  @@unique([id_organigrama, id_area], name: "uq_niveles_organigrama_area", map: "uq_niveles_organigrama_area")
+  @@index([id_nivel_superior], map: "idx_niveles_superior")
+  @@index([id_area], map: "niveles_id_area_fkey")
+  @@map("niveles")
+}
+
+model Ip {
+  id       Int      @id @default(autoincrement())
+  id_area  Int
+  ip_rh    Boolean?
+  ip_areas String?  @db.VarChar(255)
+  grupo    String?  @db.VarChar(255)
+  area     Area     @relation(fields: [id_area], references: [id])
+
+  @@index([id_area], map: "ips_id_area_fkey")
+  @@map("ips")
+}
+
+model Documento {
+  id                 Int           @id @default(autoincrement())
+  id_area            Int
+  id_clasificacion   Int
+  num_oficio         String?       @db.VarChar(255)
+  asunto             String?       @db.VarChar(255)
+  archivo            String?       @db.VarChar(255)
+  titulo_documento   String?       @db.VarChar(255)
+  fecha_recepcion    DateTime?
+  fecha_asignacion   DateTime?
+  fecha_limite       DateTime?
+  fecha_respuesta    DateTime?
+  respuesta_recibida String?       @db.VarChar(255)
+  fecha_entrega      DateTime?
+  area               Area          @relation(fields: [id_area], references: [id])
+  clasificacion      Clasificacion @relation(fields: [id_clasificacion], references: [id])
+  estados            Estado[]
+
+  @@index([id_area], map: "documentos_id_area_fkey")
+  @@index([id_clasificacion], map: "documentos_id_clasificacion_fkey")
+  @@map("documentos")
+}
+
+model Dispersion {
+  id              Int      @id @default(autoincrement())
+  nombre_archivo  String   @db.VarChar(255)
+  archivo         String   @db.VarChar(500)
+  tipo_archivo    String?  @db.VarChar(100)
+  origen          String   @default("web") @db.VarChar(20)
+  fecha_recepcion DateTime @default(now())
+  tamano_archivo  Int?
+  extension       String?  @db.VarChar(20)
+
+  destinos DispersionDestino[]
+  eventos  DocumentoEvento[]
+
+  @@index([fecha_recepcion], map: "idx_dispersion_fecha_recepcion")
+  @@index([origen], map: "idx_dispersion_origen")
+  @@map("dispersion")
+}
+
+model DispersionDestino {
+  id                    Int       @id @default(autoincrement())
+  id_dispersion         Int
+  id_area               Int
+  estado_envio          String    @default("pendiente") @db.VarChar(20)
+  fecha_envio           DateTime?
+  error_envio           String?   @db.VarChar(500)
+  estado_documento      String    @default("turnado") @db.VarChar(30)
+  fecha_limite          DateTime?
+  fecha_recepcion_area  DateTime?
+  fecha_inicio_proceso  DateTime?
+  fecha_atencion        DateTime?
+  motivo_devolucion     String?   @db.VarChar(100)
+  comentario_devolucion String?   @db.VarChar(1000)
+
+  archivoFisico ArchivoFisico?
+  area          Area           @relation(fields: [id_area], references: [id])
+  dispersion    Dispersion     @relation(fields: [id_dispersion], references: [id])
+
+  @@unique([id_dispersion, id_area], map: "uq_dispersion_area")
+  @@index([id_area], map: "idx_dispersion_destino_area")
+  @@index([estado_envio], map: "idx_dispersion_destino_estado")
+  @@index([estado_documento], map: "idx_dispersion_destino_estado_documento")
+  @@map("dispersion_destinos")
+}
+
+model DocumentoEvento {
+  id            Int      @id @default(autoincrement())
+  id_dispersion Int
+  id_area       Int?
+  tipo_evento   String   @db.VarChar(50)
+  comentario    String?  @db.VarChar(1000)
+  fecha         DateTime @default(now())
+  archivo       String?  @db.VarChar(500)
+
+  area       Area?      @relation(fields: [id_area], references: [id])
+  dispersion Dispersion @relation(fields: [id_dispersion], references: [id])
+
+  @@index([id_area], map: "idx_documento_evento_area")
+  @@index([id_dispersion], map: "idx_documento_evento_dispersion")
+  @@index([tipo_evento], map: "idx_documento_evento_tipo")
+  @@index([fecha], map: "idx_documentos_eventos_fecha")
+  @@map("documentos_eventos")
+}
+
+model ArchivoFisico {
+  id                    Int               @id @default(autoincrement())
+  id_dispersion_destino Int               @unique
+  id_clasificacion      Int?
+  id_usuario_resguardo  Int?
+  expediente            String?           @db.VarChar(100)
+  carpeta               String?           @db.VarChar(100)
+  caja                  String?           @db.VarChar(100)
+  estante               String?           @db.VarChar(100)
+  ubicacion_fisica      String?           @db.VarChar(255)
+  observaciones         String?           @db.VarChar(1000)
+  estado                String            @default("pendiente") @db.VarChar(30)
+  fecha_resguardo       DateTime?
+  fecha_actualizacion   DateTime          @updatedAt
+  clasificacion         Clasificacion?    @relation(fields: [id_clasificacion], references: [id])
+  destino               DispersionDestino @relation(fields: [id_dispersion_destino], references: [id], onDelete: Cascade)
+  usuarioResguardo      Usuario?          @relation("ArchivoFisicoUsuario", fields: [id_usuario_resguardo], references: [id])
+
+  @@index([id_clasificacion])
+  @@index([id_usuario_resguardo])
+  @@index([estado])
+  @@index([fecha_resguardo])
+  @@map("archivo_fisico")
+}
+
+model Estado {
+  id            Int       @id @default(autoincrement())
+  id_documento  Int
+  nombre_estado String?   @db.VarChar(255)
+  documento     Documento @relation(fields: [id_documento], references: [id])
+
+  @@index([id_documento], map: "estados_id_documento_fkey")
+  @@map("estados")
+}
+
+model Configuracion {
+  id               Int     @id @default(autoincrement())
+  id_usuario       Int
+  correo_remitente String? @db.VarChar(255)
+  contrasenia      String? @db.VarChar(255)
+  smtp             String? @db.VarChar(255)
+  puerto           Int?
+  usuario          Usuario @relation(fields: [id_usuario], references: [id])
+
+  @@index([id_usuario], map: "configuraciones_id_usuario_fkey")
+  @@map("configuraciones")
+}
+
+model Notificacion {
+  id             Int       @id @default(autoincrement())
+  id_usuario     Int
+  tipo           String    @db.VarChar(50)
+  titulo         String    @db.VarChar(255)
+  mensaje        String    @db.VarChar(1000)
+  modulo         String?   @db.VarChar(50)
+  referencia_id  Int?
+  ruta           String?   @db.VarChar(255)
+  leida          Boolean   @default(false)
+  fecha_creacion DateTime  @default(now()) @db.DateTime(3)
+  fecha_lectura  DateTime? @db.DateTime(3)
+
+  usuario Usuario @relation(fields: [id_usuario], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([id_usuario], map: "idx_notificaciones_usuario")
+  @@index([leida], map: "idx_notificaciones_leida")
+  @@index([fecha_creacion], map: "idx_notificaciones_fecha")
+  @@map("notificaciones")
+}

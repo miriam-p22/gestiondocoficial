@@ -1,0 +1,131 @@
+/* ------------------------------------------------------------------- */
+/* BOTONES GENERALES (Pie de Modal) */
+/* ------------------------------------------------------------------- */
+
+.btn {
+    padding: 6px 14px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 400;
+    border: 1px solid transparent; 
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Botón Aceptar */
+.btn-primary {
+    background-color: #4a7da1; 
+    color: #fff;
+    border-color: #4a7da1;
+}
+
+.btn-primary:hover {
+    background-color: #12a0cc;
+}
+
+/* Botón Cancelar */
+.btn-secondary {
+    background-color: #f7f7f7; 
+    color: #333;
+    border-color: #ccc;
+}
+
+.btn-secondary:hover {
+    background-color: #e6e6e6;
+}
+
+/* ------------------------------------------------------------------- */
+/* BOTONES DE GESTIÓN  */
+/* ------------------------------------------------------------------- */
+
+/* Botón Agregar Usuario */
+.btn-add-user {
+    background-color: #3587ab;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    margin-right: 10px; 
+}
+
+.btn-add-user:hover {
+    background-color: #12a0cc;
+}
+
+.btn-add-user i {
+    margin-right: 5px;
+}
+
+/* Botón Otorgar Privilegios */
+.btn-privileges {
+    padding: 5px 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.3s;
+
+ 
+}
+
+.btn-privileges:hover {
+    background-color: #12a0cc;
+}
+
+.btn-privileges i {
+    margin-right: 5px; 
+}
+
+
+/* ------------------------------------------------------------------- */
+/* BOTONES DE ACCIÓN EN LA TABLA */
+/* ------------------------------------------------------------------- */
+
+/* Botones de Acción en la Tabla (Base) */
+.btn-action {
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    margin-right: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.btn-action i {
+    margin-right: 5px;
+}
+
+/* Color: Botón Editar (Azul) */
+.btn-action.edit {
+    background-color: #498FAE;
+}
+
+.btn-action.edit:hover {
+    background-color: #12a0cc;
+}
+
+
+.management-buttons-container {
+    /*margen en la parte inferior para separarlo del campo de búsqueda */
+    margin-bottom: 10px; 
+    
+    /* los botones se muestran en línea */
+    display: flex;
+    gap: 10px; 
+}

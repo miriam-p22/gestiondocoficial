@@ -1,0 +1,96 @@
+/* =========================================================
+   FILTROS SUPERIORES – DashboardFiltros.jsx
+   ========================================================= */
+
+.dashboard-filtros .periodo-filtros {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 5px 10px;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    flex-wrap: wrap;
+
+    margin-top: -10px;
+    max-width: 98.5%; /*reduce el tamanio de largo del card que contiene los filtros*/
+    margin-left: -2px;
+    margin-right: 10px;
+    border-radius: 2px;
+}
+
+.dashboard-filtros .filtro-grupo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboard-filtros .filtro-grupo label {
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.dashboard-filtros .filtro-grupo select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    min-width: 120px; /* ya NO afecta otros selects */
+}
+
+.dashboard-filtros .filtro-grupo select:hover {
+    border-color: #4a7da1;
+}
+
+.dashboard-filtros .filtro-grupo select:focus {
+    outline: none;
+    border-color: #4a7da1;
+    box-shadow: 0 0 0 2px rgba(74, 125, 161, 0.1);
+}
+
+.dashboard-filtros .btn-actualizar {
+    padding: 8px 20px;
+    background-color: #4a7da1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dashboard-filtros .btn-actualizar:hover {
+    background-color: #3b6a8b;
+}
+
+.dashboard-filtros .periodo-indicadores {
+    text-align: center;
+    color: #777;
+    font-size: 0.9em;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .dashboard-filtros .periodo-filtros {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dashboard-filtros .filtro-grupo {
+        width: 100%;
+    }
+
+    .dashboard-filtros .btn-actualizar {
+        width: 100%;
+        justify-content: center;
+    }
+}

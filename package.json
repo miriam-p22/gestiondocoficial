@@ -1,0 +1,91 @@
+{
+  "name": "gestion-documental",
+  "version": "0.1.0",
+  "private": true,
+  "main": "main.js",
+  "homepage": "./",
+  "dependencies": {
+    "@prisma/client": "6.6.0",
+    "archiver": "^7.0.1",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "4.21.2",
+    "html2canvas": "^1.4.1",
+    "jsonwebtoken": "^9.0.3",
+    "jspdf": "^4.2.1",
+    "multer": "^2.2.0",
+    "node-fetch": "^3.3.2",
+    "node-firebird": "^1.1.9",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-icons": "^5.5.0",
+    "react-organizational-chart": "^2.2.1",
+    "react-router-dom": "6.22.3",
+    "react-scripts": "^5.0.1",
+    "sqlite3": "^5.1.7",
+    "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/user-event": "^14.6.1",
+    "concurrently": "^8.2.2",
+    "cpx": "^1.5.0",
+    "cross-env": "^7.0.3",
+    "electron": "28.2.7",
+    "electron-builder": "^24.13.3",
+    "electron-is-dev": "^2.0.0",
+    "electron-rebuild": "^3.2.9",
+    "prisma": "6.6.0",
+    "wait-on": "^7.2.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "start-react": "cross-env BROWSER=none npm start",
+    "start-api": "node server.js",
+    "start-electron": "electron main.js",
+    "build-react": "react-scripts build",
+    "dev": "concurrently \"npm run start-react\" \"wait-on http://localhost:3000 && npm run start-electron\"",
+    "dev-web": "concurrently \"npm run start-api\" \"npm run start-react\"",
+    "prisma:generate": "prisma generate",
+    "prisma:pull": "prisma db pull",
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "build": {
+    "appId": "com.tuempresa.gestiondocumental",
+    "productName": "Gestion Documental",
+    "extraMetadata": {
+      "main": "main.js"
+    },
+    "files": [
+      "main.js",
+      "build/**/*"
+    ],
+    "directories": {
+      "buildResources": "public",
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "public/favicon.ico"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

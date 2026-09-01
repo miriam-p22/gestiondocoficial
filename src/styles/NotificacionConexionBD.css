@@ -1,0 +1,256 @@
+/* Contenedor principal */
+.content-area {
+  padding: 5px 15px;
+  flex-grow: 1;
+}
+
+/* Contenedor interno centrado */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Título de la pantalla */
+h2 {
+  text-align: center;
+  margin: 2px 0 8px 0;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  font-size: 18px;
+}
+
+/* Grid de los cards */
+.top-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 cards por fila */
+  gap: 15px; /* espacio entre cards */
+}
+
+/* Media queries para adaptabilidad */
+@media (max-width: 900px) {
+  .top-grid {
+    grid-template-columns: 1fr 1fr; /* dos columnas en pantallas medianas */
+  }
+}
+
+@media (max-width: 600px) {
+  .top-grid {
+    grid-template-columns: 1fr; /* una columna en pantallas pequeñas */
+  }
+}
+
+/* Contenedor para alinear botones a la derecha dentro de cada card */
+.row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+.configuracion-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.configuracion-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.configuracion-subtitle {
+  margin: 6px 0 0;
+  color: #748087;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.configuracion-loading {
+  padding: 35px;
+  text-align: center;
+  color: #839097;
+  font-size: 12px;
+}
+
+.configuracion-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.configuracion-card {
+  min-height: 100%;
+}
+
+.configuracion-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.configuracion-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: #eef4f6;
+  color: #5c7c89;
+  flex-shrink: 0;
+}
+
+.configuracion-card-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.configuracion-card-header h3 {
+  margin: 0 0 4px;
+  color: #3c4c53;
+  font-size: 14px;
+}
+
+.configuracion-card-header p {
+  margin: 0;
+  color: #7a878d;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.configuracion-form {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.configuracion-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 11px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.configuracion-actions button,
+.estado-sistema-footer button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+.configuracion-help {
+  padding: 9px 11px;
+  border: 1px solid #dde7ea;
+  border-radius: 7px;
+  background: #f5f8f9;
+  color: #77858b;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.configuracion-security-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 11px;
+  border: 1px solid #dbe5e8;
+  border-radius: 7px;
+  background: #f5f8f9;
+  color: #697a82;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.configuracion-security-note svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.estado-sistema-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e3e8ea;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.estado-sistema-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 11px 12px;
+  border-bottom: 1px solid #e9edef;
+  color: #64737a;
+  font-size: 11px;
+}
+
+.estado-sistema-item:last-child {
+  border-bottom: none;
+}
+
+.estado-sistema-item > div {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.estado-sistema-item svg {
+  color: #718b96;
+}
+
+.estado-sistema-item strong {
+  color: #3e4d54;
+  font-size: 11px;
+  text-align: right;
+  word-break: break-word;
+}
+
+.estado-sistema-item .estado-ok {
+  color: #34734c;
+}
+
+.estado-sistema-item .estado-error {
+  color: #a64f4f;
+}
+
+.estado-sistema-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  margin-bottom: 12px;
+  color: #7a878d;
+  font-size: 10px;
+}
+
+@media (max-width: 900px) {
+  .configuracion-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .configuracion-actions,
+  .estado-sistema-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .configuracion-actions button,
+  .estado-sistema-footer button {
+    width: 100%;
+  }
+}

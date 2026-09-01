@@ -1,0 +1,51 @@
+/* ---------------------------------------------- */
+/* CONTENEDOR PRINCIPAL                           */
+/* ---------------------------------------------- */
+.layout-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;      
+  overflow: hidden; 
+  background: #f5f6fa;
+}
+
+/* ---------------------------------------------- */
+/* ÁREA PRINCIPAL (todo lo que está a la derecha) */
+/* ---------------------------------------------- */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #f0f0f0;  /*  Gris claro detrás del contenido */
+   overflow: hidden;
+}
+
+/* ---------------------------------------------- */
+/* WRAPPER DEL CONTENIDO (solo el contenido)      */
+/* ---------------------------------------------- */
+.content-wrapper {
+  padding: 25px;
+  flex: 1;
+  overflow-y: auto; 
+}
+
+/* Contenedor interno opcional */
+.content-section {
+  max-width: 1300px;
+  margin: auto;
+}
+
+/* Estilos del Sidebar */
+.Sidebar { /* Reemplaza .menulateral por la clase real de tu Sidebar */
+    width: 260px; /* Ancho expandido */
+    min-width: 260px;
+    transition: width 0.3s ease-in-out;
+}
+
+/* Estado Colapsado: Cuando el contenedor principal tiene la clase */
+.layout-container.sidebar-collapsed .menulateral {
+    width: 70px; /* Ancho colapsado (solo para mostrar iconos) */
+    min-width: 70px;
+    /* Si quieres ocultar el texto del menú, usa: */
+    overflow: hidden;
+}

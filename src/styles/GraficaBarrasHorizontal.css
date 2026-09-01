@@ -1,0 +1,85 @@
+.grafica-correspondencia {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Leyenda */
+.leyenda {
+  order: -1;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  font-size: 0.85em;
+}
+
+.grafico-horizontal-contenedor {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Eje Y */
+.eje-y-areas {
+  display: flex;
+  flex-direction: column;
+  padding-right: 10px;
+  padding-top: 10px;
+  width: 150px;
+  font-size: 0.8em;
+}
+
+.eje-y-areas div {
+  height: 22px;
+  line-height: 22px;
+  margin-bottom: 10px;
+}
+
+/* Gráfico */
+.grafico-principal {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  border-left: 1px solid #ccc;
+}
+
+.barras-contenedor-horizontal {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex: 1;
+  padding-top: 10px;
+}
+
+.barra-area.horizontal {
+  display: flex;
+  height: 22px;
+  margin-bottom: 10px;
+}
+
+.segmento {
+  height: 100%;
+}
+
+/* Eje X */
+.eje-x-labels {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 5px;
+  border-top: 1px solid #ccc;
+  font-size: 0.8em;
+}
+
+/* Colores */
+.segmento.green, .leyenda-color.green { background-color: #4CAF50; }
+.segmento.yellow, .leyenda-color.yellow { background-color: #FFC107; }
+.segmento.red, .leyenda-color.red { background-color: #F44336; }
+
+#graficoPrincipal {
+  cursor: pointer;
+}

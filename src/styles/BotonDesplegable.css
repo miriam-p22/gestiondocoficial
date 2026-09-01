@@ -1,0 +1,90 @@
+/* -------------------------------------------------------- */
+/* Estilos para el Dropdown (BotonDesplegable.jsx)  */
+/* -------------------------------------------------------- */
+
+.dropdown-action {
+    position: relative;
+    display: inline-block;
+}
+
+/* BOTÓN PRINCIPAL ( "Estado") */
+.dropdown-toggle-status {
+    /* Color gris solicitado para el botón principal */
+    background-color: #6c757d; 
+    color: white; 
+    border: none;
+    padding: 5px 10px; 
+    font-size: 12px;
+    
+    cursor: pointer;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+.dropdown-toggle-status:hover {
+    background-color: #5a6268;
+}
+
+.dropdown-toggle-status svg {
+    margin-left: 5px;
+    font-size: 10px;
+    margin-right: 0;
+}
+
+/* ------------------------------------------------------------------- */
+/* OPCIONES DEL MENÚ DESPLEGABLE (ACTIVO / INACTIVO) */
+/* ------------------------------------------------------------------- */
+
+.dropdown-content {
+    /* Estilo del menú desplegable */
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 120px;
+    box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
+    z-index: 50; 
+    border-radius: 4px;
+    overflow: hidden;
+    right: 0;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+}
+
+/* Estilo base para las opciones de acción dentro del menú */
+.dropdown-content .btn-action.status-action {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: none;
+    cursor: pointer;
+    font-size: 12px; /* Mismo tamaño que el botón principal */
+    padding: 8px 10px; /* Padding de las opciones */
+    border-radius: 0;
+    margin-right: 0;
+    transition: background-color 0.3s;
+}
+
+.dropdown-content .btn-action.status-action i {
+    margin-right: 8px;
+}
+
+/* Activo (Verde) */
+.btn-action.status-active {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-action.status-active:hover {
+    background-color: #1e7e34;
+}
+
+/* Inactivo (Rojo) */
+.btn-action.status-inactive {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-action.status-inactive:hover {
+    background-color: #bd2130;
+}

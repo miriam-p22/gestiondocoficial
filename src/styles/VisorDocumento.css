@@ -1,0 +1,22 @@
+/* Contenedor del Visor  */
+.file-upload-area {
+    height: 140px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    flex-shrink: 0; /* Mantiene la altura fija dentro de la card flexible */
+}
+
+/* Estilo para el Iframe (el visor real) */
+.document-viewer {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fcfcfc;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}

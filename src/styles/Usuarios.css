@@ -1,0 +1,538 @@
+/* =========================================
+   TABLA DE USUARIOS
+========================================= */
+
+.usuarios-tabla-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.usuarios-tabla-wrapper table {
+  width: 100%;
+  min-width: 850px;
+  table-layout: fixed;
+}
+
+/* Usuario: nombre + username + correo */
+.usuarios-tabla-wrapper th:nth-child(1),
+.usuarios-tabla-wrapper td:nth-child(1) {
+  width: 27%;
+  text-align: left;
+}
+
+/* Número de trabajador */
+.usuarios-tabla-wrapper th:nth-child(2),
+.usuarios-tabla-wrapper td:nth-child(2) {
+  width: 12%;
+  min-width: 95px;
+  text-align: center;
+}
+
+/* Adscripción */
+.usuarios-tabla-wrapper th:nth-child(3),
+.usuarios-tabla-wrapper td:nth-child(3) {
+  width: 22%;
+  text-align: left;
+}
+
+/* Rol */
+.usuarios-tabla-wrapper th:nth-child(4),
+.usuarios-tabla-wrapper td:nth-child(4) {
+  width: 17%;
+  text-align: left;
+}
+
+/* Estatus */
+.usuarios-tabla-wrapper th:nth-child(5),
+.usuarios-tabla-wrapper td:nth-child(5) {
+  width: 12%;
+  min-width: 105px;
+  text-align: center;
+}
+
+/* Acciones */
+.usuarios-tabla-wrapper th:nth-child(6),
+.usuarios-tabla-wrapper td:nth-child(6) {
+  width: 10%;
+  min-width: 126px;
+  text-align: center;
+}
+
+.usuarios-tabla-wrapper th,
+.usuarios-tabla-wrapper td {
+  vertical-align: middle;
+}
+
+.usuario-identidad {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.usuario-identidad-nombre {
+  display: block;
+  overflow: hidden;
+  color: #2f3b40;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.usuario-identidad-username {
+  display: block;
+  overflow: hidden;
+  color: #5e727c;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.usuario-identidad-correo {
+  display: block;
+  overflow: hidden;
+  color: #8a979c;
+  font-size: 11px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.usuario-texto-ajustable {
+  display: block;
+  color: #46545a;
+  font-size: 13px;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+
+/* =========================================
+   ACCIONES COMPACTAS
+========================================= */
+
+.usuarios-actions-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.usuario-icon-action {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid #d8e0e4;
+  border-radius: 7px;
+
+  background: #ffffff;
+  color: #62737b;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.usuario-icon-action svg {
+  width: 16px;
+  height: 16px;
+}
+
+.usuario-icon-action:hover {
+  transform: translateY(-1px);
+}
+
+.usuario-icon-edit:hover {
+  border-color: #9bc9dc;
+  background: #eef8fc;
+  color: #2f88ab;
+}
+
+.usuario-icon-status:hover {
+  border-color: #d5c58e;
+  background: #fff9e8;
+  color: #8a7225;
+}
+
+.usuario-icon-status:hover svg {
+  transform: rotate(45deg);
+}
+
+.usuario-icon-delete:hover {
+  border-color: #e7b5b1;
+  background: #fff2f1;
+  color: #b2504a;
+}
+
+.usuario-icon-action:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 139, 173, 0.16);
+}
+
+/* =========================================
+   CONTENEDOR
+========================================= */
+
+.table-card {
+  flex: 1;
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-error-message {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border: 1px solid #ef9a9a;
+  border-radius: 6px;
+  background-color: #ffebee;
+  color: #b71c1c;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* =========================================
+   FORMULARIO DE USUARIO
+========================================= */
+
+.usuario-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+}
+
+.usuario-form-field {
+  min-width: 0;
+}
+
+.usuario-form-full {
+  grid-column: 1 / -1;
+}
+
+.usuario-form-grid label {
+  display: block;
+  margin-bottom: 7px;
+  color: #343a40;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.usuario-form-grid input,
+.usuario-form-grid select,
+.usuario-form-grid textarea {
+  width: 100%;
+  min-height: 46px;
+  box-sizing: border-box;
+  padding: 10px 13px;
+  border: 1px solid #cfd4da;
+  border-radius: 7px;
+  color: #212529;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.usuario-form-grid input:focus,
+.usuario-form-grid select:focus,
+.usuario-form-grid textarea:focus {
+  border-color: #348bad;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 139, 173, 0.15);
+}
+
+.usuario-form-grid select {
+  cursor: pointer;
+}
+
+/* =========================================
+   FILA SELECCIONADA
+========================================= */
+
+.selected-row {
+  background-color: #eef7fb;
+}
+
+.selected-row td {
+  background-color: #eef7fb;
+}
+
+.selected-row:hover td {
+  background-color: #e3f2f8;
+}
+
+/* =========================================
+   INFORMACIÓN DE PRIVILEGIOS
+========================================= */
+
+.privilegios-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border: 1px solid #d9e2e7;
+  border-radius: 8px;
+  background-color: #f8fafb;
+  color: #343a40;
+  font-size: 15px;
+}
+
+.privilegios-advertencia {
+  margin-bottom: 18px;
+  padding: 11px 14px;
+  border: 1px solid #ffe08a;
+  border-radius: 7px;
+  background-color: #fff8df;
+  color: #665200;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* =========================================
+   LISTA DE PRIVILEGIOS
+========================================= */
+
+.privilegios-lista {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.privilegio-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  border: 1px solid #d7dce0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.privilegio-item:hover {
+  border-color: #348bad;
+  background-color: #f5fafc;
+}
+
+.privilegio-seleccionado {
+  border-color: #348bad;
+  background-color: #eef8fc;
+}
+
+.privilegio-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.privilegio-checkbox-text {
+  color: #343a40;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.privilegios-loading,
+.privilegios-empty {
+  padding: 24px;
+  text-align: center;
+  border: 1px dashed #cfd4da;
+  border-radius: 8px;
+  color: #6c757d;
+  background-color: #f8f9fa;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 900px) {
+  .usuarios-tabla-wrapper table {
+    min-width: 780px;
+  }
+}
+
+@media (max-width: 700px) {
+  .privilegios-lista {
+    grid-template-columns: 1fr;
+  }
+
+  .privilegios-info {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .usuario-form-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .usuario-form-full {
+    grid-column: auto;
+  }
+}
+
+
+/* =========================================
+   ACCIONES SIEMPRE VISIBLES
+========================================= */
+
+/*
+  La última columna queda fija a la derecha.
+  Así las acciones siguen visibles aunque la
+  ventana sea más angosta y exista scroll horizontal.
+*/
+.usuarios-tabla-wrapper th:nth-child(6),
+.usuarios-tabla-wrapper td:nth-child(6) {
+  position: sticky;
+  right: 0;
+  z-index: 4;
+  min-width: 132px;
+  width: 132px;
+  background: #ffffff;
+  box-shadow: -7px 0 10px rgba(34, 45, 51, 0.045);
+}
+
+.usuarios-tabla-wrapper th:nth-child(6) {
+  z-index: 6;
+  background: #f3f4f5;
+}
+
+.usuarios-tabla-wrapper tr:hover td:nth-child(6) {
+  background: #f8fbfc;
+}
+
+.usuarios-tabla-wrapper .selected-row td:nth-child(6) {
+  background: #eef7fb;
+}
+
+.usuarios-tabla-wrapper .selected-row:hover td:nth-child(6) {
+  background: #e3f2f8;
+}
+
+/* =========================================
+   MENÚ COMPACTO PARA CAMBIAR ESTADO
+========================================= */
+
+.usuario-status-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+
+  padding: 0;
+  border: 0;
+
+  background: transparent;
+  cursor: default;
+}
+
+.usuario-status-menu {
+  min-width: 145px;
+  padding: 6px;
+
+  border: 1px solid #d9e1e4;
+  border-radius: 8px;
+
+  background: #ffffff;
+  box-shadow: 0 10px 26px rgba(33, 45, 52, 0.16);
+}
+
+.usuario-status-menu-portal {
+  position: fixed;
+  z-index: 9999;
+}
+
+.usuario-status-option {
+  width: 100%;
+  min-height: 34px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 7px 9px;
+
+  border: 0;
+  border-radius: 6px;
+
+  background: transparent;
+  color: #4b5a60;
+
+  font-family: inherit;
+  font-size: 12px;
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.usuario-status-option:hover:not(:disabled) {
+  background: #f3f6f7;
+}
+
+.usuario-status-option:disabled,
+.usuario-status-option.is-current {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.usuario-status-dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  border-radius: 50%;
+}
+
+.usuario-status-dot-active {
+  background: #49a962;
+}
+
+.usuario-status-dot-inactive {
+  background: #c95c55;
+}
+
+/*
+  En pantallas más angostas reducimos un poco
+  el ancho mínimo de la tabla, pero conservamos
+  las acciones fijas.
+*/
+@media (max-width: 1000px) {
+  .usuarios-tabla-wrapper table {
+    min-width: 760px;
+  }
+
+  .usuarios-tabla-wrapper th:nth-child(1),
+  .usuarios-tabla-wrapper td:nth-child(1) {
+    width: 250px;
+  }
+
+  .usuarios-tabla-wrapper th:nth-child(3),
+  .usuarios-tabla-wrapper td:nth-child(3) {
+    width: 180px;
+  }
+
+  .usuarios-tabla-wrapper th:nth-child(4),
+  .usuarios-tabla-wrapper td:nth-child(4) {
+    width: 160px;
+  }
+}

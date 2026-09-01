@@ -1,0 +1,830 @@
+/* ======================================================
+   DASHBOARD / CENTRO DE CONTROL
+====================================================== */
+
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.dashboard-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 24px;
+  background: #ffffff;
+  border: 1px solid #e3e7e9;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(33, 45, 52, 0.06);
+}
+
+.dashboard-welcome-label {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: #7d8b91;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dashboard-welcome h1 {
+  margin: 0;
+  color: #2f3b40;
+  font-size: 24px;
+}
+
+.dashboard-welcome p {
+  max-width: 700px;
+  margin: 8px 0 0;
+  color: #6f7d83;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.dashboard-welcome-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 210px;
+}
+
+.dashboard-welcome-meta span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: #f6f8f9;
+  border-radius: 7px;
+  color: #59666c;
+  font-size: 12px;
+}
+
+.dashboard-welcome-meta strong {
+  color: #8a969b;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.dashboard-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dashboard-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 104px;
+  padding: 16px;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid #e2e7e9;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(33, 45, 52, 0.04);
+  cursor: default;
+}
+
+.dashboard-card:disabled {
+  opacity: 1;
+}
+
+.dashboard-card-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: #f0f4f5;
+  color: #617178;
+}
+
+.dashboard-card-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dashboard-card-success .dashboard-card-icon {
+  background: #edf7ef;
+  color: #4d8058;
+}
+
+.dashboard-card-warning .dashboard-card-icon {
+  background: #fff6df;
+  color: #9b7a2e;
+}
+
+.dashboard-card-danger .dashboard-card-icon {
+  background: #fff0ef;
+  color: #a65750;
+}
+
+.dashboard-card-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-card-title {
+  color: #728087;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dashboard-card-value {
+  margin-top: 2px;
+  color: #2e393e;
+  font-size: 25px;
+  line-height: 1.1;
+}
+
+.dashboard-card-subtitle {
+  margin-top: 5px;
+  color: #95a0a5;
+  font-size: 11px;
+}
+
+.dashboard-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 0.9fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.dashboard-main-column,
+.dashboard-side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dashboard-panel {
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #e2e7e9;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(33, 45, 52, 0.04);
+}
+
+.dashboard-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.dashboard-panel-header h3 {
+  margin: 0;
+  color: #344148;
+  font-size: 15px;
+}
+
+.dashboard-panel-header p {
+  margin: 4px 0 0;
+  color: #869399;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.dashboard-progress-value {
+  color: #38474d;
+  font-size: 24px;
+}
+
+.dashboard-progress-track {
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  background: #edf1f2;
+  border-radius: 999px;
+}
+
+.dashboard-progress-bar {
+  height: 100%;
+  background: #73858d;
+  border-radius: inherit;
+  transition: width 0.35s ease;
+}
+
+.dashboard-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dashboard-alert {
+  display: flex;
+  gap: 10px;
+  padding: 11px;
+  border-radius: 8px;
+  border: 1px solid #e3e7e9;
+  background: #f8fafb;
+}
+
+.dashboard-alert-icon {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: #eef2f3;
+}
+
+.dashboard-alert-warning .dashboard-alert-icon {
+  background: #fff3d9;
+  color: #957323;
+}
+
+.dashboard-alert-success .dashboard-alert-icon {
+  background: #eaf6ed;
+  color: #4e8058;
+}
+
+.dashboard-alert-info .dashboard-alert-icon {
+  background: #edf2f4;
+  color: #66777e;
+}
+
+.dashboard-alert strong {
+  color: #455258;
+  font-size: 12px;
+}
+
+.dashboard-alert p {
+  margin: 3px 0 0;
+  color: #7a878c;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.dashboard-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.dashboard-quick-button {
+  min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid #e1e6e8;
+  border-radius: 8px;
+  background: #f8fafb;
+  color: #56656b;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.dashboard-quick-button:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.dashboard-quick-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-quick-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.dashboard-activity-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-activity-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf0f1;
+}
+
+.dashboard-activity-item:last-child {
+  border-bottom: 0;
+}
+
+.dashboard-activity-dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: #87979e;
+}
+
+.dashboard-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 10px 11px;
+  border-bottom: 1px solid #edf0f1;
+  text-align: left;
+  font-size: 11px;
+}
+
+.dashboard-table th {
+  color: #6f7d83;
+  font-weight: 700;
+  background: #f7f9fa;
+}
+
+.dashboard-table td {
+  color: #505e64;
+}
+
+.dashboard-chart-content {
+  min-height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-empty-state {
+  width: 100%;
+  padding: 22px 14px;
+  text-align: center;
+  color: #99a4a8;
+  font-size: 11px;
+  background: #f8fafb;
+  border: 1px dashed #dfe5e7;
+  border-radius: 8px;
+}
+
+@media (max-width: 1150px) {
+  .dashboard-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboard-welcome {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-welcome-meta {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-quick-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+/* ======================================================
+   DASHBOARD ETAPA 2 - DATOS REALES
+====================================================== */
+
+.dashboard-bars {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dashboard-bar-item {
+  width: 100%;
+}
+
+.dashboard-bar-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 6px;
+
+  color: #5d6b71;
+  font-size: 11px;
+}
+
+.dashboard-bar-label strong {
+  color: #39464c;
+  font-size: 12px;
+}
+
+.dashboard-bar-track {
+  width: 100%;
+  height: 9px;
+
+  overflow: hidden;
+
+  background: #edf1f2;
+  border-radius: 999px;
+}
+
+.dashboard-bar-fill {
+  height: 100%;
+
+  background: #73858d;
+  border-radius: inherit;
+
+  transition: width 0.3s ease;
+}
+
+.dashboard-organigrama-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  padding: 12px;
+
+  background: #f7f9fa;
+  border: 1px solid #e3e7e9;
+  border-radius: 8px;
+}
+
+.dashboard-organigrama-summary strong {
+  color: #3e4a50;
+  font-size: 13px;
+}
+
+.dashboard-organigrama-summary span {
+  color: #647178;
+  font-size: 12px;
+}
+
+.dashboard-organigrama-summary small {
+  color: #8b979c;
+  font-size: 10px;
+}
+/* ======================================================
+   DASHBOARD ETAPA 3 - COLORES SEMÁNTICOS
+   Agregar al final de Dashboard.css
+====================================================== */
+
+.dashboard-bar-label > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dashboard-bar-dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.dashboard-bar-fill-atendido,
+.dashboard-bar-dot-atendido {
+  background-color: #49a962;
+}
+
+.dashboard-bar-fill-proceso,
+.dashboard-bar-dot-proceso {
+  background-color: #d8aa3f;
+}
+
+.dashboard-bar-fill-recibido,
+.dashboard-bar-dot-recibido {
+  background-color: #4e91b3;
+}
+
+.dashboard-bar-fill-vencido,
+.dashboard-bar-dot-vencido {
+  background-color: #c95c55;
+}
+
+.dashboard-bar-track {
+  background-color: #edf1f2;
+}
+/* ======================================================
+   DASHBOARD ETAPA 3 - INTERACCIÓN Y SEMÁFORO
+   Agregar al final de Dashboard.css
+====================================================== */
+
+.dashboard-card-clickable {
+  cursor: pointer;
+}
+
+.dashboard-card-clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 18px rgba(33, 45, 52, 0.09);
+}
+
+.dashboard-bar-label > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dashboard-bar-dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.dashboard-bar-fill-atendido,
+.dashboard-bar-dot-atendido {
+  background-color: #49a962;
+}
+
+.dashboard-bar-fill-proceso,
+.dashboard-bar-dot-proceso {
+  background-color: #d8aa3f;
+}
+
+.dashboard-bar-fill-recibido,
+.dashboard-bar-dot-recibido {
+  background-color: #4e91b3;
+}
+
+.dashboard-bar-fill-vencido,
+.dashboard-bar-dot-vencido {
+  background-color: #c95c55;
+}
+
+.dashboard-progress-bar-alto {
+  background-color: #49a962;
+}
+
+.dashboard-progress-bar-medio {
+  background-color: #d8aa3f;
+}
+
+.dashboard-progress-bar-bajo {
+  background-color: #c95c55;
+}
+
+.dashboard-progress-value-alto {
+  color: #3f8e53;
+}
+
+.dashboard-progress-value-medio {
+  color: #9a7828;
+}
+
+.dashboard-progress-value-bajo {
+  color: #a84f49;
+}
+
+.dashboard-cumplimiento-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 54px;
+
+  padding: 4px 8px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dashboard-cumplimiento-badge.alto {
+  background: #eaf6ed;
+  color: #3f8e53;
+}
+
+.dashboard-cumplimiento-badge.medio {
+  background: #fff4dc;
+  color: #956f20;
+}
+
+.dashboard-cumplimiento-badge.bajo {
+  background: #fff0ef;
+  color: #a84f49;
+}
+
+.dashboard-organigrama-button {
+  align-self: flex-start;
+
+  margin-top: 6px;
+  padding: 7px 11px;
+
+  border: 0;
+  border-radius: 6px;
+
+  background: #3f91b3;
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.dashboard-organigrama-button:hover {
+  opacity: 0.9;
+}
+
+/* ======================================================
+   DASHBOARD - SEGUIMIENTO DOCUMENTAL PRESIDENCIA
+====================================================== */
+.dashboard-followup-panel { margin-top: 2px; }
+.dashboard-followup-header { align-items: center; }
+.dashboard-followup-count {
+  display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0;
+  padding: 7px 10px; border: 1px solid #e1e6e8; border-radius: 7px;
+  background: #f7f9fa; color: #65747a; font-size: 11px; font-weight: 600;
+}
+.dashboard-followup-filters {
+  display: grid;
+  grid-template-columns: minmax(180px,1.4fr) minmax(150px,1fr) minmax(145px,.8fr) minmax(145px,.8fr) auto;
+  gap: 10px; align-items: end; padding: 14px; margin-bottom: 14px;
+  background: #f7f9fa; border: 1px solid #e4e8ea; border-radius: 9px;
+}
+.dashboard-filter-field { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.dashboard-filter-field > span {
+  color: #69777d; font-size: 10px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase;
+}
+.dashboard-filter-field select, .dashboard-filter-field input {
+  width: 100%; height: 36px; padding: 0 10px; border: 1px solid #dce2e4;
+  border-radius: 7px; outline: none; background: #fff; color: #4c5a60;
+  font-family: inherit; font-size: 11px;
+}
+.dashboard-filter-clear {
+  height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 0 12px; border: 1px solid #dce2e4; border-radius: 7px; background: #fff;
+  color: #68767c; font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer;
+}
+.dashboard-filter-clear:hover { background: #f0f3f4; }
+.dashboard-followup-summary {
+  display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 9px; margin-bottom: 14px;
+}
+.dashboard-followup-summary > div {
+  min-height: 64px; display: flex; flex-direction: column; justify-content: center; gap: 3px;
+  padding: 10px 12px; background: #f8fafb; border: 1px solid #e4e8ea; border-radius: 8px;
+}
+.dashboard-followup-summary span { color: #7d8a90; font-size: 10px; font-weight: 600; }
+.dashboard-followup-summary strong { color: #344148; font-size: 20px; line-height: 1; }
+.dashboard-followup-summary-danger { background: #fff6f5 !important; border-color: #f0d8d5 !important; }
+.dashboard-followup-summary-danger strong { color: #a84f49; }
+.dashboard-followup-summary-success { background: #f2f8f3 !important; border-color: #d9e9dc !important; }
+.dashboard-followup-summary-success strong { color: #438052; }
+.dashboard-followup-table-wrapper {
+  width: 100%; max-height: 430px; overflow: auto; border: 1px solid #e2e7e9; border-radius: 8px;
+}
+.dashboard-followup-table { width: 100%; min-width: 920px; border-collapse: collapse; background: #fff; }
+.dashboard-followup-table th, .dashboard-followup-table td {
+  padding: 10px 11px; border-bottom: 1px solid #edf0f1; text-align: left; vertical-align: middle; font-size: 11px;
+}
+.dashboard-followup-table th {
+  position: sticky; top: 0; z-index: 2; background: #f5f8f9; color: #69777d; font-weight: 700; white-space: nowrap;
+}
+.dashboard-followup-table td { color: #59676d; }
+.dashboard-followup-table tbody tr:hover { background: #fafcfc; }
+.dashboard-followup-area { color: #445158; font-size: 11px; font-weight: 600; }
+.dashboard-followup-document {
+  display: block; max-width: 250px; overflow: hidden; color: #4f5d63; text-overflow: ellipsis; white-space: nowrap;
+}
+.dashboard-status-badge {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 72px;
+  padding: 4px 8px; border-radius: 999px; background: #edf1f2; color: #617178;
+  font-size: 10px; font-weight: 700; white-space: nowrap;
+}
+.dashboard-status-atendido { background: #eaf6ed; color: #3f8e53; }
+.dashboard-status-en-proceso { background: #fff4dc; color: #956f20; }
+.dashboard-status-recibido { background: #eaf3f7; color: #477f9a; }
+.dashboard-status-vencido { background: #fff0ef; color: #a84f49; }
+.dashboard-status-devuelto { background: #f3eef7; color: #765b88; }
+.dashboard-status-turnado { background: #edf1f2; color: #617178; }
+.dashboard-followup-empty { padding: 28px 16px !important; text-align: center !important; color: #96a1a6 !important; }
+.dashboard-bar-button {
+  display: block; padding: 0; border: 0; outline: none; background: transparent;
+  font-family: inherit; text-align: left; cursor: pointer;
+}
+@media (max-width: 1150px) {
+  .dashboard-followup-filters { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .dashboard-filter-clear { width: 100%; }
+  .dashboard-followup-summary { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 720px) {
+  .dashboard-followup-header { align-items: flex-start; flex-direction: column; }
+  .dashboard-followup-filters { grid-template-columns: 1fr; }
+  .dashboard-followup-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+
+/* ======================================================
+   DASHBOARD - AJUSTE FINAL DE PRESIDENCIA
+====================================================== */
+
+/*
+  El seguimiento es prioritario para Presidencia, por eso
+  aparece inmediatamente después de las tarjetas superiores.
+*/
+.dashboard-followup-panel {
+  margin-top: 0;
+}
+
+/* Dar más espacio al nombre del área y al documento. */
+.dashboard-followup-table th:nth-child(1),
+.dashboard-followup-table td:nth-child(1) {
+  width: 21%;
+  min-width: 185px;
+}
+
+.dashboard-followup-table th:nth-child(2),
+.dashboard-followup-table td:nth-child(2) {
+  width: 25%;
+  min-width: 210px;
+}
+
+.dashboard-followup-table th:nth-child(3),
+.dashboard-followup-table td:nth-child(3) {
+  width: 13%;
+  min-width: 105px;
+}
+
+/* Fechas más compactas y estables. */
+.dashboard-followup-table th:nth-child(n+4),
+.dashboard-followup-table td:nth-child(n+4) {
+  width: 10.25%;
+  min-width: 96px;
+  white-space: nowrap;
+}
+
+.dashboard-followup-area {
+  max-width: none;
+  line-height: 1.3;
+}
+
+.dashboard-followup-document {
+  max-width: 230px;
+}
+
+/* Mejor distribución para la comparativa de cumplimiento por área. */
+.dashboard-main-column .dashboard-table th:first-child,
+.dashboard-main-column .dashboard-table td:first-child {
+  width: 38%;
+  min-width: 180px;
+  line-height: 1.25;
+}
+
+.dashboard-main-column .dashboard-table th:not(:first-child),
+.dashboard-main-column .dashboard-table td:not(:first-child) {
+  white-space: nowrap;
+}
+
+/* Actividad reciente más compacta para no alargar de más la columna lateral. */
+.dashboard-activity-item {
+  padding: 8px 0;
+}
+
+.dashboard-activity-item strong,
+.dashboard-activity-item p {
+  line-height: 1.35;
+}
+
+.dashboard-activity-item strong {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.dashboard-activity-item p {
+  margin-top: 3px;
+}
+
+@media (max-width: 720px) {
+  .dashboard-followup-table th:nth-child(1),
+  .dashboard-followup-table td:nth-child(1) {
+    min-width: 165px;
+  }
+
+  .dashboard-followup-table th:nth-child(2),
+  .dashboard-followup-table td:nth-child(2) {
+    min-width: 190px;
+  }
+}

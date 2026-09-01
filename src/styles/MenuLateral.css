@@ -1,0 +1,232 @@
+.sidebar {
+    min-height: 100vh;
+    background: #C2B998; /* Color de fondo */
+    padding: 0;
+    width: 260px; /* Ancho fijo del Sidebar */
+    z-index: 11;
+    transition: width 0.25s ease, 0.25s ease;
+    flex-shrink: 0;
+/* SCROLL INTERNO*/
+    overflow-y: auto;     /* ACTIVO SCROLL VERTICAL */
+    overflow-x: hidden;
+    scrollbar-width: none;   
+}
+/* Oculta scroll  */
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+/* FIN */
+
+/* Quitar subrayado de los enlaces*/
+a {
+    text-decoration: none !important;
+}
+
+/* Contenedor flex para logo + texto (TLAHUAPAN) */
+.tlahuapan-item .tlahuapan-logo-text {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Tamaño del logo */
+.tlahuapan-logo {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+
+/* Texto a la derecha */
+.tlahuapan-text {
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: #394757;
+}
+
+/* Listado de navegación */
+.sidebar .nav {
+    overflow: hidden;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    margin-bottom: 60px;
+    list-style-type: none !important;
+    padding-left: 0;
+    margin: 0;
+}
+
+.sidebar .nav .nav-item {
+    padding: 0 2.375rem;
+    transition-duration: 0.25s;
+    transition-property: background;
+    position: relative;
+}
+
+/* Estilo para el título "TLAHUAPAN"*/
+.sidebar .nav .nav-item.nav-category {
+    color: #394757;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 16px;
+    margin: 25px 0px 10px 0px;
+    font-family: "nunito-bold", sans-serif;
+    gap: 12px;
+    padding-left: 1rem;
+}
+
+.sidebar .nav .nav-item .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    white-space: normal;
+    height: auto;
+    padding: 0.625rem 0 0.625rem 0;
+    color: #424748;
+    transition-duration: 0.45s;
+    transition-property: color;
+    text-overflow: ellipsis;
+    text-decoration: none !important;
+}
+
+.sidebar .nav .nav-item .nav-link .icon-bg {
+    margin-right: 0.875rem;
+    background: rgba(194, 244, 219, 0.12);
+    height: 32px;
+    width: 32px;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    text-align: center;
+}
+
+/* Estilo para la imagen del ícono*/
+.sidebar .nav .nav-item .nav-link .icon-bg .sidebar-icon-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.sidebar .nav .nav-item .nav-link .menu-title {
+    color: inherit;
+    display: block;
+    font-size: 1.1rem;
+    font-weight: bold;
+    line-height: 2.5;
+    font-family: "nunito-bold", sans-serif;
+}
+
+/* Estado Activo */
+.sidebar .nav .nav-item.active {
+    background: transparent;
+}
+.sidebar .nav .nav-item.active > .nav-link:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: .5rem;
+    bottom: 0;
+    background: #9F6E38;
+    height: 24px;
+    width: 4px;
+}
+.sidebar .nav .nav-item.active > .nav-link .menu-title {
+    color: #9F6E38;
+    font-family: "nunito-medium", sans-serif;
+}
+.sidebar .nav .nav-item.active > .nav-link i {
+    color: #9F6E38;
+}
+
+/* Hover */
+.sidebar .nav .nav-item:hover {
+    background: #AEA481;
+}
+.sidebar .nav:not(.sub-menu) > .nav-item:hover:not(.nav-category):not(.nav-profile) > .nav-link {
+    color: #9F6E38;
+}
+
+/* Estilo para "Cerrar sesión" */
+.sidebar .nav .nav-item.cerrar-sesion {
+    margin-top: auto;
+}
+
+/* ==========================================
+   SIDEBAR COLAPSADO 
+   ========================================== */
+
+/* Reducir el ancho*/
+.sidebar.collapsed {
+    width: 80px; /* Ancho reducido fijo para solo mostrar íconos */
+    /* Transicion al expandir */
+    transition: width 0.25s ease,  0.25s ease;
+}
+
+/*Ocultar todos los elementos de texto */
+.sidebar.collapsed .menu-title,
+.sidebar.collapsed .tlahuapan-text {
+    display: none !important;
+}
+
+/*Ajustar el logo y el texto de TLAHUAPAN para centrar solo el logo */
+.sidebar.collapsed .tlahuapan-item {
+     padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important; 
+}
+
+.sidebar.collapsed .tlahuapan-item .tlahuapan-logo-text {
+    justify-content: center; 
+    padding: 10px 0; 
+}
+
+.sidebar.collapsed .tlahuapan-logo {
+    width: 40px; /* Tamaño del logo reducido */
+    height: 40px;
+}
+
+/* centrar los íconos */
+.sidebar.collapsed .nav-item {
+    padding: 0; 
+}
+
+.sidebar.collapsed .nav-item .nav-link {
+    justify-content: center; /* Centra el ícono dentro de los 80px */
+    padding: 0.625rem 0; 
+    width: 100%; 
+}
+
+/* Quita el margen derecho del contenedor del ícono */
+.sidebar.collapsed .nav-item .nav-link .icon-bg {
+    margin-right: 0; 
+}
+
+/*SUBMENU*/
+.sidebar .submenu {
+  margin-left: 55px;       /* indenta el submenu */
+  margin-top: 5px;
+  list-style: none;
+  padding-left: 0;
+
+/* SCROLL INTERNO */
+   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;  /* Ocultar scroll  */
+}
+/* Ocultar scroll */
+.submenu::-webkit-scrollbar {
+  display: none;
+}
+
+
+.sidebar .submenu-item .nav-link {
+  font-size: 16px;
+  color: #444;
+  padding: 6px 8px;
+}
+
+.sidebar .submenu-item.active .nav-link {
+  color: #fffffe;
+  border-radius: 4px;
+}
