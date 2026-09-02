@@ -1,15 +1,6 @@
-import React, {
-  useMemo,
-  useState,
-} from "react";
+import React, { useMemo, useState } from "react";
 
-import {
-  FiEdit3,
-  FiPlus,
-  FiRefreshCw,
-  FiTrash2,
-  FiWifi,
-} from "react-icons/fi";
+import { FiEdit3, FiPlus, FiRefreshCw, FiTrash2, FiWifi } from "react-icons/fi";
 
 import Card from "../components/Card";
 import BotonReutilizable from "../components/BotonReutilizable";
@@ -38,10 +29,7 @@ const DireccionesIp = () => {
   } = usePermisosUsuario();
 
   const puedeGestionar =
-    !loadingPermisos &&
-    tienePrivilegio(
-      "Gestionar Direcciones IP"
-    );
+    !loadingPermisos && tienePrivilegio("Gestionar Direcciones IP");
 
   const {
     ips,
@@ -54,38 +42,17 @@ const DireccionesIp = () => {
     actualizarIp,
     eliminarIp,
     limpiarError,
-  } = useIps(
-    puedeGestionar,
-    !loadingPermisos
-  );
+  } = useIps(puedeGestionar, !loadingPermisos);
 
-  const [searchQuery, setSearchQuery] =
-    useState("");
-
-  const [isModalOpen, setIsModalOpen] =
-    useState(false);
-
-  const [
-    registroEditar,
-    setRegistroEditar,
-  ] = useState(null);
-
-  const [
-    registroEliminar,
-    setRegistroEliminar,
-  ] = useState(null);
-
-  const [
-    isDeleteOpen,
-    setIsDeleteOpen,
-  ] = useState(false);
-
-  const [mensaje, setMensaje] =
-    useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [registroEditar, setRegistroEditar] = useState(null);
+  const [registroEliminar, setRegistroEliminar] = useState(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [mensaje, setMensaje] = useState("");
 
   const filasFiltradas = useMemo(() => {
-    const termino =
-      normalizar(searchQuery);
+    const termino = normalizar(searchQuery);
 
     if (!termino) {
       return ips;
@@ -96,9 +63,7 @@ const DireccionesIp = () => {
         item.area?.nombre_area,
         item.ip_areas,
         item.grupo,
-        item.ip_rh
-          ? "recursos humanos"
-          : "",
+        item.ip_rh ? "recursos humanos" : "",
       ]
         .map(normalizar)
         .join(" ");
@@ -148,92 +113,57 @@ const DireccionesIp = () => {
   const registrar = async (datos) => {
     await crearIp(datos);
 
-    setMensaje(
-      "La dirección IP se registró correctamente."
-    );
+    setMensaje("La dirección IP se registró correctamente.");
   };
 
-  const actualizar = async (
-    id,
-    datos
-  ) => {
+  const actualizar = async (id, datos) => {
     await actualizarIp(id, datos);
 
-    setMensaje(
-      "La dirección IP se actualizó correctamente."
-    );
+    setMensaje("La dirección IP se actualizó correctamente.");
   };
 
-  const confirmarEliminar =
-    async () => {
-      if (
-        !registroEliminar ||
-        saving ||
-        !puedeGestionar
-      ) {
-        return;
-      }
+  const confirmarEliminar = async () => {
+    if (!registroEliminar || saving || !puedeGestionar) {
+      return;
+    }
 
-      try {
-        await eliminarIp(
-          registroEliminar.id
-        );
+    try {
+      await eliminarIp(registroEliminar.id);
 
-        setMensaje(
-          "La dirección IP se eliminó correctamente."
-        );
+      setMensaje("La dirección IP se eliminó correctamente.");
 
-        setIsDeleteOpen(false);
-        setRegistroEliminar(null);
-      } catch {
-        // El hook ya deja el error disponible.
-      }
-    };
+      setIsDeleteOpen(false);
+      setRegistroEliminar(null);
+    } catch {
+    }
+  };
 
-  const columnas = [
-    "Área",
-    "Dirección IP",
-    "Grupo",
-    "Tipo",
-    "Acciones",
-  ];
+  const columnas = ["Área", "Dirección IP", "Grupo", "Tipo", "Acciones"];
 
   const renderRow = (row) => (
     <tr key={row.id}>
       <td>
         <div className="ip-area-cell">
-          <strong>
-            {row.area?.nombre_area ||
-              "Sin área"}
-          </strong>
+          <strong>{row.area?.nombre_area || "Sin área"}</strong>
         </div>
       </td>
 
       <td>
         <div className="ip-address-cell">
           <FiWifi />
-          <span>
-            {row.ip_areas ||
-              "Sin dirección IP"}
-          </span>
+          <span>{row.ip_areas || "Sin dirección IP"}</span>
         </div>
       </td>
 
-      <td>
-        {row.grupo || "—"}
-      </td>
+      <td>{row.grupo || "—"}</td>
 
       <td>
         <span
           className={
-            row.ip_rh
-              ? "ip-badge ip-badge-rh"
-              : "ip-badge ip-badge-area"
+            row.ip_rh ? "ip-badge ip-badge-rh" : "ip-badge ip-badge-area"
           }
         >
-          {row.ip_rh
-            ? "Recursos Humanos"
-            : "Área"}
+          {row.ip_rh ? "Recursos Humanos" : "Área"}
         </span>
       </td>
 
@@ -241,9 +171,7 @@ const DireccionesIp = () => {
         <div className="actions-cell">
           <BotonReutilizable
             className="btn-action btn-icon edit"
-            onClick={() =>
-              abrirEditar(row)
-            }
+            onClick={() => abrirEditar(row)}
             title="Editar dirección IP"
             aria-label="Editar dirección IP"
           >
@@ -252,9 +180,7 @@ const DireccionesIp = () => {
 
           <BotonReutilizable
             className="btn-action btn-icon delete"
-            onClick={() =>
-              abrirEliminar(row)
-            }
+            onClick={() => abrirEliminar(row)}
             title="Eliminar dirección IP"
             aria-label="Eliminar dirección IP"
           >
@@ -265,21 +191,15 @@ const DireccionesIp = () => {
     </tr>
   );
 
-  const errorGeneral =
-    error || errorPermisos;
+  const errorGeneral = error || errorPermisos;
 
-  if (
-    !loadingPermisos &&
-    !puedeGestionar
-  ) {
+  if (!loadingPermisos && !puedeGestionar) {
     return (
       <main className="content-area">
         <section className="content-section direcciones-ip-page">
           <div className="direcciones-ip-header">
             <div>
-              <h2 className="card-title">
-                Direcciones IP
-              </h2>
+              <h2 className="card-title">Direcciones IP</h2>
 
               <p className="direcciones-ip-subtitle">
                 Administra las direcciones IP asociadas a las áreas del sistema.
@@ -300,9 +220,7 @@ const DireccionesIp = () => {
       <section className="content-section direcciones-ip-page">
         <div className="direcciones-ip-header">
           <div>
-            <h2 className="card-title">
-              Direcciones IP
-            </h2>
+            <h2 className="card-title">Direcciones IP</h2>
 
             <p className="direcciones-ip-subtitle">
               Administra las direcciones IP asociadas a las áreas del sistema.
@@ -313,21 +231,14 @@ const DireccionesIp = () => {
             <div className="direcciones-ip-header-actions">
               <BotonReutilizable
                 className="btn-secondary-ip"
-                onClick={() =>
-                  refresh().catch(
-                    () => {}
-                  )
-                }
+                onClick={() => refresh().catch(() => {})}
                 title="Actualizar"
               >
                 <FiRefreshCw />
                 Actualizar
               </BotonReutilizable>
 
-              <BotonReutilizable
-                className="btn-add-user"
-                onClick={abrirNuevo}
-              >
+              <BotonReutilizable className="btn-add-user" onClick={abrirNuevo}>
                 <FiPlus />
                 Agregar IP
               </BotonReutilizable>
@@ -336,33 +247,22 @@ const DireccionesIp = () => {
         </div>
 
         {mensaje && (
-          <div className="page-message page-message-success">
-            {mensaje}
-          </div>
+          <div className="page-message page-message-success">{mensaje}</div>
         )}
 
         {errorGeneral && (
-          <div className="page-message page-message-error">
-            {errorGeneral}
-          </div>
+          <div className="page-message page-message-error">{errorGeneral}</div>
         )}
 
         <FiltroBusqueda
           value={searchQuery}
-          onChange={(event) =>
-            setSearchQuery(
-              event.target.value
-            )
-          }
+          onChange={(event) => setSearchQuery(event.target.value)}
           placeholder="Buscar por área, IP o grupo..."
         />
 
         <Card className="card-direcciones-ip">
-          {loading ||
-          loadingPermisos ? (
-            <div className="ips-loading">
-              Cargando direcciones IP...
-            </div>
+          {loading || loadingPermisos ? (
+            <div className="ips-loading">Cargando direcciones IP...</div>
           ) : (
             <TablaReutilizable
               columns={columnas}
@@ -390,32 +290,20 @@ const DireccionesIp = () => {
             isOpen={isDeleteOpen}
             onClose={() => {
               setIsDeleteOpen(false);
-              setRegistroEliminar(
-                null
-              );
+              setRegistroEliminar(null);
             }}
-            onAccept={
-              confirmarEliminar
-            }
-            acceptButtonText={
-              saving
-                ? "Eliminando..."
-                : "Eliminar"
-            }
+            onAccept={confirmarEliminar}
+            acceptButtonText={saving ? "Eliminando..." : "Eliminar"}
           >
             <div className="ip-delete-content">
               <p>
                 ¿Desea eliminar la dirección IP{" "}
-                <strong>
-                  {registroEliminar
-                    ?.ip_areas || ""}
-                </strong>
-                ?
+                <strong>{registroEliminar?.ip_areas || ""}</strong>?
               </p>
 
               <p className="ip-delete-warning">
-                Esta acción elimina únicamente el registro de configuración de IP.
-                No elimina el área relacionada.
+                Esta acción elimina únicamente el registro de configuración de
+                IP. No elimina el área relacionada.
               </p>
             </div>
           </ModalReutilizable>

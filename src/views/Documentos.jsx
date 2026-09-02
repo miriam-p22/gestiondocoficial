@@ -1,11 +1,6 @@
-import React, {
-  useMemo,
-  useState,
-} from "react";
+import React, { useMemo, useState } from "react";
 
-import {
-  useSearchParams,
-} from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 import Card from "../components/Card";
 import TablaReutilizable from "../components/TablaReutilizable";
@@ -19,10 +14,7 @@ import CampoFormulario from "../components/CampoFormulario";
 import useDispersion from "../hooks/useDispersion";
 import { useAreas } from "../hooks/useAreas";
 
-import {
-  FiEye,
-  FiEdit3,
-} from "react-icons/fi";
+import { FiEye, FiEdit3 } from "react-icons/fi";
 
 import "../styles/Documentos.css";
 
@@ -30,8 +22,7 @@ import "../styles/Documentos.css";
 // CONFIGURACIÓN
 // ======================================================
 
-const SERVER_URL =
-  "http://localhost:3001";
+const SERVER_URL = "http://localhost:3001";
 
 // ======================================================
 // RESPALDOS POR RANGO
@@ -39,12 +30,8 @@ const SERVER_URL =
 
 const fechaInput = (fecha) => {
   const anio = fecha.getFullYear();
-  const mes = String(
-    fecha.getMonth() + 1
-  ).padStart(2, "0");
-  const dia = String(
-    fecha.getDate()
-  ).padStart(2, "0");
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const dia = String(fecha.getDate()).padStart(2, "0");
 
   return `${anio}-${mes}-${dia}`;
 };
@@ -53,20 +40,8 @@ const obtenerRangoMesActual = () => {
   const hoy = new Date();
 
   return {
-    desde: fechaInput(
-      new Date(
-        hoy.getFullYear(),
-        hoy.getMonth(),
-        1
-      )
-    ),
-    hasta: fechaInput(
-      new Date(
-        hoy.getFullYear(),
-        hoy.getMonth() + 1,
-        0
-      )
-    ),
+    desde: fechaInput(new Date(hoy.getFullYear(), hoy.getMonth(), 1)),
+    hasta: fechaInput(new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0)),
   };
 };
 
@@ -74,178 +49,78 @@ const obtenerRangoMesAnterior = () => {
   const hoy = new Date();
 
   return {
-    desde: fechaInput(
-      new Date(
-        hoy.getFullYear(),
-        hoy.getMonth() - 1,
-        1
-      )
-    ),
-    hasta: fechaInput(
-      new Date(
-        hoy.getFullYear(),
-        hoy.getMonth(),
-        0
-      )
-    ),
+    desde: fechaInput(new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1)),
+    hasta: fechaInput(new Date(hoy.getFullYear(), hoy.getMonth(), 0)),
   };
 };
 
-// ======================================================
 // FORMATEAR FECHA
-// ======================================================
-
-const formatearFecha = (
-  valor
-) => {
+const formatearFecha = (valor) => {
   if (!valor) {
     return "—";
   }
 
-  const fecha =
-    new Date(valor);
+  const fecha = new Date(valor);
 
-  if (
-    Number.isNaN(
-      fecha.getTime()
-    )
-  ) {
+  if (Number.isNaN(fecha.getTime())) {
     return "—";
   }
 
-  return fecha
-    .toLocaleDateString(
-      "es-MX",
-      {
-        day:
-          "2-digit",
+  return fecha.toLocaleDateString("es-MX", {
+    day: "2-digit",
 
-        month:
-          "2-digit",
+    month: "2-digit",
 
-        year:
-          "numeric",
-      }
-    );
+    year: "numeric",
+  });
 };
 
-const formatearFechaHora = (
-  valor
-) => {
+const formatearFechaHora = (valor) => {
   if (!valor) {
     return "—";
   }
 
-  const fecha =
-    new Date(valor);
+  const fecha = new Date(valor);
 
-  if (
-    Number.isNaN(
-      fecha.getTime()
-    )
-  ) {
+  if (Number.isNaN(fecha.getTime())) {
     return "—";
   }
 
-  return fecha.toLocaleString(
-    "es-MX",
-    {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }
-  );
+  return fecha.toLocaleString("es-MX", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
-// ======================================================
 // URL DEL DOCUMENTO
-// ======================================================
-
-const obtenerUrlDocumento = (
-  archivo
-) => {
+const obtenerUrlDocumento = (archivo) => {
   if (!archivo) {
     return null;
   }
 
-  const ruta =
-    String(
-      archivo
-    )
-      .replace(
-        /\\/g,
-        "/"
-      )
-      .replace(
-        /^\/+/,
-        ""
-      );
+  const ruta = String(archivo).replace(/\\/g, "/").replace(/^\/+/, "");
 
   return `${SERVER_URL}/${ruta}`;
 };
 
-// ======================================================
 // ESTADO VISUAL
-// ======================================================
+const obtenerEstadoReal = (documento) => {
+  const estado = String(documento?.estado_documento || "turnado")
+    .trim()
+    .toLowerCase();
 
-const obtenerEstadoReal = (
-  documento
-) => {
-  const estado =
-    String(
-      documento
-        ?.estado_documento ||
-        "turnado"
-    )
-      .trim()
-      .toLowerCase();
-
-  /*
-    Atendido y Devuelto
-    son estados finales.
-  */
-
-  if (
-    estado ===
-      "atendido" ||
-    estado ===
-      "devuelto"
-  ) {
+  if (estado === "atendido" || estado === "devuelto") {
     return estado;
   }
 
-  /*
-    Si no está finalizado y
-    la fecha ya pasó,
-    visualmente será Vencido.
-  */
+  if (documento?.fecha_limite) {
+    const limite = new Date(documento.fecha_limite);
+    limite.setHours(23, 59, 59, 999);
 
-  if (
-    documento
-      ?.fecha_limite
-  ) {
-    const limite =
-      new Date(
-        documento.fecha_limite
-      );
-
-    /*
-      La fecha límite se considera válida
-      hasta el final del día indicado.
-    */
-    limite.setHours(
-      23,
-      59,
-      59,
-      999
-    );
-
-    if (
-      Date.now() >
-      limite.getTime()
-    ) {
+    if (Date.now() > limite.getTime()) {
       return "vencido";
     }
   }
@@ -253,17 +128,9 @@ const obtenerEstadoReal = (
   return estado;
 };
 
-// ======================================================
 // TEXTO DEL ESTADO
-// ======================================================
-
-const obtenerTextoEstado = (
-  documento
-) => {
-  const estado =
-    obtenerEstadoReal(
-      documento
-    );
+const obtenerTextoEstado = (documento) => {
+  const estado = obtenerEstadoReal(documento);
 
   switch (estado) {
     case "recibido":
@@ -286,160 +153,80 @@ const obtenerTextoEstado = (
   }
 };
 
-// ======================================================
 // SEMÁFORO
-// ======================================================
+const obtenerTiempo = (documento) => {
+  const estado = obtenerEstadoReal(documento);
 
-const obtenerTiempo = (
-  documento
-) => {
-  const estado =
-    obtenerEstadoReal(
-      documento
-    );
-
-  if (
-    estado ===
-    "atendido"
-  ) {
+  if (estado === "atendido") {
     return {
-      texto:
-        "Atendido",
+      texto: "Atendido",
 
-      color:
-        "verde",
+      color: "verde",
     };
   }
 
-  if (
-    estado ===
-    "devuelto"
-  ) {
+  if (estado === "devuelto") {
     return {
-      texto:
-        "Devuelto",
+      texto: "Devuelto",
 
-      color:
-        "gris",
+      color: "gris",
     };
   }
 
-  if (
-    estado ===
-    "vencido"
-  ) {
+  if (estado === "vencido") {
     return {
-      texto:
-        "Vencido",
+      texto: "Vencido",
 
-      color:
-        "rojo",
+      color: "rojo",
     };
   }
 
-  if (
-    !documento
-      ?.fecha_limite
-  ) {
+  if (!documento?.fecha_limite) {
     return {
-      texto:
-        "Sin fecha límite",
+      texto: "Sin fecha límite",
 
-      color:
-        "gris",
+      color: "gris",
     };
   }
 
-  const ahora =
-    new Date();
+  const ahora = new Date();
 
-  const limite =
-    new Date(
-      documento.fecha_limite
-    );
+  const limite = new Date(documento.fecha_limite);
 
-  limite.setHours(
-    23,
-    59,
-    59,
-    999
-  );
+  limite.setHours(23, 59, 59, 999);
 
-  const diferencia =
-    limite.getTime() -
-    ahora.getTime();
+  const diferencia = limite.getTime() - ahora.getTime();
 
-  const dias =
-    Math.ceil(
-      diferencia /
-        (
-          1000 *
-          60 *
-          60 *
-          24
-        )
-    );
+  const dias = Math.ceil(diferencia / (1000 * 60 * 60 * 24));
 
-  if (
-    dias <= 0
-  ) {
+  if (dias <= 0) {
     return {
-      texto:
-        "Vence hoy",
+      texto: "Vence hoy",
 
-      color:
-        "rojo",
+      color: "rojo",
     };
   }
 
-  if (
-    dias <= 2
-  ) {
+  if (dias <= 2) {
     return {
-      texto:
-        dias === 1
-          ? "1 día"
-          : `${dias} días`,
+      texto: dias === 1 ? "1 día" : `${dias} días`,
 
-      color:
-        "amarillo",
+      color: "amarillo",
     };
   }
 
   return {
-    texto:
-      `${dias} días`,
+    texto: `${dias} días`,
 
-    color:
-      "verde",
+    color: "verde",
   };
 };
 
-// ======================================================
 // TRANSICIONES DE ESTADO
-// ======================================================
-
-const obtenerOpcionesEstado = (
-  documento
-) => {
-  const estadoActual =
-    String(
-      documento
-        ?.estado_documento ||
-        "turnado"
-    )
-      .trim()
-      .toLowerCase();
-
-  /*
-    El flujo no permite saltar directamente
-    de Turnado a Atendido.
-
-    Devuelto se permite mientras el oficio
-    siga activo, porque el área puede detectar
-    que no le corresponde o que existe un
-    problema con el documento.
-  */
+const obtenerOpcionesEstado = (documento) => {
+  const estadoActual = String(documento?.estado_documento || "turnado")
+    .trim()
+    .toLowerCase();
 
   switch (estadoActual) {
     case "turnado":
@@ -516,196 +303,103 @@ const obtenerOpcionesEstado = (
   }
 };
 
-// ======================================================
-// DIFERENCIA ENTRE ATENCIÓN Y FECHA LÍMITE
-// ======================================================
-
-const obtenerResultadoAtencion = (
-  documento
-) => {
-  if (
-    !documento?.fecha_limite ||
-    !documento?.fecha_atencion
-  ) {
+const obtenerResultadoAtencion = (documento) => {
+  if (!documento?.fecha_limite || !documento?.fecha_atencion) {
     return null;
   }
 
-  const limite =
-    new Date(
-      documento.fecha_limite
-    );
+  const limite = new Date(documento.fecha_limite);
 
-  limite.setHours(
-    23,
-    59,
-    59,
-    999
-  );
+  limite.setHours(23, 59, 59, 999);
 
-  const atencion =
-    new Date(
-      documento.fecha_atencion
-    );
+  const atencion = new Date(documento.fecha_atencion);
 
-  if (
-    Number.isNaN(
-      limite.getTime()
-    ) ||
-    Number.isNaN(
-      atencion.getTime()
-    )
-  ) {
+  if (Number.isNaN(limite.getTime()) || Number.isNaN(atencion.getTime())) {
     return null;
   }
 
-  const diferencia =
-    limite.getTime() -
-    atencion.getTime();
+  const diferencia = limite.getTime() - atencion.getTime();
 
-  const dias =
-    Math.floor(
-      Math.abs(
-        diferencia
-      ) /
-        (
-          1000 *
-          60 *
-          60 *
-          24
-        )
-    );
+  const dias = Math.floor(Math.abs(diferencia) / (1000 * 60 * 60 * 24));
 
-  if (
-    diferencia >= 0
-  ) {
-    if (
-      dias === 0
-    ) {
+  if (diferencia >= 0) {
+    if (dias === 0) {
       return {
-        texto:
-          "Atendido dentro del plazo",
-        clase:
-          "a-tiempo",
+        texto: "Atendido dentro del plazo",
+        clase: "a-tiempo",
       };
     }
 
     return {
-      texto:
-        `Atendido ${dias} ${
-          dias === 1
-            ? "día"
-            : "días"
-        } antes del vencimiento`,
-      clase:
-        "a-tiempo",
+      texto: `Atendido ${dias} ${
+        dias === 1 ? "día" : "días"
+      } antes del vencimiento`,
+      clase: "a-tiempo",
     };
   }
 
   return {
-    texto:
-      `Atendido ${dias} ${
-        dias === 1
-          ? "día"
-          : "días"
-      } después del vencimiento`,
-    clase:
-      "fuera-tiempo",
+    texto: `Atendido ${dias} ${
+      dias === 1 ? "día" : "días"
+    } después del vencimiento`,
+    clase: "fuera-tiempo",
   };
 };
 
-// ======================================================
 // MOTIVOS DE DEVOLUCIÓN
-// ======================================================
-
 const motivosDevolucion = [
   {
-    value:
-      "no_corresponde_area",
+    value: "no_corresponde_area",
 
-    label:
-      "No corresponde a mi área",
+    label: "No corresponde a mi área",
   },
 
   {
-    value:
-      "informacion_incompleta",
+    value: "informacion_incompleta",
 
-    label:
-      "Información incompleta",
+    label: "Información incompleta",
   },
 
   {
-    value:
-      "documento_ilegible",
+    value: "documento_ilegible",
 
-    label:
-      "Documento ilegible",
+    label: "Documento ilegible",
   },
 
   {
-    value:
-      "documento_duplicado",
+    value: "documento_duplicado",
 
-    label:
-      "Documento duplicado",
+    label: "Documento duplicado",
   },
 
   {
-    value:
-      "otro",
+    value: "otro",
 
-    label:
-      "Otro",
+    label: "Otro",
   },
 ];
 
-// ======================================================
 // COMPONENTE
-// ======================================================
-
 const Documentos = () => {
-  const [
-    searchParams,
-    setSearchParams,
-  ] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const filtroDashboard =
-    String(
-      searchParams.get(
-        "filtro"
-      ) ||
-      ""
-    )
-      .trim()
-      .toLowerCase();
+  const filtroDashboard = String(searchParams.get("filtro") || "")
+    .trim()
+    .toLowerCase();
 
-  const nombreRolSesion =
-    String(
-      localStorage.getItem(
-        "nombre_rol"
-      ) ||
-        ""
-    ).trim();
+  const nombreRolSesion = String(
+    localStorage.getItem("nombre_rol") || "",
+  ).trim();
 
-  const nombreAreaSesion =
-    String(
-      localStorage.getItem(
-        "nombre_area"
-      ) ||
-        ""
-    ).trim();
+  const nombreAreaSesion = String(
+    localStorage.getItem("nombre_area") || "",
+  ).trim();
 
-  const esAdministrador =
-    nombreRolSesion ===
-    "Administrador";
+  const esAdministrador = nombreRolSesion === "Administrador";
 
-  const esPresidencia =
-    nombreAreaSesion ===
-    "Presidencia Municipal";
+  const esPresidencia = nombreAreaSesion === "Presidencia Municipal";
 
-  const esConsultaGlobal =
-    esAdministrador ||
-    esPresidencia;
+  const esConsultaGlobal = esAdministrador || esPresidencia;
 
   const {
     dispersiones,
@@ -717,659 +411,266 @@ const Documentos = () => {
     actualizarEstadoDocumento,
   } = useDispersion();
 
-  const {
-    areas = [],
-    loading: loadingAreas,
-  } = useAreas();
+  const { areas = [], loading: loadingAreas } = useAreas();
 
-  // ====================================================
   // ESTADOS
-  // ====================================================
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDoc, setSelectedDoc] = useState(null);
+  const [isModalVerOpen, setIsModalVerOpen] = useState(false);
+  const [isModalGestionOpen, setIsModalGestionOpen] = useState(false);
+  const [estadoSeleccionado, setEstadoSeleccionado] = useState("recibido");
+  const [motivoDevolucion, setMotivoDevolucion] = useState("");
+  const [comentarioDevolucion, setComentarioDevolucion] = useState("");
+  const [respuesta, setRespuesta] = useState("");
+  const [mensaje, setMensaje] = useState("");
+  const [errorFormulario, setErrorFormulario] = useState("");
 
-  const [
-    searchQuery,
-    setSearchQuery,
-  ] = useState("");
-
-  const [
-    selectedDoc,
-    setSelectedDoc,
-  ] = useState(null);
-
-  const [
-    isModalVerOpen,
-    setIsModalVerOpen,
-  ] = useState(false);
-
-  const [
-    isModalGestionOpen,
-    setIsModalGestionOpen,
-  ] = useState(false);
-
-  const [
-    estadoSeleccionado,
-    setEstadoSeleccionado,
-  ] = useState(
-    "recibido"
-  );
-
-  const [
-    motivoDevolucion,
-    setMotivoDevolucion,
-  ] = useState("");
-
-  const [
-    comentarioDevolucion,
-    setComentarioDevolucion,
-  ] = useState("");
-
-  const [
-    respuesta,
-    setRespuesta,
-  ] = useState("");
-
-  const [
-    mensaje,
-    setMensaje,
-  ] = useState("");
-
-  const [
-    errorFormulario,
-    setErrorFormulario,
-  ] = useState("");
-
-  // ====================================================
   // MODAL DE RESPALDO
-  // ====================================================
-
-  const rangoInicialRespaldo =
-    obtenerRangoMesActual();
-
-  const [
-    isModalRespaldoOpen,
-    setIsModalRespaldoOpen,
-  ] = useState(false);
-
-  const [
-    tipoRangoRespaldo,
-    setTipoRangoRespaldo,
-  ] = useState("mes_actual");
-
-  const [
-    desdeRespaldo,
-    setDesdeRespaldo,
-  ] = useState(
-    rangoInicialRespaldo.desde
+  const rangoInicialRespaldo = obtenerRangoMesActual();
+  const [isModalRespaldoOpen, setIsModalRespaldoOpen] = useState(false);
+  const [tipoRangoRespaldo, setTipoRangoRespaldo] = useState("mes_actual");
+  const [desdeRespaldo, setDesdeRespaldo] = useState(
+    rangoInicialRespaldo.desde,
+  );
+  const [hastaRespaldo, setHastaRespaldo] = useState(
+    rangoInicialRespaldo.hasta,
+  );
+  const [errorRespaldo, setErrorRespaldo] = useState("");
+  const [generandoRespaldo, setGenerandoRespaldo] = useState(false);
+  const [alcanceRespaldo, setAlcanceRespaldo] = useState(
+    esAdministrador ? "general" : "area",
+  );
+  const [idAreaRespaldo, setIdAreaRespaldo] = useState(
+    String(localStorage.getItem("id_area") || ""),
   );
 
-  const [
-    hastaRespaldo,
-    setHastaRespaldo,
-  ] = useState(
-    rangoInicialRespaldo.hasta
-  );
+  const documentos = useMemo(() => {
+    const resultado = [];
 
-  const [
-    errorRespaldo,
-    setErrorRespaldo,
-  ] = useState("");
+    dispersiones.forEach((dispersion) => {
+      (dispersion.destinos || []).forEach((destino) => {
+        resultado.push({
+          id: `${dispersion.id}-${destino.id_area}`,
+          id_dispersion: dispersion.id,
+          id_area: destino.id_area,
+          nombre_area: destino.area?.nombre_area || "Área",
+          nombre_archivo: dispersion.nombre_archivo,
+          archivo: dispersion.archivo,
+          extension: dispersion.extension,
+          fecha_registro: dispersion.fecha_recepcion,
+          estado_documento: destino.estado_documento,
+          fecha_limite: destino.fecha_limite,
+          fecha_recepcion_area:
+            destino.fecha_recepcion_area || destino.fecha_recepcion,
+          fecha_inicio_proceso: destino.fecha_inicio_proceso,
+          fecha_atencion: destino.fecha_atencion || destino.fecha_respuesta,
+          motivo_devolucion: destino.motivo_devolucion,
+          comentario_devolucion: destino.comentario_devolucion,
+          respuesta: destino.respuesta || destino.comentario_respuesta || "",
+        });
+      });
+    });
 
-  const [
-    generandoRespaldo,
-    setGenerandoRespaldo,
-  ] = useState(false);
+    return resultado;
+  }, [dispersiones]);
 
-  const [
-    alcanceRespaldo,
-    setAlcanceRespaldo,
-  ] = useState(
-    esAdministrador
-      ? "general"
-      : "area"
-  );
-
-  const [
-    idAreaRespaldo,
-    setIdAreaRespaldo,
-  ] = useState(
-    String(
-      localStorage.getItem(
-        "id_area"
-      ) ||
-        ""
-    )
-  );
-
-  // ====================================================
-  // CONVERTIR DISPERSIONES EN DOCUMENTOS
-  // ====================================================
-
-  const documentos =
-    useMemo(() => {
-      const resultado = [];
-
-      dispersiones.forEach(
-        (
-          dispersion
-        ) => {
-          (
-            dispersion.destinos ||
-            []
-          ).forEach(
-            (
-              destino
-            ) => {
-              resultado.push({
-                id:
-                  `${dispersion.id}-${destino.id_area}`,
-
-                id_dispersion:
-                  dispersion.id,
-
-                id_area:
-                  destino.id_area,
-
-                nombre_area:
-                  destino.area
-                    ?.nombre_area ||
-                  "Área",
-
-                nombre_archivo:
-                  dispersion.nombre_archivo,
-
-                archivo:
-                  dispersion.archivo,
-
-                extension:
-                  dispersion.extension,
-
-                fecha_registro:
-                  dispersion.fecha_recepcion,
-
-                estado_documento:
-                  destino.estado_documento,
-
-                fecha_limite:
-                  destino.fecha_limite,
-
-                fecha_recepcion_area:
-                  destino.fecha_recepcion_area ||
-                  destino.fecha_recepcion,
-
-                fecha_inicio_proceso:
-                  destino.fecha_inicio_proceso,
-
-                fecha_atencion:
-                  destino.fecha_atencion ||
-                  destino.fecha_respuesta,
-
-                motivo_devolucion:
-                  destino.motivo_devolucion,
-
-                comentario_devolucion:
-                  destino.comentario_devolucion,
-
-                respuesta:
-                  destino.respuesta ||
-                  destino.comentario_respuesta ||
-                  "",
-              });
-            }
-          );
-        }
-      );
-
-      return resultado;
-    }, [
-      dispersiones,
-    ]);
-
-  // ====================================================
   // FILTRAR POR ÁREA DEL USUARIO
-  // ====================================================
+  const documentosArea = useMemo(() => {
+    const idAreaUsuario = Number(localStorage.getItem("id_area"));
 
-  const documentosArea =
-    useMemo(() => {
-      const idAreaUsuario =
-        Number(
-          localStorage.getItem(
-            "id_area"
-          )
-        );
+    if (esConsultaGlobal) {
+      return documentos;
+    }
 
-      /*
-        Administrador y Presidencia:
-        consulta global municipal.
+    if (!Number.isInteger(idAreaUsuario) || idAreaUsuario <= 0) {
+      return [];
+    }
 
-        La consulta global no habilita la edición de
-        documentos pertenecientes a otras áreas.
-      */
-      if (
-        esConsultaGlobal
-      ) {
-        return documentos;
-      }
+    return documentos.filter(
+      (documento) => Number(documento.id_area) === idAreaUsuario,
+    );
+  }, [documentos, esConsultaGlobal]);
 
-      if (
-        !Number.isInteger(
-          idAreaUsuario
-        ) ||
-        idAreaUsuario <= 0
-      ) {
-        return [];
-      }
-
-      return documentos.filter(
-        (documento) =>
-          Number(
-            documento.id_area
-          ) ===
-          idAreaUsuario
-      );
-    }, [
-      documentos,
-      esConsultaGlobal,
-    ]);
-
-  // ====================================================
   // FILTRO DE BÚSQUEDA
-  // ====================================================
+  const documentosFiltrados = useMemo(() => {
+    const termino = searchQuery.trim().toLowerCase();
 
-  const documentosFiltrados =
-    useMemo(() => {
-      const termino =
-        searchQuery
+    let base = documentosArea;
+
+    if (filtroDashboard) {
+      const ahora = new Date();
+
+      base = base.filter((documento) => {
+        const estado = String(documento.estado_documento || "turnado")
           .trim()
           .toLowerCase();
 
-      let base =
-        documentosArea;
+        const esFinal = ["atendido", "devuelto"].includes(estado);
 
-      // ==================================================
-      // FILTRO RECIBIDO DESDE DASHBOARD
-      // ==================================================
+        const limite = documento.fecha_limite
+          ? new Date(documento.fecha_limite)
+          : null;
 
-      if (
-        filtroDashboard
-      ) {
-        const ahora =
-          new Date();
-
-        base =
-          base.filter(
-            (
-              documento
-            ) => {
-              const estado =
-                String(
-                  documento.estado_documento ||
-                    "turnado"
-                )
-                  .trim()
-                  .toLowerCase();
-
-              const esFinal =
-                [
-                  "atendido",
-                  "devuelto",
-                ].includes(
-                  estado
-                );
-
-              const limite =
-                documento.fecha_limite
-                  ? new Date(
-                      documento.fecha_limite
-                    )
-                  : null;
-
-              if (
-                limite &&
-                !Number.isNaN(
-                  limite.getTime()
-                )
-              ) {
-                limite.setHours(
-                  23,
-                  59,
-                  59,
-                  999
-                );
-              }
-
-              if (
-                filtroDashboard ===
-                "atendidos"
-              ) {
-                return (
-                  estado ===
-                  "atendido"
-                );
-              }
-
-              if (
-                filtroDashboard ===
-                "pendientes"
-              ) {
-                return !esFinal;
-              }
-
-              if (
-                filtroDashboard ===
-                "recibidos"
-              ) {
-                return estado ===
-                  "recibido";
-              }
-
-              if (
-                filtroDashboard ===
-                "en-proceso"
-              ) {
-                return estado ===
-                  "en proceso";
-              }
-
-              if (
-                filtroDashboard ===
-                "vencidos"
-              ) {
-                return (
-                  !esFinal &&
-                  limite &&
-                  ahora.getTime() >
-                    limite.getTime()
-                );
-              }
-
-              if (
-                filtroDashboard ===
-                "por-vencer"
-              ) {
-                if (
-                  esFinal ||
-                  !limite
-                ) {
-                  return false;
-                }
-
-                const diferencia =
-                  limite.getTime() -
-                  ahora.getTime();
-
-                const dias =
-                  Math.ceil(
-                    diferencia /
-                      (
-                        1000 *
-                        60 *
-                        60 *
-                        24
-                      )
-                  );
-
-                return (
-                  dias >= 0 &&
-                  dias <= 3
-                );
-              }
-
-              return true;
-            }
-          );
-      }
-
-      if (!termino) {
-        return base;
-      }
-
-      return base.filter(
-        (
-          documento
-        ) => {
-          const archivo =
-            String(
-              documento.nombre_archivo ||
-                ""
-            ).toLowerCase();
-
-          const area =
-            String(
-              documento.nombre_area ||
-                ""
-            ).toLowerCase();
-
-          const estado =
-            obtenerTextoEstado(
-              documento
-            ).toLowerCase();
-
-          return (
-            archivo.includes(
-              termino
-            ) ||
-            area.includes(
-              termino
-            ) ||
-            estado.includes(
-              termino
-            )
-          );
+        if (limite && !Number.isNaN(limite.getTime())) {
+          limite.setHours(23, 59, 59, 999);
         }
+
+        if (filtroDashboard === "atendidos") {
+          return estado === "atendido";
+        }
+
+        if (filtroDashboard === "pendientes") {
+          return !esFinal;
+        }
+
+        if (filtroDashboard === "recibidos") {
+          return estado === "recibido";
+        }
+
+        if (filtroDashboard === "en-proceso") {
+          return estado === "en proceso";
+        }
+
+        if (filtroDashboard === "vencidos") {
+          return !esFinal && limite && ahora.getTime() > limite.getTime();
+        }
+
+        if (filtroDashboard === "por-vencer") {
+          if (esFinal || !limite) {
+            return false;
+          }
+
+          const diferencia = limite.getTime() - ahora.getTime();
+          const dias = Math.ceil(diferencia / (1000 * 60 * 60 * 24));
+
+          return dias >= 0 && dias <= 3;
+        }
+
+        return true;
+      });
+    }
+
+    if (!termino) {
+      return base;
+    }
+
+    return base.filter((documento) => {
+      const archivo = String(documento.nombre_archivo || "").toLowerCase();
+
+      const area = String(documento.nombre_area || "").toLowerCase();
+
+      const estado = obtenerTextoEstado(documento).toLowerCase();
+
+      return (
+        archivo.includes(termino) ||
+        area.includes(termino) ||
+        estado.includes(termino)
       );
-    }, [
-      documentosArea,
-      searchQuery,
-      filtroDashboard,
-    ]);
+    });
+  }, [documentosArea, searchQuery, filtroDashboard]);
 
-  // ====================================================
-  // ABRIR VER
-  // ====================================================
+  // ACCIONES
+  const abrirVer = (documento) => {
+    setSelectedDoc(documento);
 
-  const abrirVer = (
-    documento
-  ) => {
-    setSelectedDoc(
-      documento
-    );
-
-    setIsModalVerOpen(
-      true
-    );
+    setIsModalVerOpen(true);
   };
 
-  // ====================================================
-  // ABRIR GESTIONAR
-  // ====================================================
+  const abrirGestionar = (documento) => {
+    const estadoActual = String(documento.estado_documento || "turnado")
+      .trim()
+      .toLowerCase();
 
-  const abrirGestionar = (
-    documento
-  ) => {
-    const estadoActual =
-      String(
-        documento.estado_documento ||
-          "turnado"
-      )
-        .trim()
-        .toLowerCase();
-
-    setSelectedDoc(
-      documento
-    );
-
-    /*
-      Si está turnado,
-      el siguiente paso
-      lógico es Recibido.
-    */
+    setSelectedDoc(documento);
 
     setEstadoSeleccionado(
-      estadoActual ===
-        "turnado"
-        ? "recibido"
-        : estadoActual
+      estadoActual === "turnado" ? "recibido" : estadoActual,
     );
 
-    setMotivoDevolucion(
-      documento.motivo_devolucion ||
-        ""
-    );
-
-    setComentarioDevolucion(
-      documento.comentario_devolucion ||
-        ""
-    );
-
-    setRespuesta(
-      documento.respuesta ||
-        ""
-    );
-
+    setMotivoDevolucion(documento.motivo_devolucion || "");
+    setComentarioDevolucion(documento.comentario_devolucion || "");
+    setRespuesta(documento.respuesta || "");
     setMensaje("");
-
     setErrorFormulario("");
-
-    setIsModalGestionOpen(
-      true
-    );
+    setIsModalGestionOpen(true);
   };
 
-  // ====================================================
-  // GUARDAR GESTIÓN
-  // ====================================================
+  //GUARDAR GESTIÓN
+  const guardarGestion = async () => {
+    if (!selectedDoc) {
+      return;
+    }
 
-  const guardarGestion =
-    async () => {
-      if (
-        !selectedDoc
-      ) {
-        return;
+    try {
+      setErrorFormulario("");
+
+      const payload = {
+        estado_documento: estadoSeleccionado,
+      };
+
+      // DEVUELTO
+      if (estadoSeleccionado === "devuelto") {
+        if (!motivoDevolucion) {
+          throw new Error("Debe seleccionar un motivo de devolución.");
+        }
+
+        if (motivoDevolucion === "otro" && !comentarioDevolucion.trim()) {
+          throw new Error("Debe escribir el motivo de devolución.");
+        }
+
+        payload.motivo_devolucion = motivoDevolucion;
+        payload.comentario_devolucion = comentarioDevolucion.trim();
       }
 
-      try {
-        setErrorFormulario(
-          ""
-        );
-
-        const payload = {
-          estado_documento:
-            estadoSeleccionado,
-        };
-
-        // ==============================================
-        // DEVUELTO
-        // ==============================================
-
-        if (
-          estadoSeleccionado ===
-          "devuelto"
-        ) {
-          if (
-            !motivoDevolucion
-          ) {
-            throw new Error(
-              "Debe seleccionar un motivo de devolución."
-            );
-          }
-
-          if (
-            motivoDevolucion ===
-              "otro" &&
-            !comentarioDevolucion.trim()
-          ) {
-            throw new Error(
-              "Debe escribir el motivo de devolución."
-            );
-          }
-
-          payload.motivo_devolucion =
-            motivoDevolucion;
-
-          payload.comentario_devolucion =
-            comentarioDevolucion.trim();
+      // ATENDIDO
+      if (estadoSeleccionado === "atendido") {
+        if (!respuesta.trim()) {
+          throw new Error("Debe escribir una respuesta para Oficialía.");
         }
 
-        // ==============================================
-        // ATENDIDO
-        // ==============================================
-
-        if (
-          estadoSeleccionado ===
-          "atendido"
-        ) {
-          if (
-            !respuesta.trim()
-          ) {
-            throw new Error(
-              "Debe escribir una respuesta para Oficialía."
-            );
-          }
-
-          payload.respuesta =
-            respuesta.trim();
-        }
-
-        // ==============================================
-        // API
-        // ==============================================
-
-        await actualizarEstadoDocumento(
-          selectedDoc.id_dispersion,
-          selectedDoc.id_area,
-          payload
-        );
-
-        setIsModalGestionOpen(
-          false
-        );
-
-        setSelectedDoc(
-          null
-        );
-
-        if (
-          estadoSeleccionado ===
-          "atendido"
-        ) {
-          setMensaje(
-            "El documento fue marcado como atendido y la respuesta fue enviada a Oficialía."
-          );
-        } else {
-          setMensaje(
-            "El estado del documento se actualizó correctamente."
-          );
-        }
-      } catch (err) {
-        setErrorFormulario(
-          err?.message ||
-            "No fue posible guardar los cambios."
-        );
+        payload.respuesta = respuesta.trim();
       }
-    };
 
-  // ====================================================
+      await actualizarEstadoDocumento(
+        selectedDoc.id_dispersion,
+        selectedDoc.id_area,
+        payload,
+      );
+
+      setIsModalGestionOpen(false);
+
+      setSelectedDoc(null);
+
+      if (estadoSeleccionado === "atendido") {
+        setMensaje(
+          "El documento fue marcado como atendido y la respuesta fue enviada a Oficialía.",
+        );
+      } else {
+        setMensaje("El estado del documento se actualizó correctamente.");
+      }
+    } catch (err) {
+      setErrorFormulario(err?.message || "No fue posible guardar los cambios.");
+    }
+  };
+
   // RESPALDO POR RANGO DE FECHAS
-  // ====================================================
+  const aplicarTipoRangoRespaldo = (tipo) => {
+    setTipoRangoRespaldo(tipo);
+    setErrorRespaldo("");
 
-  const aplicarTipoRangoRespaldo =
-    (tipo) => {
-      setTipoRangoRespaldo(tipo);
-      setErrorRespaldo("");
+    if (tipo === "mes_actual") {
+      const rango = obtenerRangoMesActual();
+      setDesdeRespaldo(rango.desde);
+      setHastaRespaldo(rango.hasta);
+      return;
+    }
 
-      if (tipo === "mes_actual") {
-        const rango = obtenerRangoMesActual();
-        setDesdeRespaldo(rango.desde);
-        setHastaRespaldo(rango.hasta);
-        return;
-      }
-
-      if (tipo === "mes_anterior") {
-        const rango = obtenerRangoMesAnterior();
-        setDesdeRespaldo(rango.desde);
-        setHastaRespaldo(rango.hasta);
-      }
-    };
+    if (tipo === "mes_anterior") {
+      const rango = obtenerRangoMesAnterior();
+      setDesdeRespaldo(rango.desde);
+      setHastaRespaldo(rango.hasta);
+    }
+  };
 
   const abrirModalRespaldo = () => {
     const rango = obtenerRangoMesActual();
@@ -1378,9 +679,7 @@ const Documentos = () => {
     setDesdeRespaldo(rango.desde);
     setHastaRespaldo(rango.hasta);
     setAlcanceRespaldo(esAdministrador ? "general" : "area");
-    setIdAreaRespaldo(
-      String(localStorage.getItem("id_area") || "")
-    );
+    setIdAreaRespaldo(String(localStorage.getItem("id_area") || ""));
     setErrorRespaldo("");
     setGenerandoRespaldo(false);
     setIsModalRespaldoOpen(true);
@@ -1394,19 +693,16 @@ const Documentos = () => {
   };
 
   const obtenerNombreArchivoRespaldo = (response) => {
-    const disposition =
-      response.headers.get("Content-Disposition") || "";
+    const disposition = response.headers.get("Content-Disposition") || "";
 
-    const coincidencia = disposition.match(
-      /filename="?([^";]+)"?/i
-    );
+    const coincidencia = disposition.match(/filename="?([^";]+)"?/i);
 
     return coincidencia?.[1] || "respaldo_documental.zip";
   };
 
   const obtenerMensajeErrorRespaldo = async (
     response,
-    { esPorArea = false, nombreArea = "" } = {}
+    { esPorArea = false, nombreArea = "" } = {},
   ) => {
     let mensajeBackend = "";
 
@@ -1435,63 +731,41 @@ const Documentos = () => {
     );
   };
 
-  const guardarBlobConSelector = async (
-    blob,
-    nombreArchivo
-  ) => {
-    /*
-      En Electron el selector nativo debe abrirse desde
-      el proceso principal mediante IPC.
-
-      React únicamente transforma el Blob en ArrayBuffer
-      y solicita a Electron que muestre "Guardar como...".
-    */
+  const guardarBlobConSelector = async (blob, nombreArchivo) => {
 
     if (
       !window.electronAPI ||
-      typeof window.electronAPI
-        .guardarRespaldoZip !==
-        "function"
+      typeof window.electronAPI.guardarRespaldoZip !== "function"
     ) {
       throw new Error(
-        "La función de guardado de Electron no está disponible. Reinicie la aplicación después de actualizar main.js y preload.js."
+        "La función de guardado de Electron no está disponible. Reinicie la aplicación después de actualizar main.js y preload.js.",
       );
     }
 
-    const contenido =
-      await blob.arrayBuffer();
+    const contenido = await blob.arrayBuffer();
 
-    const resultado =
-      await window.electronAPI
-        .guardarRespaldoZip({
-          nombreArchivo,
-          contenido,
-        });
+    const resultado = await window.electronAPI.guardarRespaldoZip({
+      nombreArchivo,
+      contenido,
+    });
 
-    if (
-      resultado?.cancelado
-    ) {
+    if (resultado?.cancelado) {
       return {
         guardado: false,
         cancelado: true,
       };
     }
 
-    if (
-      !resultado?.ok
-    ) {
+    if (!resultado?.ok) {
       throw new Error(
-        resultado?.error ||
-          "No fue posible guardar el respaldo."
+        resultado?.error || "No fue posible guardar el respaldo.",
       );
     }
 
     return {
       guardado: true,
       cancelado: false,
-      ruta:
-        resultado?.ruta ||
-        "",
+      ruta: resultado?.ruta || "",
     };
   };
 
@@ -1503,14 +777,14 @@ const Documentos = () => {
 
     if (!desde || !hasta) {
       setErrorRespaldo(
-        "Seleccione la fecha inicial y la fecha final del respaldo."
+        "Seleccione la fecha inicial y la fecha final del respaldo.",
       );
       return;
     }
 
     if (desde > hasta) {
       setErrorRespaldo(
-        "La fecha inicial no puede ser posterior a la fecha final."
+        "La fecha inicial no puede ser posterior a la fecha final.",
       );
       return;
     }
@@ -1525,16 +799,14 @@ const Documentos = () => {
       url = `${SERVER_URL}/api/backups/general?${parametros.toString()}`;
     } else {
       const idArea = Number(
-        esAdministrador
-          ? idAreaRespaldo
-          : localStorage.getItem("id_area")
+        esAdministrador ? idAreaRespaldo : localStorage.getItem("id_area"),
       );
 
       if (!Number.isInteger(idArea) || idArea <= 0) {
         setErrorRespaldo(
           esAdministrador
             ? "Seleccione el área que desea respaldar."
-            : "Para generar el respaldo debe existir un área activa en la sesión."
+            : "Para generar el respaldo debe existir un área activa en la sesión.",
         );
         return;
       }
@@ -1562,29 +834,20 @@ const Documentos = () => {
       });
 
       if (!response.ok) {
-        const mensajeError = await obtenerMensajeErrorRespaldo(
-          response,
-          {
-            esPorArea,
-            nombreArea:
-              areaSeleccionada?.nombre_area ||
-              nombreAreaSesion ||
-              "",
-          }
-        );
+        const mensajeError = await obtenerMensajeErrorRespaldo(response, {
+          esPorArea,
+          nombreArea: areaSeleccionada?.nombre_area || nombreAreaSesion || "",
+        });
 
         setErrorRespaldo(mensajeError);
         return;
       }
 
-      const tipoContenido =
-        response.headers.get("Content-Type") || "";
+      const tipoContenido = response.headers.get("Content-Type") || "";
 
-      if (
-        !tipoContenido.toLowerCase().includes("application/zip")
-      ) {
+      if (!tipoContenido.toLowerCase().includes("application/zip")) {
         setErrorRespaldo(
-          "El servidor respondió, pero no devolvió un archivo ZIP válido."
+          "El servidor respondió, pero no devolvió un archivo ZIP válido.",
         );
         return;
       }
@@ -1592,45 +855,34 @@ const Documentos = () => {
       const blob = await response.blob();
       const nombreArchivo = obtenerNombreArchivoRespaldo(response);
 
-      const resultadoGuardado =
-        await guardarBlobConSelector(
-          blob,
-          nombreArchivo
-        );
+      const resultadoGuardado = await guardarBlobConSelector(
+        blob,
+        nombreArchivo,
+      );
 
-      if (
-        resultadoGuardado
-          ?.cancelado
-      ) {
+      if (resultadoGuardado?.cancelado) {
         setErrorRespaldo(
-          "El guardado del respaldo fue cancelado. No se guardó ningún archivo."
+          "El guardado del respaldo fue cancelado. No se guardó ningún archivo.",
         );
         return;
       }
 
-      setIsModalRespaldoOpen(
-        false
-      );
+      setIsModalRespaldoOpen(false);
 
       setMensaje(
-        esAdministrador &&
-          !esPorArea
+        esAdministrador && !esPorArea
           ? "El respaldo general se guardó correctamente."
-          : "El respaldo del área se guardó correctamente."
+          : "El respaldo del área se guardó correctamente.",
       );
     } catch (err) {
       setErrorRespaldo(
         err?.message ||
-          "No fue posible generar el respaldo. Verifique la conexión con el servidor."
+          "No fue posible generar el respaldo. Verifique la conexión con el servidor.",
       );
     } finally {
       setGenerandoRespaldo(false);
     }
   };
-
-  // ====================================================
-  // COLUMNAS
-  // ====================================================
 
   const columnas = [
     "Archivo",
@@ -1640,106 +892,55 @@ const Documentos = () => {
     "Acciones",
   ];
 
-  // ====================================================
   // RENDER ROW
-  // ====================================================
+  const renderRow = (documento) => {
+    const tiempo = obtenerTiempo(documento);
 
-  const renderRow = (
-    documento
-  ) => {
-    const tiempo =
-      obtenerTiempo(
-        documento
-      );
+    const estado = obtenerTextoEstado(documento);
 
-    const estado =
-      obtenerTextoEstado(
-        documento
-      );
-
-    const estadoBase =
-      String(
-        documento.estado_documento ||
-          "turnado"
-      )
-        .trim()
-        .toLowerCase();
+    const estadoBase = String(documento.estado_documento || "turnado")
+      .trim()
+      .toLowerCase();
 
     const esDocumentoFinal =
-      estadoBase ===
-        "atendido" ||
-      estadoBase ===
-        "devuelto";
+      estadoBase === "atendido" || estadoBase === "devuelto";
 
     const tituloGestion =
-      estadoBase ===
-      "atendido"
+      estadoBase === "atendido"
         ? "Documento finalizado. Ya no puede modificarse desde Gestión Documental."
-        : estadoBase ===
-            "devuelto"
+        : estadoBase === "devuelto"
           ? "Documento devuelto. El proceso se encuentra finalizado."
           : "Gestionar documento";
 
     return (
-      <tr
-        key={
-          documento.id
-        }
-      >
+      <tr key={documento.id}>
         <td>
           <div className="documento-archivo-cell">
-            <strong>
-              {
-                documento.nombre_archivo
-              }
-            </strong>
+            <strong>{documento.nombre_archivo}</strong>
 
-            <span>
-              {
-                documento.nombre_area
-              }
-            </span>
+            <span>{documento.nombre_area}</span>
           </div>
         </td>
 
         <td>
-          <EtiquetaEstado
-            estatus={
-              estado
-            }
-          />
+          <EtiquetaEstado estatus={estado} />
         </td>
 
-        <td>
-          {formatearFecha(
-            documento.fecha_limite
-          )}
-        </td>
+        <td>{formatearFecha(documento.fecha_limite)}</td>
 
         <td>
           <div className="tiempo-respuesta-cell">
-            <span>
-              {
-                tiempo.texto
-              }
-            </span>
+            <span>{tiempo.texto}</span>
 
-            <span
-              className={`semaforo semaforo-${tiempo.color}`}
-            />
+            <span className={`semaforo semaforo-${tiempo.color}`} />
           </div>
         </td>
 
         <td>
           <div className="actions-cell">
-
             <BotonReutilizable
               className="btn-action btn-icon"
-              onClick={() =>
-                abrirVer(
-                  documento
-                )
-              }
+              onClick={() => abrirVer(documento)}
               title="Ver documento"
               aria-label="Ver documento"
             >
@@ -1749,46 +950,26 @@ const Documentos = () => {
             {!esConsultaGlobal && (
               <BotonReutilizable
                 className="btn-action btn-icon edit"
-                onClick={() =>
-                  abrirGestionar(
-                    documento
-                  )
-                }
-                disabled={
-                  esDocumentoFinal
-                }
-                title={
-                  tituloGestion
-                }
-                aria-label={
-                  tituloGestion
-                }
+                onClick={() => abrirGestionar(documento)}
+                disabled={esDocumentoFinal}
+                title={tituloGestion}
+                aria-label={tituloGestion}
               >
                 <FiEdit3 />
               </BotonReutilizable>
             )}
-
           </div>
         </td>
       </tr>
     );
   };
 
-  // ====================================================
-  // RENDER
-  // ====================================================
-
   return (
     <main className="content-area">
-
       <section className="content-section">
-
         <div className="documentos-header">
-
           <div>
-            <h2 className="card-title">
-              Gestión Documental
-            </h2>
+            <h2 className="card-title">Gestión Documental</h2>
 
             <p className="documentos-subtitle">
               {esPresidencia
@@ -1799,609 +980,330 @@ const Documentos = () => {
             </p>
           </div>
 
-          <BotonReutilizable
-            onClick={
-              abrirModalRespaldo
-            }
-          >
-            {
-              esAdministrador
-                ? "Generar respaldo"
-                : "Exportar documentos"
-            }
+          <BotonReutilizable onClick={abrirModalRespaldo}>
+            {esAdministrador ? "Generar respaldo" : "Exportar documentos"}
           </BotonReutilizable>
-
         </div>
 
-        {mensaje && (
-          <div className="documentos-mensaje">
-            {
-              mensaje
-            }
-          </div>
-        )}
+        {mensaje && <div className="documentos-mensaje">{mensaje}</div>}
 
-        {error && (
-          <div className="documentos-error">
-            {
-              error
-            }
-          </div>
-        )}
+        {error && <div className="documentos-error">{error}</div>}
 
         {filtroDashboard && (
-            <div className="documentos-dashboard-filter">
-              <span>
-                Filtro desde Dashboard:{" "}
-                <strong>
-                  {
-                    filtroDashboard === "por-vencer"
-                      ? "Próximos a vencer"
-                      : filtroDashboard === "vencidos"
-                        ? "Vencidos"
-                        : filtroDashboard === "atendidos"
-                          ? "Atendidos"
-                          : filtroDashboard === "pendientes"
-                            ? "Pendientes"
-                            : filtroDashboard === "recibidos"
-                              ? "Recibidos"
-                              : filtroDashboard === "en-proceso"
-                                ? "En proceso"
-                                : filtroDashboard
-                  }
-                </strong>
-              </span>
+          <div className="documentos-dashboard-filter">
+            <span>
+              Filtro desde Dashboard:{" "}
+              <strong>
+                {filtroDashboard === "por-vencer"
+                  ? "Próximos a vencer"
+                  : filtroDashboard === "vencidos"
+                    ? "Vencidos"
+                    : filtroDashboard === "atendidos"
+                      ? "Atendidos"
+                      : filtroDashboard === "pendientes"
+                        ? "Pendientes"
+                        : filtroDashboard === "recibidos"
+                          ? "Recibidos"
+                          : filtroDashboard === "en-proceso"
+                            ? "En proceso"
+                            : filtroDashboard}
+              </strong>
+            </span>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setSearchParams(
-                    {}
-                  )
-                }
-              >
-                Quitar filtro
-              </button>
-            </div>
-          )}
+            <button type="button" onClick={() => setSearchParams({})}>
+              Quitar filtro
+            </button>
+          </div>
+        )}
 
-          <Card className="table-component">
-
+        <Card className="table-component">
           <div className="toolbar-container">
             <FiltroBusqueda
-              value={
-                searchQuery
-              }
-              onChange={(
-                event
-              ) =>
-                setSearchQuery(
-                  event.target.value
-                )
-              }
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Buscar por archivo, área o estado..."
             />
           </div>
 
           {loading ? (
-            <div className="documentos-cargando">
-              Cargando documentos...
-            </div>
+            <div className="documentos-cargando">Cargando documentos...</div>
           ) : (
             <TablaReutilizable
               className="tabla-documentos"
-              columns={
-                columnas
-              }
-              data={
-                documentosFiltrados
-              }
-              renderRow={
-                renderRow
-              }
+              columns={columnas}
+              data={documentosFiltrados}
+              renderRow={renderRow}
             />
           )}
-
         </Card>
-
       </section>
 
-      {/* ================================================= */}
       {/* MODAL VER */}
-      {/* ================================================= */}
-
       <ModalReutilizable
         id="modal-ver-documento"
         title="Visualización del documento"
-        isOpen={
-          isModalVerOpen
-        }
+        isOpen={isModalVerOpen}
         onClose={() => {
-          setIsModalVerOpen(
-            false
-          );
+          setIsModalVerOpen(false);
 
-          setSelectedDoc(
-            null
-          );
+          setSelectedDoc(null);
         }}
         onAccept={() => {
-          setIsModalVerOpen(
-            false
-          );
+          setIsModalVerOpen(false);
 
-          setSelectedDoc(
-            null
-          );
+          setSelectedDoc(null);
         }}
         acceptButtonText="Cerrar"
       >
-
         {selectedDoc && (
           <>
             <div className="documento-modal-info">
-
               <div>
-                <strong>
-                  Archivo
-                </strong>
+                <strong>Archivo</strong>
 
-                <span>
-                  {
-                    selectedDoc.nombre_archivo
-                  }
-                </span>
+                <span>{selectedDoc.nombre_archivo}</span>
               </div>
 
               <div>
-                <strong>
-                  Área
-                </strong>
+                <strong>Área</strong>
 
-                <span>
-                  {
-                    selectedDoc.nombre_area
-                  }
-                </span>
+                <span>{selectedDoc.nombre_area}</span>
               </div>
 
               <div>
-                <strong>
-                  Estado
-                </strong>
+                <strong>Estado</strong>
 
-                <span>
-                  {obtenerTextoEstado(
-                    selectedDoc
-                  )}
-                </span>
+                <span>{obtenerTextoEstado(selectedDoc)}</span>
               </div>
 
               <div>
-                <strong>
-                  Fecha límite
-                </strong>
+                <strong>Fecha límite</strong>
 
-                <span>
-                  {formatearFecha(
-                    selectedDoc.fecha_limite
-                  )}
-                </span>
+                <span>{formatearFecha(selectedDoc.fecha_limite)}</span>
               </div>
 
               {selectedDoc.fecha_recepcion_area && (
                 <div>
-                  <strong>
-                    Recibido por el área
-                  </strong>
+                  <strong>Recibido por el área</strong>
 
                   <span>
-                    {formatearFechaHora(
-                      selectedDoc.fecha_recepcion_area
-                    )}
+                    {formatearFechaHora(selectedDoc.fecha_recepcion_area)}
                   </span>
                 </div>
               )}
 
               {selectedDoc.fecha_inicio_proceso && (
                 <div>
-                  <strong>
-                    Inicio del proceso
-                  </strong>
+                  <strong>Inicio del proceso</strong>
 
                   <span>
-                    {formatearFechaHora(
-                      selectedDoc.fecha_inicio_proceso
-                    )}
+                    {formatearFechaHora(selectedDoc.fecha_inicio_proceso)}
                   </span>
                 </div>
               )}
 
               {selectedDoc.fecha_atencion && (
                 <div>
-                  <strong>
-                    Fecha de atención
-                  </strong>
+                  <strong>Fecha de atención</strong>
 
-                  <span>
-                    {formatearFechaHora(
-                      selectedDoc.fecha_atencion
-                    )}
-                  </span>
+                  <span>{formatearFechaHora(selectedDoc.fecha_atencion)}</span>
                 </div>
               )}
 
-              {obtenerResultadoAtencion(
-                selectedDoc
-              ) && (
-                <div className={`documento-resultado-atencion ${obtenerResultadoAtencion(
-                  selectedDoc
-                ).clase}`}>
-                  <strong>
-                    Cumplimiento
-                  </strong>
+              {obtenerResultadoAtencion(selectedDoc) && (
+                <div
+                  className={`documento-resultado-atencion ${
+                    obtenerResultadoAtencion(selectedDoc).clase
+                  }`}
+                >
+                  <strong>Cumplimiento</strong>
 
-                  <span>
-                    {
-                      obtenerResultadoAtencion(
-                        selectedDoc
-                      ).texto
-                    }
-                  </span>
+                  <span>{obtenerResultadoAtencion(selectedDoc).texto}</span>
                 </div>
               )}
 
-              {String(
-                selectedDoc.estado_documento ||
-                  ""
-              ).toLowerCase() ===
+              {String(selectedDoc.estado_documento || "").toLowerCase() ===
                 "atendido" &&
                 selectedDoc.respuesta && (
                   <div className="documento-modal-info-wide">
-                    <strong>
-                      Respuesta enviada a Oficialía
-                    </strong>
+                    <strong>Respuesta enviada a Oficialía</strong>
 
-                    <span>
-                      {
-                        selectedDoc.respuesta
-                      }
-                    </span>
+                    <span>{selectedDoc.respuesta}</span>
                   </div>
                 )}
 
-              {String(
-                selectedDoc.estado_documento ||
-                  ""
-              ).toLowerCase() ===
+              {String(selectedDoc.estado_documento || "").toLowerCase() ===
                 "devuelto" && (
-                  <div className="documento-modal-info-wide">
-                    <strong>
-                      Motivo de devolución
-                    </strong>
+                <div className="documento-modal-info-wide">
+                  <strong>Motivo de devolución</strong>
 
-                    <span>
-                      {
-                        motivosDevolucion.find(
-                          (
-                            item
-                          ) =>
-                            item.value ===
-                            selectedDoc.motivo_devolucion
-                        )?.label ||
-                        selectedDoc.motivo_devolucion ||
-                        "—"
-                      }
-                    </span>
+                  <span>
+                    {motivosDevolucion.find(
+                      (item) => item.value === selectedDoc.motivo_devolucion,
+                    )?.label ||
+                      selectedDoc.motivo_devolucion ||
+                      "—"}
+                  </span>
 
-                    {selectedDoc.comentario_devolucion && (
-                      <small>
-                        {
-                          selectedDoc.comentario_devolucion
-                        }
-                      </small>
-                    )}
-                  </div>
-                )}
-
+                  {selectedDoc.comentario_devolucion && (
+                    <small>{selectedDoc.comentario_devolucion}</small>
+                  )}
+                </div>
+              )}
             </div>
 
             <VisorDocumento
-              documentUrl={
-                obtenerUrlDocumento(
-                  selectedDoc.archivo
-                )
-              }
-              documentTitle={
-                selectedDoc.nombre_archivo
-              }
+              documentUrl={obtenerUrlDocumento(selectedDoc.archivo)}
+              documentTitle={selectedDoc.nombre_archivo}
             />
           </>
         )}
-
       </ModalReutilizable>
 
-      {/* ================================================= */}
       {/* MODAL GESTIONAR */}
-      {/* ================================================= */}
-
       <ModalReutilizable
         id="modal-gestionar-documento"
         title="Gestionar documento"
-        isOpen={
-          isModalGestionOpen
-        }
+        isOpen={isModalGestionOpen}
         onClose={() => {
-          setIsModalGestionOpen(
-            false
-          );
+          setIsModalGestionOpen(false);
 
-          setSelectedDoc(
-            null
-          );
+          setSelectedDoc(null);
 
-          setErrorFormulario(
-            ""
-          );
+          setErrorFormulario("");
         }}
-        onAccept={
-          guardarGestion
-        }
+        onAccept={guardarGestion}
         acceptButtonText="Guardar cambios"
-        loading={
-          saving
-        }
-        errorMessage={
-          errorFormulario
-        }
+        loading={saving}
+        errorMessage={errorFormulario}
       >
-
         {selectedDoc && (
           <div className="documento-gestion">
-
             <div className="documento-gestion-resumen">
+              <strong>{selectedDoc.nombre_archivo}</strong>
 
-              <strong>
-                {
-                  selectedDoc.nombre_archivo
-                }
-              </strong>
+              <span>Área: {selectedDoc.nombre_area}</span>
 
               <span>
-                Área:{" "}
-                {
-                  selectedDoc.nombre_area
-                }
+                Fecha límite: {formatearFecha(selectedDoc.fecha_limite)}
               </span>
-
-              <span>
-                Fecha límite:{" "}
-                {formatearFecha(
-                  selectedDoc.fecha_limite
-                )}
-              </span>
-
             </div>
 
             <CampoFormulario
               label="Estado del documento"
               isSelect
-              value={
-                estadoSeleccionado
-              }
-              onChange={(
-                event
-              ) => {
-                setEstadoSeleccionado(
-                  event.target.value
-                );
+              value={estadoSeleccionado}
+              onChange={(event) => {
+                setEstadoSeleccionado(event.target.value);
 
-                setErrorFormulario(
-                  ""
-                );
+                setErrorFormulario("");
               }}
             >
-              {obtenerOpcionesEstado(
-                selectedDoc
-              ).map(
-                (
-                  opcion
-                ) => (
-                  <option
-                    key={
-                      opcion.value
-                    }
-                    value={
-                      opcion.value
-                    }
-                  >
-                    {
-                      opcion.label
-                    }
-                  </option>
-                )
-              )}
+              {obtenerOpcionesEstado(selectedDoc).map((opcion) => (
+                <option key={opcion.value} value={opcion.value}>
+                  {opcion.label}
+                </option>
+              ))}
             </CampoFormulario>
 
             <div className="documento-flujo-aviso">
-              <strong>
-                Flujo del documento
-              </strong>
+              <strong>Flujo del documento</strong>
 
-              <span>
-                Turnado → Recibido → En proceso → Atendido
-              </span>
+              <span>Turnado → Recibido → En proceso → Atendido</span>
 
               <small>
                 Un documento también puede devolverse mientras siga activo.
               </small>
             </div>
 
-            {/* =========================================== */}
             {/* DEVUELTO */}
-            {/* =========================================== */}
-
-            {estadoSeleccionado ===
-              "devuelto" && (
+            {estadoSeleccionado === "devuelto" && (
               <>
-
                 <CampoFormulario
                   label="Motivo de devolución"
                   isSelect
-                  value={
-                    motivoDevolucion
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setMotivoDevolucion(
-                      event.target.value
-                    )
-                  }
+                  value={motivoDevolucion}
+                  onChange={(event) => setMotivoDevolucion(event.target.value)}
                 >
+                  <option value="">Seleccione un motivo</option>
 
-                  <option value="">
-                    Seleccione un motivo
-                  </option>
-
-                  {motivosDevolucion.map(
-                    (
-                      motivo
-                    ) => (
-                      <option
-                        key={
-                          motivo.value
-                        }
-                        value={
-                          motivo.value
-                        }
-                      >
-                        {
-                          motivo.label
-                        }
-                      </option>
-                    )
-                  )}
-
+                  {motivosDevolucion.map((motivo) => (
+                    <option key={motivo.value} value={motivo.value}>
+                      {motivo.label}
+                    </option>
+                  ))}
                 </CampoFormulario>
 
                 <CampoFormulario
                   label="Comentario de devolución"
                   isTextarea
                   rows={4}
-                  value={
-                    comentarioDevolucion
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setComentarioDevolucion(
-                      event.target.value
-                    )
+                  value={comentarioDevolucion}
+                  onChange={(event) =>
+                    setComentarioDevolucion(event.target.value)
                   }
                   placeholder="Explique por qué se devuelve el documento..."
                 />
-
               </>
             )}
 
-            {/* =========================================== */}
             {/* ATENDIDO */}
-            {/* =========================================== */}
-
-            {estadoSeleccionado ===
-              "atendido" && (
+            {estadoSeleccionado === "atendido" && (
               <>
-
                 <div className="respuesta-oficialia-box">
-
-                  <strong>
-                    Respuesta para Oficialía de Partes
-                  </strong>
+                  <strong>Respuesta para Oficialía de Partes</strong>
 
                   <p>
-                    Esta información será enviada a Oficialía para que pueda consultar la respuesta cuando el ciudadano solicite información sobre su petición.
+                    Esta información será enviada a Oficialía para que pueda
+                    consultar la respuesta cuando el ciudadano solicite
+                    información sobre su petición.
                   </p>
-
                 </div>
 
                 <CampoFormulario
                   label="Respuesta o comentario"
                   isTextarea
                   rows={5}
-                  value={
-                    respuesta
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setRespuesta(
-                      event.target.value
-                    )
-                  }
+                  value={respuesta}
+                  onChange={(event) => setRespuesta(event.target.value)}
                   placeholder="Escriba el resultado de la atención realizada..."
                 />
-
               </>
             )}
 
-            {/* =========================================== */}
             {/* TRAZABILIDAD */}
-            {/* =========================================== */}
-
             <div className="documento-trazabilidad">
-
-              <h4>
-                Seguimiento
-              </h4>
+              <h4>Seguimiento</h4>
 
               <div>
-                <span>
-                  Recepción del área
-                </span>
+                <span>Recepción del área</span>
 
                 <strong>
-                  {formatearFechaHora(
-                    selectedDoc.fecha_recepcion_area
-                  )}
+                  {formatearFechaHora(selectedDoc.fecha_recepcion_area)}
                 </strong>
               </div>
 
               <div>
-                <span>
-                  Inicio del proceso
-                </span>
+                <span>Inicio del proceso</span>
 
                 <strong>
-                  {formatearFechaHora(
-                    selectedDoc.fecha_inicio_proceso
-                  )}
+                  {formatearFechaHora(selectedDoc.fecha_inicio_proceso)}
                 </strong>
               </div>
 
               <div>
-                <span>
-                  Fecha de atención
-                </span>
+                <span>Fecha de atención</span>
 
                 <strong>
-                  {formatearFechaHora(
-                    selectedDoc.fecha_atencion
-                  )}
+                  {formatearFechaHora(selectedDoc.fecha_atencion)}
                 </strong>
               </div>
-
             </div>
-
           </div>
         )}
-
       </ModalReutilizable>
 
-      {/* ================================================= */}
-      {/* MODAL RESPALDO POR FECHA DE RECEPCIÓN */}
-      {/* ================================================= */}
-
+      {/* RESPALDO POR FECHA DE RECEPCIÓN */}
       <ModalReutilizable
         id="modal-respaldo-documentos"
         title={
@@ -2413,15 +1315,14 @@ const Documentos = () => {
         onClose={cerrarModalRespaldo}
         onAccept={generarRespaldo}
         acceptButtonText={
-          generandoRespaldo
-            ? "Generando..."
-            : "Generar respaldo"
+          generandoRespaldo ? "Generando..." : "Generar respaldo"
         }
         loading={generandoRespaldo}
       >
         <div className="documentos-respaldo-form">
           <p className="documentos-respaldo-ayuda">
-            El respaldo se genera utilizando la fecha de recepción original del documento en Oficialía de Partes.
+            El respaldo se genera utilizando la fecha de recepción original del
+            documento en Oficialía de Partes.
           </p>
 
           {errorRespaldo && (
@@ -2440,12 +1341,8 @@ const Documentos = () => {
                 setErrorRespaldo("");
               }}
             >
-              <option value="general">
-                Todas las áreas
-              </option>
-              <option value="area">
-                Un área específica
-              </option>
+              <option value="general">Todas las áreas</option>
+              <option value="area">Un área específica</option>
             </CampoFormulario>
           )}
 
@@ -2461,17 +1358,15 @@ const Documentos = () => {
               disabled={loadingAreas}
             >
               <option value="">
-                {loadingAreas
-                  ? "Cargando áreas..."
-                  : "Seleccione un área"}
+                {loadingAreas ? "Cargando áreas..." : "Seleccione un área"}
               </option>
 
               {[...areas]
                 .sort((a, b) =>
                   String(a.nombre_area || "").localeCompare(
                     String(b.nombre_area || ""),
-                    "es"
-                  )
+                    "es",
+                  ),
                 )
                 .map((area) => (
                   <option key={area.id} value={area.id}>
@@ -2484,9 +1379,7 @@ const Documentos = () => {
           {!esAdministrador && (
             <div className="documentos-respaldo-area-actual">
               <span>Área del respaldo</span>
-              <strong>
-                {nombreAreaSesion || "Área de la sesión"}
-              </strong>
+              <strong>{nombreAreaSesion || "Área de la sesión"}</strong>
             </div>
           )}
 
@@ -2494,9 +1387,7 @@ const Documentos = () => {
             label="Periodo"
             isSelect
             value={tipoRangoRespaldo}
-            onChange={(event) =>
-              aplicarTipoRangoRespaldo(event.target.value)
-            }
+            onChange={(event) => aplicarTipoRangoRespaldo(event.target.value)}
           >
             <option value="mes_actual">Este mes</option>
             <option value="mes_anterior">Mes anterior</option>
@@ -2543,7 +1434,6 @@ const Documentos = () => {
           )}
         </div>
       </ModalReutilizable>
-
     </main>
   );
 };

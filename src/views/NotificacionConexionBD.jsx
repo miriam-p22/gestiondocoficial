@@ -13,10 +13,8 @@ import {
 import Card from "../components/Card";
 import CampoFormulario from "../components/CampoFormulario";
 import BotonReutilizable from "../components/BotonReutilizable";
-
 import useConfiguracion from "../hooks/useConfiguracion";
 import usePermisosUsuario from "../hooks/usePermisosUsuario";
-
 import "../styles/NotificacionConexionBD.css";
 
 const NotificacionConexionBD = () => {
@@ -27,17 +25,9 @@ const NotificacionConexionBD = () => {
   } = usePermisosUsuario();
 
   const permisosCargados = !loadingPermisos;
-
-  const puedeNotificaciones =
-    permisosCargados &&
-    tienePrivilegio("Gestionar Notificaciones");
-
-  const puedeEstadoSistema =
-    permisosCargados &&
-    tienePrivilegio("Gestionar Configuración del Sistema");
-
-  const puedeAcceder =
-    puedeNotificaciones || puedeEstadoSistema;
+  const puedeNotificaciones = permisosCargados && tienePrivilegio("Gestionar Notificaciones");
+  const puedeEstadoSistema = permisosCargados && tienePrivilegio("Gestionar Configuración del Sistema");
+  const puedeAcceder = puedeNotificaciones || puedeEstadoSistema;
 
   const {
     configuracion,
@@ -72,9 +62,7 @@ const NotificacionConexionBD = () => {
         correo_remitente: configuracion.correo_remitente || "",
         contrasenia: "",
         smtp: configuracion.smtp || "",
-        puerto: configuracion.puerto
-          ? String(configuracion.puerto)
-          : "",
+        puerto: configuracion.puerto ? String(configuracion.puerto) : "",
       });
     }
   }, [configuracion]);
@@ -116,7 +104,7 @@ const NotificacionConexionBD = () => {
 
     if (!configuracion?.tiene_contrasenia && !formData.contrasenia.trim()) {
       setErrorFormulario(
-        "La contraseña SMTP es obligatoria en la primera configuración."
+        "La contraseña SMTP es obligatoria en la primera configuración.",
       );
       return;
     }
@@ -136,11 +124,9 @@ const NotificacionConexionBD = () => {
         contrasenia: "",
       }));
 
-      setMensaje(
-        "La configuración de notificaciones se guardó correctamente."
-      );
+      setMensaje("La configuración de notificaciones se guardó correctamente.");
     } catch {
-      // El hook maneja el error del backend.
+
     }
   };
 
@@ -153,11 +139,10 @@ const NotificacionConexionBD = () => {
       const resultado = await probarSmtp();
 
       setMensaje(
-        resultado?.mensaje ||
-          "El servidor SMTP respondió correctamente."
+        resultado?.mensaje || "El servidor SMTP respondió correctamente.",
       );
     } catch {
-      // El hook maneja el error.
+      
     }
   };
 
@@ -165,8 +150,7 @@ const NotificacionConexionBD = () => {
     ? new Date(estadoSistema.api.fecha_verificacion).toLocaleString("es-MX")
     : "—";
 
-  const estadoBd =
-    estadoSistema?.base_datos?.estado === "conectada";
+  const estadoBd = estadoSistema?.base_datos?.estado === "conectada";
 
   return (
     <main className="content-area">
@@ -195,9 +179,7 @@ const NotificacionConexionBD = () => {
         )}
 
         {loadingPermisos ? (
-          <div className="configuracion-loading">
-            Verificando permisos...
-          </div>
+          <div className="configuracion-loading">Verificando permisos...</div>
         ) : !puedeAcceder ? (
           <Card className="configuracion-card">
             <div className="configuracion-card-header">
@@ -209,17 +191,14 @@ const NotificacionConexionBD = () => {
                 <h3>Acceso restringido</h3>
 
                 <p>
-                  No cuenta con privilegios para administrar las
-                  notificaciones ni consultar la configuración técnica del
-                  sistema.
+                  No cuenta con privilegios para administrar las notificaciones
+                  ni consultar la configuración técnica del sistema.
                 </p>
               </div>
             </div>
           </Card>
         ) : loading ? (
-          <div className="configuracion-loading">
-            Cargando configuración...
-          </div>
+          <div className="configuracion-loading">Cargando configuración...</div>
         ) : (
           <div className="configuracion-grid">
             {puedeNotificaciones && (
@@ -287,8 +266,7 @@ const NotificacionConexionBD = () => {
                       <FiShield />
 
                       <span>
-                        Existe una contraseña guardada. Por seguridad, el
-                        backend no la devuelve al navegador.
+                        Contraseña guardada.
                       </span>
                     </div>
                   )}
@@ -408,11 +386,6 @@ const NotificacionConexionBD = () => {
 
                 <div className="configuracion-security-note">
                   <FiShield />
-
-                  <span>
-                    Las credenciales de MySQL no se muestran ni se editan
-                    desde esta pantalla.
-                  </span>
                 </div>
               </Card>
             )}

@@ -1,7 +1,4 @@
-import React, {
-  useMemo,
-  useState,
-} from "react";
+import React, { useMemo, useState } from "react";
 
 import {
   FiArchive,
@@ -46,9 +43,7 @@ const formatearFecha = (valor) => {
 };
 
 const obtenerTextoEstado = (item) =>
-  item.archivoFisico?.estado === "resguardado"
-    ? "Resguardado"
-    : "Pendiente";
+  item.archivoFisico?.estado === "resguardado" ? "Resguardado" : "Pendiente";
 
 const LeyArchivo = () => {
   const {
@@ -65,20 +60,15 @@ const LeyArchivo = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDoc, setSelectedDoc] = useState(null);
 
-  const [isModalVerOpen, setIsModalVerOpen] =
-    useState(false);
+  const [isModalVerOpen, setIsModalVerOpen] = useState(false);
 
-  const [isModalGestionOpen, setIsModalGestionOpen] =
-    useState(false);
+  const [isModalGestionOpen, setIsModalGestionOpen] = useState(false);
 
-  const [
-    isModalClasificacionOpen,
-    setIsModalClasificacionOpen,
-  ] = useState(false);
+  const [isModalClasificacionOpen, setIsModalClasificacionOpen] =
+    useState(false);
 
   const [mensaje, setMensaje] = useState("");
-  const [errorFormulario, setErrorFormulario] =
-    useState("");
+  const [errorFormulario, setErrorFormulario] = useState("");
 
   const [formulario, setFormulario] = useState({
     id_clasificacion: "",
@@ -90,60 +80,44 @@ const LeyArchivo = () => {
     observaciones: "",
   });
 
-  const [
-    nuevaClasificacion,
-    setNuevaClasificacion,
-  ] = useState({
+  const [nuevaClasificacion, setNuevaClasificacion] = useState({
     area_administrativa: "",
     codigo_asignado: "",
     ubicacion: "",
     funcion: "",
   });
 
-  const puedeGestionar =
-    permisos.gestionar;
+  const puedeGestionar = permisos.gestionar;
 
-  const puedeConsultar =
-    permisos.gestionar ||
-    permisos.consultar_global;
+  const puedeConsultar = permisos.gestionar || permisos.consultar_global;
 
   const metricas = useMemo(() => {
     const resguardados = documentos.filter(
-      (item) =>
-        item.archivoFisico?.estado === "resguardado"
+      (item) => item.archivoFisico?.estado === "resguardado",
     ).length;
 
     return {
       total: documentos.length,
       resguardados,
-      pendientes:
-        documentos.length - resguardados,
+      pendientes: documentos.length - resguardados,
       sinClasificacion: documentos.filter(
-        (item) =>
-          !item.archivoFisico?.id_clasificacion
+        (item) => !item.archivoFisico?.id_clasificacion,
       ).length,
     };
   }, [documentos]);
 
   const sugerirClasificacion = (documento) => {
-    const area = normalizar(
-      documento.area?.nombre_area
-    );
+    const area = normalizar(documento.area?.nombre_area);
 
     if (!area) return null;
 
     return (
       clasificaciones.find((clasificacion) => {
-        const areaClasificacion = normalizar(
-          clasificacion.area_administrativa
-        );
+        const areaClasificacion = normalizar(clasificacion.area_administrativa);
 
         return (
           areaClasificacion &&
-          (
-            area.includes(areaClasificacion) ||
-            areaClasificacion.includes(area)
-          )
+          (area.includes(areaClasificacion) || areaClasificacion.includes(area))
         );
       }) || null
     );
@@ -158,8 +132,7 @@ const LeyArchivo = () => {
       const texto = [
         item.dispersion?.nombre_archivo,
         item.area?.nombre_area,
-        item.archivoFisico?.clasificacion
-          ?.codigo_asignado,
+        item.archivoFisico?.clasificacion?.codigo_asignado,
         item.archivoFisico?.expediente,
         item.archivoFisico?.carpeta,
         item.archivoFisico?.caja,
@@ -183,40 +156,25 @@ const LeyArchivo = () => {
     if (!puedeGestionar) return;
 
     const actual = documento.archivoFisico;
-    const sugerida =
-      sugerirClasificacion(documento);
+    const sugerida = sugerirClasificacion(documento);
 
-    const idClasificacion =
-      actual?.id_clasificacion ||
-      sugerida?.id ||
-      "";
+    const idClasificacion = actual?.id_clasificacion || sugerida?.id || "";
 
-    const seleccionada =
-      clasificaciones.find(
-        (item) =>
-          Number(item.id) ===
-          Number(idClasificacion)
-      );
+    const seleccionada = clasificaciones.find(
+      (item) => Number(item.id) === Number(idClasificacion),
+    );
 
     setSelectedDoc(documento);
 
     setFormulario({
-      id_clasificacion:
-        String(idClasificacion || ""),
-      expediente:
-        actual?.expediente || "",
-      carpeta:
-        actual?.carpeta || "",
-      caja:
-        actual?.caja || "",
-      estante:
-        actual?.estante || "",
+      id_clasificacion: String(idClasificacion || ""),
+      expediente: actual?.expediente || "",
+      carpeta: actual?.carpeta || "",
+      caja: actual?.caja || "",
+      estante: actual?.estante || "",
       ubicacion_fisica:
-        actual?.ubicacion_fisica ||
-        seleccionada?.ubicacion ||
-        "",
-      observaciones:
-        actual?.observaciones || "",
+        actual?.ubicacion_fisica || seleccionada?.ubicacion || "",
+      observaciones: actual?.observaciones || "",
     });
 
     setErrorFormulario("");
@@ -227,19 +185,15 @@ const LeyArchivo = () => {
   const cambiarClasificacion = (event) => {
     const valor = event.target.value;
 
-    const clasificacion =
-      clasificaciones.find(
-        (item) =>
-          String(item.id) === String(valor)
-      );
+    const clasificacion = clasificaciones.find(
+      (item) => String(item.id) === String(valor),
+    );
 
     setFormulario((actual) => ({
       ...actual,
       id_clasificacion: valor,
       ubicacion_fisica:
-        actual.ubicacion_fisica ||
-        clasificacion?.ubicacion ||
-        "",
+        actual.ubicacion_fisica || clasificacion?.ubicacion || "",
     }));
   };
 
@@ -250,39 +204,26 @@ const LeyArchivo = () => {
 
     try {
       if (!formulario.id_clasificacion) {
-        throw new Error(
-          "Seleccione una clasificación documental."
-        );
+        throw new Error("Seleccione una clasificación documental.");
       }
 
       if (!formulario.ubicacion_fisica.trim()) {
-        throw new Error(
-          "Capture la ubicación física general."
-        );
+        throw new Error("Capture la ubicación física general.");
       }
 
-      await guardarResguardo(
-        selectedDoc.id,
-        {
-          ...formulario,
-          id_clasificacion:
-            Number(
-              formulario.id_clasificacion
-            ),
-          estado: "resguardado",
-        }
-      );
+      await guardarResguardo(selectedDoc.id, {
+        ...formulario,
+        id_clasificacion: Number(formulario.id_clasificacion),
+        estado: "resguardado",
+      });
 
       setIsModalGestionOpen(false);
       setSelectedDoc(null);
 
-      setMensaje(
-        "La ubicación física del documento se guardó correctamente."
-      );
+      setMensaje("La ubicación física del documento se guardó correctamente.");
     } catch (err) {
       setErrorFormulario(
-        err?.message ||
-          "No fue posible guardar el resguardo."
+        err?.message || "No fue posible guardar el resguardo.",
       );
     }
   };
@@ -298,13 +239,11 @@ const LeyArchivo = () => {
         !nuevaClasificacion.codigo_asignado.trim()
       ) {
         throw new Error(
-          "El área administrativa y el código asignado son obligatorios."
+          "El área administrativa y el código asignado son obligatorios.",
         );
       }
 
-      await crearClasificacion(
-        nuevaClasificacion
-      );
+      await crearClasificacion(nuevaClasificacion);
 
       setNuevaClasificacion({
         area_administrativa: "",
@@ -315,13 +254,10 @@ const LeyArchivo = () => {
 
       setIsModalClasificacionOpen(false);
 
-      setMensaje(
-        "La clasificación se agregó correctamente."
-      );
+      setMensaje("La clasificación se agregó correctamente.");
     } catch (err) {
       setErrorFormulario(
-        err?.message ||
-          "No fue posible crear la clasificación."
+        err?.message || "No fue posible crear la clasificación.",
       );
     }
   };
@@ -329,12 +265,8 @@ const LeyArchivo = () => {
   const obtenerUbicacion = (item) => {
     const archivo = item.archivoFisico;
 
-    if (
-      !archivo ||
-      archivo.estado !== "resguardado"
-    ) {
-      const sugerida =
-        sugerirClasificacion(item);
+    if (!archivo || archivo.estado !== "resguardado") {
+      const sugerida = sugerirClasificacion(item);
 
       return sugerida?.ubicacion
         ? `Sugerencia: ${sugerida.ubicacion}`
@@ -343,12 +275,9 @@ const LeyArchivo = () => {
 
     return [
       archivo.ubicacion_fisica,
-      archivo.estante &&
-        `Estante ${archivo.estante}`,
-      archivo.caja &&
-        `Caja ${archivo.caja}`,
-      archivo.carpeta &&
-        `Carpeta ${archivo.carpeta}`,
+      archivo.estante && `Estante ${archivo.estante}`,
+      archivo.caja && `Caja ${archivo.caja}`,
+      archivo.carpeta && `Carpeta ${archivo.carpeta}`,
     ]
       .filter(Boolean)
       .join(" · ");
@@ -365,75 +294,43 @@ const LeyArchivo = () => {
 
   const renderRow = (item) => {
     const clasificacion =
-      item.archivoFisico?.clasificacion ||
-      sugerirClasificacion(item);
+      item.archivoFisico?.clasificacion || sugerirClasificacion(item);
 
     return (
       <tr key={item.id}>
         <td>
           <div className="archivo-documento-cell">
-            <strong>
-              {
-                item.dispersion
-                  ?.nombre_archivo ||
-                "Documento"
-              }
-            </strong>
-            <span>
-              Atendido:{" "}
-              {
-                formatearFecha(
-                  item.fecha_atencion
-                )
-              }
-            </span>
+            <strong>{item.dispersion?.nombre_archivo || "Documento"}</strong>
+            <span>Atendido: {formatearFecha(item.fecha_atencion)}</span>
           </div>
         </td>
 
-        <td>
-          {
-            item.area?.nombre_area ||
-            "—"
-          }
-        </td>
+        <td>{item.area?.nombre_area || "—"}</td>
 
         <td>
           {clasificacion ? (
             <div className="archivo-clasificacion-cell">
-              <strong>
-                {
-                  clasificacion.codigo_asignado ||
-                  "Sin código"
-                }
-              </strong>
+              <strong>{clasificacion.codigo_asignado || "Sin código"}</strong>
               <span>
-                {
-                  clasificacion.funcion ||
+                {clasificacion.funcion ||
                   clasificacion.area_administrativa ||
-                  ""
-                }
+                  ""}
               </span>
             </div>
           ) : (
-            <span className="archivo-sin-dato">
-              Sin clasificación
-            </span>
+            <span className="archivo-sin-dato">Sin clasificación</span>
           )}
         </td>
 
         <td>
           <div className="archivo-ubicacion-cell">
             <FiMapPin />
-            <span>
-              {obtenerUbicacion(item)}
-            </span>
+            <span>{obtenerUbicacion(item)}</span>
           </div>
         </td>
 
         <td>
-          <EtiquetaEstado
-            estatus={obtenerTextoEstado(item)}
-          />
+          <EtiquetaEstado estatus={obtenerTextoEstado(item)} />
         </td>
 
         <td>
@@ -449,9 +346,7 @@ const LeyArchivo = () => {
             {puedeGestionar && (
               <BotonReutilizable
                 className="btn-action btn-icon edit"
-                onClick={() =>
-                  abrirGestionar(item)
-                }
+                onClick={() => abrirGestionar(item)}
                 title={
                   item.archivoFisico
                     ? "Actualizar ubicación"
@@ -467,10 +362,7 @@ const LeyArchivo = () => {
     );
   };
 
-  if (
-    !loading &&
-    !puedeConsultar
-  ) {
+  if (!loading && !puedeConsultar) {
     return (
       <main className="content-area">
         <section className="content-section ley-archivo-page">
@@ -479,12 +371,11 @@ const LeyArchivo = () => {
               <FiShield />
 
               <div>
-                <strong>
-                  Acceso restringido
-                </strong>
+                <strong>Acceso restringido</strong>
 
                 <span>
-                  Su usuario no cuenta con los privilegios necesarios para consultar el Archivo Físico.
+                  Su usuario no cuenta con los privilegios necesarios para
+                  consultar el Archivo Físico.
                 </span>
               </div>
             </div>
@@ -497,15 +388,13 @@ const LeyArchivo = () => {
   return (
     <main className="content-area">
       <section className="content-section ley-archivo-page">
-
         <div className="ley-archivo-header">
           <div>
-            <h2 className="card-title">
-              Control de Archivo Físico
-            </h2>
+            <h2 className="card-title">Control de Archivo Físico</h2>
             <p className="ley-archivo-subtitle">
-              Consulta y registro de la localización física de documentos atendidos.
-              Este módulo almacena únicamente metadatos y no duplica archivos digitales.
+              Consulta y registro de la localización física de documentos
+              atendidos. Este módulo almacena únicamente metadatos y no duplica
+              archivos digitales.
             </p>
           </div>
 
@@ -580,31 +469,23 @@ const LeyArchivo = () => {
               <FiMapPin />
               <div>
                 <span>Sin clasificación</span>
-                <strong>
-                  {metricas.sinClasificacion}
-                </strong>
+                <strong>{metricas.sinClasificacion}</strong>
               </div>
             </div>
           </Card>
         </div>
 
         {mensaje && (
-          <div className="page-message page-message-success">
-            {mensaje}
-          </div>
+          <div className="page-message page-message-success">{mensaje}</div>
         )}
 
         {error && (
-          <div className="page-message page-message-error">
-            {error}
-          </div>
+          <div className="page-message page-message-error">{error}</div>
         )}
 
         <FiltroBusqueda
           value={searchQuery}
-          onChange={(event) =>
-            setSearchQuery(event.target.value)
-          }
+          onChange={(event) => setSearchQuery(event.target.value)}
           placeholder="Buscar documento, área, clasificación, expediente, caja, carpeta o estante..."
         />
 
@@ -642,157 +523,89 @@ const LeyArchivo = () => {
               <FiArchive />
               <div>
                 <strong>
-                  {
-                    selectedDoc.dispersion
-                      ?.nombre_archivo ||
-                    "Documento"
-                  }
+                  {selectedDoc.dispersion?.nombre_archivo || "Documento"}
                 </strong>
-                <span>
-                  {
-                    selectedDoc.area
-                      ?.nombre_area ||
-                    "—"
-                  }
-                </span>
+                <span>{selectedDoc.area?.nombre_area || "—"}</span>
               </div>
             </div>
 
             <div className="archivo-ficha-grid">
               <div>
                 <strong>Estado archivístico</strong>
-                <span>
-                  {obtenerTextoEstado(selectedDoc)}
-                </span>
+                <span>{obtenerTextoEstado(selectedDoc)}</span>
               </div>
 
               <div>
                 <strong>Fecha de atención</strong>
-                <span>
-                  {
-                    formatearFecha(
-                      selectedDoc.fecha_atencion
-                    )
-                  }
-                </span>
+                <span>{formatearFecha(selectedDoc.fecha_atencion)}</span>
               </div>
 
               <div>
                 <strong>Clasificación</strong>
                 <span>
-                  {
-                    selectedDoc.archivoFisico
-                      ?.clasificacion
-                      ?.codigo_asignado ||
-                    sugerirClasificacion(
-                      selectedDoc
-                    )?.codigo_asignado ||
-                    "Pendiente"
-                  }
+                  {selectedDoc.archivoFisico?.clasificacion?.codigo_asignado ||
+                    sugerirClasificacion(selectedDoc)?.codigo_asignado ||
+                    "Pendiente"}
                 </span>
               </div>
 
               <div>
                 <strong>Expediente</strong>
-                <span>
-                  {
-                    selectedDoc.archivoFisico
-                      ?.expediente ||
-                    "—"
-                  }
-                </span>
+                <span>{selectedDoc.archivoFisico?.expediente || "—"}</span>
               </div>
 
               <div>
                 <strong>Carpeta</strong>
-                <span>
-                  {
-                    selectedDoc.archivoFisico
-                      ?.carpeta ||
-                    "—"
-                  }
-                </span>
+                <span>{selectedDoc.archivoFisico?.carpeta || "—"}</span>
               </div>
 
               <div>
                 <strong>Caja</strong>
-                <span>
-                  {
-                    selectedDoc.archivoFisico
-                      ?.caja ||
-                    "—"
-                  }
-                </span>
+                <span>{selectedDoc.archivoFisico?.caja || "—"}</span>
               </div>
 
               <div>
                 <strong>Estante / Anaquel</strong>
-                <span>
-                  {
-                    selectedDoc.archivoFisico
-                      ?.estante ||
-                    "—"
-                  }
-                </span>
+                <span>{selectedDoc.archivoFisico?.estante || "—"}</span>
               </div>
 
               <div>
                 <strong>Ubicación general</strong>
                 <span>
-                  {
-                    selectedDoc.archivoFisico
-                      ?.ubicacion_fisica ||
-                    sugerirClasificacion(
-                      selectedDoc
-                    )?.ubicacion ||
-                    "Pendiente"
-                  }
+                  {selectedDoc.archivoFisico?.ubicacion_fisica ||
+                    sugerirClasificacion(selectedDoc)?.ubicacion ||
+                    "Pendiente"}
                 </span>
               </div>
 
               <div>
                 <strong>Fecha de resguardo</strong>
                 <span>
-                  {
-                    formatearFecha(
-                      selectedDoc.archivoFisico
-                        ?.fecha_resguardo
-                    )
-                  }
+                  {formatearFecha(selectedDoc.archivoFisico?.fecha_resguardo)}
                 </span>
               </div>
 
               <div>
                 <strong>Responsable</strong>
                 <span>
-                  {
-                    selectedDoc.archivoFisico
-                      ?.usuarioResguardo
-                      ?.nombre_completo ||
-                    "—"
-                  }
+                  {selectedDoc.archivoFisico?.usuarioResguardo
+                    ?.nombre_completo || "—"}
                 </span>
               </div>
             </div>
 
-            {selectedDoc.archivoFisico
-              ?.observaciones && (
+            {selectedDoc.archivoFisico?.observaciones && (
               <div className="archivo-observaciones">
                 <strong>Observaciones</strong>
-                <p>
-                  {
-                    selectedDoc.archivoFisico
-                      .observaciones
-                  }
-                </p>
+                <p>{selectedDoc.archivoFisico.observaciones}</p>
               </div>
             )}
 
             <div className="archivo-no-duplicacion">
               <strong>Sin duplicación de archivos</strong>
               <span>
-                Esta ficha solo contiene información de localización.
-                El archivo digital original no se ha copiado a este módulo.
+                Esta ficha solo contiene información de localización. El archivo
+                digital original no se ha copiado a este módulo.
               </span>
             </div>
           </div>
@@ -812,15 +625,10 @@ const LeyArchivo = () => {
           setErrorFormulario("");
         }}
         onAccept={guardar}
-        acceptButtonText={
-          saving
-            ? "Guardando..."
-            : "Guardar resguardo"
-        }
+        acceptButtonText={saving ? "Guardando..." : "Guardar resguardo"}
       >
         {selectedDoc && (
           <div className="archivo-formulario">
-
             {errorFormulario && (
               <div className="page-message page-message-error">
                 {errorFormulario}
@@ -830,18 +638,8 @@ const LeyArchivo = () => {
             <div className="archivo-formulario-documento">
               <FiFolder />
               <div>
-                <strong>
-                  {
-                    selectedDoc.dispersion
-                      ?.nombre_archivo
-                  }
-                </strong>
-                <span>
-                  {
-                    selectedDoc.area
-                      ?.nombre_area
-                  }
-                </span>
+                <strong>{selectedDoc.dispersion?.nombre_archivo}</strong>
+                <span>{selectedDoc.area?.nombre_area}</span>
               </div>
             </div>
 
@@ -851,15 +649,10 @@ const LeyArchivo = () => {
               value={formulario.id_clasificacion}
               onChange={cambiarClasificacion}
             >
-              <option value="">
-                Seleccione una clasificación
-              </option>
+              <option value="">Seleccione una clasificación</option>
 
               {clasificaciones.map((item) => (
-                <option
-                  key={item.id}
-                  value={item.id}
-                >
+                <option key={item.id} value={item.id}>
                   {item.codigo_asignado} — {item.area_administrativa}
                 </option>
               ))}
@@ -872,8 +665,7 @@ const LeyArchivo = () => {
                 onChange={(event) =>
                   setFormulario((actual) => ({
                     ...actual,
-                    expediente:
-                      event.target.value,
+                    expediente: event.target.value,
                   }))
                 }
                 placeholder="Ej. EXP-2026-018"
@@ -885,8 +677,7 @@ const LeyArchivo = () => {
                 onChange={(event) =>
                   setFormulario((actual) => ({
                     ...actual,
-                    carpeta:
-                      event.target.value,
+                    carpeta: event.target.value,
                   }))
                 }
                 placeholder="Ej. 04"
@@ -898,8 +689,7 @@ const LeyArchivo = () => {
                 onChange={(event) =>
                   setFormulario((actual) => ({
                     ...actual,
-                    caja:
-                      event.target.value,
+                    caja: event.target.value,
                   }))
                 }
                 placeholder="Ej. 08"
@@ -911,8 +701,7 @@ const LeyArchivo = () => {
                 onChange={(event) =>
                   setFormulario((actual) => ({
                     ...actual,
-                    estante:
-                      event.target.value,
+                    estante: event.target.value,
                   }))
                 }
                 placeholder="Ej. B-03"
@@ -925,8 +714,7 @@ const LeyArchivo = () => {
               onChange={(event) =>
                 setFormulario((actual) => ({
                   ...actual,
-                  ubicacion_fisica:
-                    event.target.value,
+                  ubicacion_fisica: event.target.value,
                 }))
               }
               placeholder="Ej. Archivo Municipal / Sección Administrativa"
@@ -939,8 +727,7 @@ const LeyArchivo = () => {
                 onChange={(event) =>
                   setFormulario((actual) => ({
                     ...actual,
-                    observaciones:
-                      event.target.value,
+                    observaciones: event.target.value,
                   }))
                 }
                 rows="4"
@@ -951,8 +738,8 @@ const LeyArchivo = () => {
             <div className="archivo-no-duplicacion">
               <strong>Almacenamiento optimizado</strong>
               <span>
-                Solo se guardan clasificación y ubicación física.
-                El documento digital no se vuelve a almacenar.
+                Solo se guardan clasificación y ubicación física. El documento
+                digital no se vuelve a almacenar.
               </span>
             </div>
           </div>
@@ -967,14 +754,9 @@ const LeyArchivo = () => {
           setErrorFormulario("");
         }}
         onAccept={guardarClasificacion}
-        acceptButtonText={
-          saving
-            ? "Guardando..."
-            : "Guardar clasificación"
-        }
+        acceptButtonText={saving ? "Guardando..." : "Guardar clasificación"}
       >
         <div className="archivo-formulario">
-
           {errorFormulario && (
             <div className="page-message page-message-error">
               {errorFormulario}
@@ -983,14 +765,11 @@ const LeyArchivo = () => {
 
           <CampoFormulario
             label="Área administrativa"
-            value={
-              nuevaClasificacion.area_administrativa
-            }
+            value={nuevaClasificacion.area_administrativa}
             onChange={(event) =>
               setNuevaClasificacion((actual) => ({
                 ...actual,
-                area_administrativa:
-                  event.target.value,
+                area_administrativa: event.target.value,
               }))
             }
             placeholder="Ej. Secretaría Particular"
@@ -998,14 +777,11 @@ const LeyArchivo = () => {
 
           <CampoFormulario
             label="Código asignado"
-            value={
-              nuevaClasificacion.codigo_asignado
-            }
+            value={nuevaClasificacion.codigo_asignado}
             onChange={(event) =>
               setNuevaClasificacion((actual) => ({
                 ...actual,
-                codigo_asignado:
-                  event.target.value,
+                codigo_asignado: event.target.value,
               }))
             }
             placeholder="Ej. SP-2026-001"
@@ -1017,8 +793,7 @@ const LeyArchivo = () => {
             onChange={(event) =>
               setNuevaClasificacion((actual) => ({
                 ...actual,
-                ubicacion:
-                  event.target.value,
+                ubicacion: event.target.value,
               }))
             }
             placeholder="Ej. Archivo Municipal"
@@ -1030,15 +805,13 @@ const LeyArchivo = () => {
             onChange={(event) =>
               setNuevaClasificacion((actual) => ({
                 ...actual,
-                funcion:
-                  event.target.value,
+                funcion: event.target.value,
               }))
             }
             placeholder="Ej. Correspondencia administrativa"
           />
         </div>
       </ModalReutilizable>
-
     </main>
   );
 };

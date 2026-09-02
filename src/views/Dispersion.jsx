@@ -1,8 +1,4 @@
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import {
   FiCheck,
@@ -28,183 +24,92 @@ import usePermisosUsuario from "../hooks/usePermisosUsuario";
 
 import "../styles/Dispersion.css";
 
-// ======================================================
-// CONFIGURACIÓN
-// ======================================================
-
-const SERVER_URL =
-  "http://localhost:3001";
-
-// ======================================================
-// UTILIDADES
-// ======================================================
+const SERVER_URL = "http://localhost:3001";
 
 const formatearFecha = (valor) => {
   if (!valor) {
     return "—";
   }
 
-  const fecha =
-    new Date(valor);
+  const fecha = new Date(valor);
 
-  if (
-    Number.isNaN(
-      fecha.getTime()
-    )
-  ) {
+  if (Number.isNaN(fecha.getTime())) {
     return "—";
   }
 
-  return fecha.toLocaleString(
-    "es-MX",
-    {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }
-  );
+  return fecha.toLocaleString("es-MX", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
-// ======================================================
-// FECHA SOLO DD/MM/AAAA
-// ======================================================
-
-const formatearFechaCorta = (
-  valor
-) => {
+const formatearFechaCorta = (valor) => {
   if (!valor) {
     return "—";
   }
 
-  const fecha =
-    new Date(valor);
+  const fecha = new Date(valor);
 
-  if (
-    Number.isNaN(
-      fecha.getTime()
-    )
-  ) {
+  if (Number.isNaN(fecha.getTime())) {
     return "—";
   }
 
-  return fecha.toLocaleDateString(
-    "es-MX",
-    {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }
-  );
+  return fecha.toLocaleDateString("es-MX", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 };
 
-// ======================================================
-// TAMAÑO
-// ======================================================
+const formatearTamano = (bytes) => {
+  const numero = Number(bytes);
 
-const formatearTamano = (
-  bytes
-) => {
-  const numero =
-    Number(bytes);
-
-  if (
-    !Number.isFinite(
-      numero
-    ) ||
-    numero < 0
-  ) {
+  if (!Number.isFinite(numero) || numero < 0) {
     return "—";
   }
 
-  if (
-    numero < 1024
-  ) {
+  if (numero < 1024) {
     return `${numero} B`;
   }
 
-  if (
-    numero <
-    1024 * 1024
-  ) {
-    return `${(
-      numero / 1024
-    ).toFixed(1)} KB`;
+  if (numero < 1024 * 1024) {
+    return `${(numero / 1024).toFixed(1)} KB`;
   }
 
-  return `${(
-    numero /
-    (1024 * 1024)
-  ).toFixed(2)} MB`;
+  return `${(numero / (1024 * 1024)).toFixed(2)} MB`;
 };
 
-// ======================================================
-// ORIGEN
-// ======================================================
+const obtenerTextoOrigen = (origen) => {
+  const valor = String(origen || "")
+    .trim()
+    .toLowerCase();
 
-const obtenerTextoOrigen = (
-  origen
-) => {
-  const valor =
-    String(
-      origen || ""
-    )
-      .trim()
-      .toLowerCase();
-
-  if (
-    valor === "app"
-  ) {
+  if (valor === "app") {
     return "App móvil";
   }
 
   return "Carga manual";
 };
 
-// ======================================================
-// URL DEL ARCHIVO
-// ======================================================
-
-const obtenerRutaArchivo = (
-  dispersion
-) => {
-  if (
-    !dispersion?.archivo
-  ) {
+const obtenerRutaArchivo = (dispersion) => {
+  if (!dispersion?.archivo) {
     return "";
   }
 
-  const ruta =
-    String(
-      dispersion.archivo
-    )
-      .replace(
-        /\\/g,
-        "/"
-      )
-      .replace(
-        /^\/+/,
-        ""
-      );
+  const ruta = String(dispersion.archivo)
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "");
 
   return `${SERVER_URL}/${ruta}`;
 };
 
-// ======================================================
-// TEXTO DEL ESTADO ADMINISTRATIVO
-// ======================================================
-
-const obtenerTextoEstadoDocumento = (
-  estado
-) => {
-  const valor =
-    String(
-      estado ||
-        "turnado"
-    )
-      .trim()
-      .toLowerCase();
+const obtenerTextoEstadoDocumento = (estado) => {
+  const valor = String(estado || "turnado")
+    .trim()
+    .toLowerCase();
 
   switch (valor) {
     case "recibido":
@@ -225,38 +130,15 @@ const obtenerTextoEstadoDocumento = (
   }
 };
 
-// ======================================================
-// CLASE ESTADO ADMINISTRATIVO
-// ======================================================
-
-const obtenerClaseEstadoDocumento = (
-  estado
-) => {
-  return String(
-    estado ||
-      "turnado"
-  )
+const obtenerClaseEstadoDocumento = (estado) => {
+  return String(estado || "turnado")
     .trim()
     .toLowerCase()
-    .replace(
-      /\s+/g,
-      "-"
-    );
+    .replace(/\s+/g, "-");
 };
 
-// ======================================================
-// TEXTO DE TRANSFERENCIA
-// ======================================================
-
-const obtenerTextoEstadoEnvio = (
-  estado
-) => {
-  switch (
-    String(
-      estado ||
-        "pendiente"
-    ).toLowerCase()
-  ) {
+const obtenerTextoEstadoEnvio = (estado) => {
+  switch (String(estado || "pendiente").toLowerCase()) {
     case "enviado":
       return "Enviado";
 
@@ -269,264 +151,137 @@ const obtenerTextoEstadoEnvio = (
   }
 };
 
-// ======================================================
-// SEMÁFORO / SEGUIMIENTO
-// ======================================================
+const calcularSeguimiento = (destino) => {
+  const estado = String(destino?.estado_documento || "turnado")
+    .trim()
+    .toLowerCase();
 
-const calcularSeguimiento = (
-  destino
-) => {
-  const estado =
-    String(
-      destino
-        ?.estado_documento ||
-        "turnado"
-    )
-      .trim()
-      .toLowerCase();
+  if (estado === "atendido") {
+    const fechaRespuesta = destino?.fecha_respuesta
+      ? new Date(destino.fecha_respuesta)
+      : null;
 
-  /*
-    Atendido detiene el conteo.
-  */
+    const fechaLimite = destino?.fecha_limite
+      ? new Date(destino.fecha_limite)
+      : null;
 
-  if (
-    estado ===
-    "atendido"
-  ) {
-    const fechaRespuesta =
-      destino
-        ?.fecha_respuesta
-        ? new Date(
-            destino.fecha_respuesta
-          )
-        : null;
-
-    const fechaLimite =
-      destino
-        ?.fecha_limite
-        ? new Date(
-            destino.fecha_limite
-          )
-        : null;
-
-    if (
-      fechaRespuesta &&
-      fechaLimite
-    ) {
-      if (
-        fechaRespuesta.getTime() >
-        fechaLimite.getTime()
-      ) {
+    if (fechaRespuesta && fechaLimite) {
+      if (fechaRespuesta.getTime() > fechaLimite.getTime()) {
         return {
-          texto:
-            "Atendido fuera de plazo",
+          texto: "Atendido fuera de plazo",
 
-          clase:
-            "vencido",
+          clase: "vencido",
         };
       }
     }
 
     return {
-      texto:
-        "Atendido",
+      texto: "Atendido",
 
-      clase:
-        "atendido",
+      clase: "atendido",
     };
   }
 
-  /*
-    Devuelto también deja de tratarse
-    como un documento activo.
-  */
-
-  if (
-    estado ===
-    "devuelto"
-  ) {
+  if (estado === "devuelto") {
     return {
-      texto:
-        "Devuelto",
+      texto: "Devuelto",
 
-      clase:
-        "sin-fecha",
+      clase: "sin-fecha",
     };
   }
 
-  if (
-    !destino?.fecha_limite
-  ) {
+  if (!destino?.fecha_limite) {
     return {
-      texto:
-        "Sin fecha límite",
+      texto: "Sin fecha límite",
 
-      clase:
-        "sin-fecha",
+      clase: "sin-fecha",
     };
   }
 
-  const hoy =
-    new Date();
+  const hoy = new Date();
 
-  const limite =
-    new Date(
-      destino.fecha_limite
-    );
+  const limite = new Date(destino.fecha_limite);
 
-  hoy.setHours(
-    0,
-    0,
-    0,
-    0
-  );
+  hoy.setHours(0, 0, 0, 0);
 
-  limite.setHours(
-    23,
-    59,
-    59,
-    999
-  );
+  limite.setHours(23, 59, 59, 999);
 
-  const diferencia =
-    limite.getTime() -
-    hoy.getTime();
+  const diferencia = limite.getTime() - hoy.getTime();
 
-  const diasRestantes =
-    Math.ceil(
-      diferencia /
-        (
-          1000 *
-          60 *
-          60 *
-          24
-        )
-    );
+  const diasRestantes = Math.ceil(diferencia / (1000 * 60 * 60 * 24));
 
-  if (
-    diasRestantes < 0
-  ) {
+  if (diasRestantes < 0) {
     return {
-      texto:
-        "Vencido",
+      texto: "Vencido",
 
-      clase:
-        "vencido",
+      clase: "vencido",
     };
   }
 
-  if (
-    diasRestantes === 0
-  ) {
+  if (diasRestantes === 0) {
     return {
-      texto:
-        "Vence hoy",
+      texto: "Vence hoy",
 
-      clase:
-        "proximo",
+      clase: "proximo",
     };
   }
 
-  if (
-    diasRestantes === 1
-  ) {
+  if (diasRestantes === 1) {
     return {
-      texto:
-        "Vence mañana",
+      texto: "Vence mañana",
 
-      clase:
-        "proximo",
+      clase: "proximo",
     };
   }
 
   return {
-    texto:
-      `${diasRestantes} días restantes`,
+    texto: `${diasRestantes} días restantes`,
 
-    clase:
-      "atiempo",
+    clase: "atiempo",
   };
 };
 
-// ======================================================
-// ESTADO GENERAL DE LA DISPERSIÓN
-// ======================================================
-
-const obtenerEstadoGeneral = (
-  destinos = []
-) => {
-  if (
-    !Array.isArray(
-      destinos
-    ) ||
-    destinos.length === 0
-  ) {
+const obtenerEstadoGeneral = (destinos = []) => {
+  if (!Array.isArray(destinos) || destinos.length === 0) {
     return {
-      texto:
-        "Sin destinos",
+      texto: "Sin destinos",
 
-      clase:
-        "sin-destinos",
+      clase: "sin-destinos",
     };
   }
 
-  const enviados =
-    destinos.filter(
-      (item) =>
-        item.estado_envio ===
-        "enviado"
-    ).length;
+  const enviados = destinos.filter(
+    (item) => item.estado_envio === "enviado",
+  ).length;
 
-  const errores =
-    destinos.filter(
-      (item) =>
-        item.estado_envio ===
-        "error"
-    ).length;
+  const errores = destinos.filter(
+    (item) => item.estado_envio === "error",
+  ).length;
 
-  if (
-    enviados ===
-    destinos.length
-  ) {
+  if (enviados === destinos.length) {
     return {
-      texto:
-        "Enviado",
+      texto: "Enviado",
 
-      clase:
-        "enviado",
+      clase: "enviado",
     };
   }
 
-  if (
-    errores > 0
-  ) {
+  if (errores > 0) {
     return {
-      texto:
-        "Con errores",
+      texto: "Con errores",
 
-      clase:
-        "error",
+      clase: "error",
     };
   }
 
   return {
-    texto:
-      "Pendiente",
+    texto: "Pendiente",
 
-    clase:
-      "pendiente",
+    clase: "pendiente",
   };
 };
-
-// ======================================================
-// COMPONENTE
-// ======================================================
 
 const Dispersion = () => {
-  // ====================================================
-  // HOOK DISPERSIÓN
-  // ====================================================
-
   const {
     dispersiones,
 
@@ -540,683 +295,286 @@ const Dispersion = () => {
     limpiarError,
   } = useDispersion();
 
-  // ====================================================
-  // PERMISOS
-  // ====================================================
+  const { loading: loadingPermisos, tienePrivilegio } = usePermisosUsuario();
 
-  const {
-    loading:
-      loadingPermisos,
-    tienePrivilegio,
-  } = usePermisosUsuario();
-
-  const puedeGestionarDispersion =
-    tienePrivilegio(
-      "Gestionar Dispersión"
-    );
-
-  // ====================================================
-  // HOOK ÁREAS
-  // ====================================================
+  const puedeGestionarDispersion = tienePrivilegio("Gestionar Dispersión");
 
   const {
     areas = [],
 
-    loading:
-      loadingAreas = false,
+    loading: loadingAreas = false,
   } = useAreas();
-
-  // ====================================================
-  // HOOK RESPUESTAS Y ENTREGAS
-  // ====================================================
 
   const {
     respuestas,
 
-    loading:
-      loadingRespuestas,
+    loading: loadingRespuestas,
 
-    saving:
-      savingEventos,
+    saving: savingEventos,
 
-    error:
-      errorEventos,
+    error: errorEventos,
 
     cargarRespuestas,
     crearEvento,
-    limpiarError:
-      limpiarErrorEventos,
+    limpiarError: limpiarErrorEventos,
   } = useDocumentoEventos();
 
-  // ====================================================
-  // ESTADOS GENERALES
-  // ====================================================
+  const [searchQuery, setSearchQuery] = useState("");
+  const [mensaje, setMensaje] = useState("");
+  const [isModalSubirOpen, setIsModalSubirOpen] = useState(false);
+  const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
+  const [destinosSeleccionados, setDestinosSeleccionados] = useState([]);
+  const [fechaLimite, setFechaLimite] = useState("");
+  const [busquedaArea, setBusquedaArea] = useState("");
+  const [errorFormulario, setErrorFormulario] = useState("");
 
-  const [
-    searchQuery,
-    setSearchQuery,
-  ] = useState("");
+  const [isModalVerOpen, setIsModalVerOpen] = useState(false);
+  const [dispersionSeleccionada, setDispersionSeleccionada] = useState(null);
 
-  const [
-    mensaje,
-    setMensaje,
-  ] = useState("");
+  const [isModalEliminarOpen, setIsModalEliminarOpen] = useState(false);
+  const [dispersionAEliminar, setDispersionAEliminar] = useState(null);
 
-  // ====================================================
-  // MODAL SUBIR
-  // ====================================================
-
-  const [
-    isModalSubirOpen,
-    setIsModalSubirOpen,
-  ] = useState(false);
-
-  const [
-    archivoSeleccionado,
-    setArchivoSeleccionado,
-  ] = useState(null);
-
-  const [
-    destinosSeleccionados,
-    setDestinosSeleccionados,
-  ] = useState([]);
-
-  const [
-    fechaLimite,
-    setFechaLimite,
-  ] = useState("");
-
-  const [
-    busquedaArea,
-    setBusquedaArea,
-  ] = useState("");
-
-  const [
-    errorFormulario,
-    setErrorFormulario,
-  ] = useState("");
-
-  // ====================================================
-  // MODAL VER
-  // ====================================================
-
-  const [
-    isModalVerOpen,
-    setIsModalVerOpen,
-  ] = useState(false);
-
-  const [
-    dispersionSeleccionada,
-    setDispersionSeleccionada,
-  ] = useState(null);
-
-  // ====================================================
-  // MODAL ELIMINAR
-  // ====================================================
-
-  const [
-    isModalEliminarOpen,
-    setIsModalEliminarOpen,
-  ] = useState(false);
-
-  const [
-    dispersionAEliminar,
-    setDispersionAEliminar,
-  ] = useState(null);
-
-  // ====================================================
-  // RESPUESTAS Y ENTREGAS
-  // ====================================================
-
-  const [
-    isModalRecibirOpen,
-    setIsModalRecibirOpen,
-  ] = useState(false);
-
-  const [
-    isModalEntregarOpen,
-    setIsModalEntregarOpen,
-  ] = useState(false);
-
-  const [
-    isModalRespuestaOpen,
-    setIsModalRespuestaOpen,
-  ] = useState(false);
-
-  const [
-    respuestaSeleccionada,
-    setRespuestaSeleccionada,
-  ] = useState(null);
-
-  const [
-    comentarioOficialia,
-    setComentarioOficialia,
-  ] = useState("");
-
-  // ====================================================
-  // CARGAR RESPUESTAS DE LAS ÁREAS
-  // ====================================================
+  const [isModalRecibirOpen, setIsModalRecibirOpen] = useState(false);
+  const [isModalEntregarOpen, setIsModalEntregarOpen] = useState(false);
+  const [isModalRespuestaOpen, setIsModalRespuestaOpen] = useState(false);
+  const [respuestaSeleccionada, setRespuestaSeleccionada] = useState(null);
+  const [comentarioOficialia, setComentarioOficialia] = useState("");
 
   useEffect(() => {
-    /*
-      "Respuestas y Entregas" pertenece al flujo
-      operativo de Oficialía.
 
-      Evitamos incluso consultar ese recurso cuando
-      el usuario no tiene Gestionar Dispersión.
-    */
-    if (
-      loadingPermisos ||
-      !puedeGestionarDispersion
-    ) {
+    if (loadingPermisos || !puedeGestionarDispersion) {
       return;
     }
 
-    cargarRespuestas()
-      .catch(() => {});
-  }, [
-    cargarRespuestas,
-    loadingPermisos,
-    puedeGestionarDispersion,
-  ]);
+    cargarRespuestas().catch(() => {});
+  }, [cargarRespuestas, loadingPermisos, puedeGestionarDispersion]);
 
-  // ====================================================
-  // LIMPIAR MENSAJES
-  // ====================================================
+  const limpiarMensajes = () => {
+    setMensaje("");
 
-  const limpiarMensajes =
-    () => {
-      setMensaje("");
+    setErrorFormulario("");
 
-      setErrorFormulario(
-        ""
-      );
-
-      limpiarError();
-      limpiarErrorEventos();
-    };
-
-  // ====================================================
-  // FILTRAR DISPERSIONES
-  // ====================================================
-
-  const dispersionesFiltradas =
-    useMemo(() => {
-      const termino =
-        searchQuery
-          .trim()
-          .toLowerCase();
-
-      if (!termino) {
-        return dispersiones;
-      }
-
-      return dispersiones.filter(
-        (item) => {
-          const archivo =
-            String(
-              item.nombre_archivo ||
-                ""
-            ).toLowerCase();
-
-          const origen =
-            obtenerTextoOrigen(
-              item.origen
-            ).toLowerCase();
-
-          const destinos =
-            (
-              item.destinos ||
-              []
-            )
-              .map(
-                (destino) =>
-                  destino.area
-                    ?.nombre_area ||
-                  ""
-              )
-              .join(" ")
-              .toLowerCase();
-
-          const estados =
-            (
-              item.destinos ||
-              []
-            )
-              .map(
-                (destino) =>
-                  `${destino.estado_envio || ""} ${destino.estado_documento || ""}`
-              )
-              .join(" ")
-              .toLowerCase();
-
-          return (
-            archivo.includes(
-              termino
-            ) ||
-            origen.includes(
-              termino
-            ) ||
-            destinos.includes(
-              termino
-            ) ||
-            estados.includes(
-              termino
-            )
-          );
-        }
-      );
-    }, [
-      dispersiones,
-      searchQuery,
-    ]);
-
-  // ====================================================
-  // FILTRAR ÁREAS
-  // ====================================================
-
-  const areasFiltradas =
-    useMemo(() => {
-      const termino =
-        busquedaArea
-          .trim()
-          .toLowerCase();
-
-      const lista =
-        [...areas].sort(
-          (
-            a,
-            b
-          ) =>
-            String(
-              a.nombre_area ||
-                ""
-            ).localeCompare(
-              String(
-                b.nombre_area ||
-                  ""
-              ),
-              "es"
-            )
-        );
-
-      if (!termino) {
-        return lista;
-      }
-
-      return lista.filter(
-        (area) =>
-          String(
-            area.nombre_area ||
-              ""
-          )
-            .toLowerCase()
-            .includes(
-              termino
-            )
-      );
-    }, [
-      areas,
-      busquedaArea,
-    ]);
-
-  // ====================================================
-  // ABRIR MODAL SUBIR
-  // ====================================================
-
-  const abrirSubir =
-    () => {
-      if (
-        !puedeGestionarDispersion
-      ) {
-        return;
-      }
-
-      limpiarMensajes();
-
-      setArchivoSeleccionado(
-        null
-      );
-
-      setDestinosSeleccionados(
-        []
-      );
-
-      setFechaLimite("");
-
-      setBusquedaArea("");
-
-      setIsModalSubirOpen(
-        true
-      );
-    };
-
-  // ====================================================
-  // CERRAR MODAL SUBIR
-  // ====================================================
-
-  const cerrarSubir =
-    () => {
-      if (saving) {
-        return;
-      }
-
-      setIsModalSubirOpen(
-        false
-      );
-
-      setArchivoSeleccionado(
-        null
-      );
-
-      setDestinosSeleccionados(
-        []
-      );
-
-      setFechaLimite("");
-
-      setBusquedaArea("");
-
-      setErrorFormulario(
-        ""
-      );
-    };
-
-  // ====================================================
-  // SELECCIONAR ARCHIVO
-  // ====================================================
-
-  const handleSeleccionArchivo =
-    (event) => {
-      setErrorFormulario(
-        ""
-      );
-
-      const archivo =
-        event.target
-          .files?.[0] ||
-        null;
-
-      setArchivoSeleccionado(
-        archivo
-      );
-    };
-
-  // ====================================================
-  // TOGGLE ÁREA
-  // ====================================================
-
-  const toggleArea = (
-    idArea
-  ) => {
-    const id =
-      Number(idArea);
-
-    setDestinosSeleccionados(
-      (actuales) => {
-        if (
-          actuales.includes(
-            id
-          )
-        ) {
-          return actuales.filter(
-            (item) =>
-              item !== id
-          );
-        }
-
-        return [
-          ...actuales,
-          id,
-        ];
-      }
-    );
-
-    setErrorFormulario(
-      ""
-    );
+    limpiarError();
+    limpiarErrorEventos();
   };
 
-  // ====================================================
-  // SELECCIONAR VISIBLES
-  // ====================================================
+  const dispersionesFiltradas = useMemo(() => {
+    const termino = searchQuery.trim().toLowerCase();
 
-  const seleccionarTodas =
-    () => {
-      const ids =
-        areasFiltradas.map(
-          (area) =>
-            Number(
-              area.id
-            )
-        );
+    if (!termino) {
+      return dispersiones;
+    }
 
-      setDestinosSeleccionados(
-        (actuales) => [
-          ...new Set([
-            ...actuales,
-            ...ids,
-          ]),
-        ]
+    return dispersiones.filter((item) => {
+      const archivo = String(item.nombre_archivo || "").toLowerCase();
+
+      const origen = obtenerTextoOrigen(item.origen).toLowerCase();
+
+      const destinos = (item.destinos || [])
+        .map((destino) => destino.area?.nombre_area || "")
+        .join(" ")
+        .toLowerCase();
+
+      const estados = (item.destinos || [])
+        .map(
+          (destino) =>
+            `${destino.estado_envio || ""} ${destino.estado_documento || ""}`,
+        )
+        .join(" ")
+        .toLowerCase();
+
+      return (
+        archivo.includes(termino) ||
+        origen.includes(termino) ||
+        destinos.includes(termino) ||
+        estados.includes(termino)
       );
-    };
+    });
+  }, [dispersiones, searchQuery]);
 
-  // ====================================================
-  // LIMPIAR DESTINOS
-  // ====================================================
+  const areasFiltradas = useMemo(() => {
+    const termino = busquedaArea.trim().toLowerCase();
 
-  const limpiarDestinos =
-    () => {
-      setDestinosSeleccionados(
-        []
-      );
-    };
+    const lista = [...areas].sort((a, b) =>
+      String(a.nombre_area || "").localeCompare(
+        String(b.nombre_area || ""),
+        "es",
+      ),
+    );
 
-  // ====================================================
-  // SUBIR ARCHIVO
-  // ====================================================
+    if (!termino) {
+      return lista;
+    }
 
-  const handleSubirArchivo =
-    async () => {
-      setErrorFormulario(
-        ""
-      );
+    return lista.filter((area) =>
+      String(area.nombre_area || "")
+        .toLowerCase()
+        .includes(termino),
+    );
+  }, [areas, busquedaArea]);
 
-      limpiarError();
+  const abrirSubir = () => {
+    if (!puedeGestionarDispersion) {
+      return;
+    }
 
-      try {
-        if (
-          !archivoSeleccionado
-        ) {
-          throw new Error(
-            "Debe seleccionar un archivo."
-          );
-        }
+    limpiarMensajes();
+    setArchivoSeleccionado(null);
+    setDestinosSeleccionados([]);
+    setFechaLimite("");
+    setBusquedaArea("");
+    setIsModalSubirOpen(true);
+  };
 
-        if (
-          destinosSeleccionados
-            .length === 0
-        ) {
-          throw new Error(
-            "Debe seleccionar al menos un área destino."
-          );
-        }
+  const cerrarSubir = () => {
+    if (saving) {
+      return;
+    }
 
-        if (
-          !fechaLimite
-        ) {
-          throw new Error(
-            "Debe indicar la fecha límite de atención."
-          );
-        }
+    setIsModalSubirOpen(false);
+    setArchivoSeleccionado(null);
+    setDestinosSeleccionados([]);
+    setFechaLimite("");
+    setBusquedaArea("");
+    setErrorFormulario("");
+  };
 
-        await subirArchivo({
-          archivo:
-            archivoSeleccionado,
+  const handleSeleccionArchivo = (event) => {
+    setErrorFormulario("");
 
-          destinos:
-            destinosSeleccionados,
+    const archivo = event.target.files?.[0] || null;
 
-          fecha_limite:
-            fechaLimite,
-        });
+    setArchivoSeleccionado(archivo);
+  };
 
-        setIsModalSubirOpen(
-          false
-        );
+  const toggleArea = (idArea) => {
+    const id = Number(idArea);
 
-        setArchivoSeleccionado(
-          null
-        );
-
-        setDestinosSeleccionados(
-          []
-        );
-
-        setFechaLimite("");
-
-        setBusquedaArea("");
-
-        setMensaje(
-          "Documento registrado correctamente en Dispersión."
-        );
-      } catch (err) {
-        setErrorFormulario(
-          err?.message ||
-            "No fue posible registrar el documento."
-        );
+    setDestinosSeleccionados((actuales) => {
+      if (actuales.includes(id)) {
+        return actuales.filter((item) => item !== id);
       }
-    };
 
-  // ====================================================
-  // VER
-  // ====================================================
+      return [...actuales, id];
+    });
 
-  const abrirVer = (
-    dispersion
-  ) => {
+    setErrorFormulario("");
+  };
+
+  const seleccionarTodas = () => {
+    const ids = areasFiltradas.map((area) => Number(area.id));
+
+    setDestinosSeleccionados((actuales) => [...new Set([...actuales, ...ids])]);
+  };
+
+  const limpiarDestinos = () => {
+    setDestinosSeleccionados([]);
+  };
+
+  const handleSubirArchivo = async () => {
+    setErrorFormulario("");
+
+    limpiarError();
+
+    try {
+      if (!archivoSeleccionado) {
+        throw new Error("Debe seleccionar un archivo.");
+      }
+
+      if (destinosSeleccionados.length === 0) {
+        throw new Error("Debe seleccionar al menos un área destino.");
+      }
+
+      if (!fechaLimite) {
+        throw new Error("Debe indicar la fecha límite de atención.");
+      }
+
+      await subirArchivo({
+        archivo: archivoSeleccionado,
+
+        destinos: destinosSeleccionados,
+
+        fecha_limite: fechaLimite,
+      });
+
+      setIsModalSubirOpen(false);
+      setArchivoSeleccionado(null);
+      setDestinosSeleccionados([]);
+      setFechaLimite("");
+      setBusquedaArea("");
+      setMensaje("Documento registrado correctamente en Dispersión.");
+    } catch (err) {
+      setErrorFormulario(
+        err?.message || "No fue posible registrar el documento.",
+      );
+    }
+  };
+
+  const abrirVer = (dispersion) => {
     limpiarMensajes();
 
-    setDispersionSeleccionada(
-      dispersion
-    );
+    setDispersionSeleccionada(dispersion);
 
-    setIsModalVerOpen(
-      true
-    );
+    setIsModalVerOpen(true);
   };
 
-  const cerrarVer =
-    () => {
-      setIsModalVerOpen(
-        false
-      );
+  const cerrarVer = () => {
+    setIsModalVerOpen(false);
 
-      setDispersionSeleccionada(
-        null
-      );
-    };
+    setDispersionSeleccionada(null);
+  };
 
-  // ====================================================
-  // ABRIR ARCHIVO
-  // ====================================================
-
-  const abrirArchivo = (
-    dispersion
-  ) => {
-    const url =
-      obtenerRutaArchivo(
-        dispersion
-      );
+  const abrirArchivo = (dispersion) => {
+    const url = obtenerRutaArchivo(dispersion);
 
     if (!url) {
       return;
     }
 
-    window.open(
-      url,
-      "_blank",
-      "noopener,noreferrer"
-    );
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  // ====================================================
-  // ELIMINAR
-  // ====================================================
-
-  const abrirEliminar = (
-    dispersion
-  ) => {
-    if (
-      !puedeGestionarDispersion
-    ) {
+  const abrirEliminar = (dispersion) => {
+    if (!puedeGestionarDispersion) {
       return;
     }
 
     limpiarMensajes();
 
-    setDispersionAEliminar(
-      dispersion
-    );
+    setDispersionAEliminar(dispersion);
 
-    setIsModalEliminarOpen(
-      true
-    );
+    setIsModalEliminarOpen(true);
   };
 
-  const cerrarEliminar =
-    () => {
-      if (saving) {
-        return;
-      }
+  const cerrarEliminar = () => {
+    if (saving) {
+      return;
+    }
 
-      setIsModalEliminarOpen(
-        false
-      );
+    setIsModalEliminarOpen(false);
 
-      setDispersionAEliminar(
-        null
-      );
-    };
+    setDispersionAEliminar(null);
+  };
 
-  const handleEliminar =
-    async () => {
-      if (
-        !dispersionAEliminar
-      ) {
-        return;
-      }
+  const handleEliminar = async () => {
+    if (!dispersionAEliminar) {
+      return;
+    }
 
-      try {
-        await eliminarDispersion(
-          dispersionAEliminar.id
-        );
+    try {
+      await eliminarDispersion(dispersionAEliminar.id);
 
-        setIsModalEliminarOpen(
-          false
-        );
+      setIsModalEliminarOpen(false);
 
-        setDispersionAEliminar(
-          null
-        );
+      setDispersionAEliminar(null);
 
-        setMensaje(
-          "Dispersión eliminada correctamente."
-        );
-      } catch {
-        // Error controlado
-        // por el hook.
-      }
-    };
-
-  // ====================================================
-  // RESPUESTA RECIBIDA POR OFICIALÍA
-  // ====================================================
+      setMensaje("Dispersión eliminada correctamente.");
+    } catch {
+    }
+  };
 
   const abrirRecibirRespuesta = (respuesta) => {
-    if (
-      !puedeGestionarDispersion
-    ) {
+    if (!puedeGestionarDispersion) {
       return;
     }
 
@@ -1246,17 +604,13 @@ const Dispersion = () => {
       setErrorFormulario("");
 
       await crearEvento({
-        id_dispersion:
-          respuestaSeleccionada.id_dispersion,
+        id_dispersion: respuestaSeleccionada.id_dispersion,
 
-        id_area:
-          respuestaSeleccionada.id_area,
+        id_area: respuestaSeleccionada.id_area,
 
-        tipo_evento:
-          "respuesta_recibida",
+        tipo_evento: "respuesta_recibida",
 
-        comentario:
-          comentarioOficialia.trim() || null,
+        comentario: comentarioOficialia.trim() || null,
       });
 
       await cargarRespuestas();
@@ -1265,25 +619,17 @@ const Dispersion = () => {
       setRespuestaSeleccionada(null);
       setComentarioOficialia("");
 
-      setMensaje(
-        "Respuesta confirmada como recibida por Oficialía de Partes."
-      );
+      setMensaje("Respuesta confirmada como recibida por Oficialía de Partes.");
     } catch (err) {
       setErrorFormulario(
         err?.message ||
-          "No fue posible confirmar la recepción de la respuesta."
+          "No fue posible confirmar la recepción de la respuesta.",
       );
     }
   };
 
-  // ====================================================
-  // ENTREGA DE RESPUESTA AL CIUDADANO
-  // ====================================================
-
   const abrirEntregarRespuesta = (respuesta) => {
-    if (
-      !puedeGestionarDispersion
-    ) {
+    if (!puedeGestionarDispersion) {
       return;
     }
 
@@ -1313,17 +659,13 @@ const Dispersion = () => {
       setErrorFormulario("");
 
       await crearEvento({
-        id_dispersion:
-          respuestaSeleccionada.id_dispersion,
+        id_dispersion: respuestaSeleccionada.id_dispersion,
 
-        id_area:
-          null,
+        id_area: null,
 
-        tipo_evento:
-          "respuesta_entregada",
+        tipo_evento: "respuesta_entregada",
 
-        comentario:
-          comentarioOficialia.trim() || null,
+        comentario: comentarioOficialia.trim() || null,
       });
 
       await cargarRespuestas();
@@ -1333,19 +675,14 @@ const Dispersion = () => {
       setComentarioOficialia("");
 
       setMensaje(
-        "Entrega de la respuesta al ciudadano registrada correctamente."
+        "Entrega de la respuesta al ciudadano registrada correctamente.",
       );
     } catch (err) {
       setErrorFormulario(
-        err?.message ||
-          "No fue posible registrar la entrega de la respuesta."
+        err?.message || "No fue posible registrar la entrega de la respuesta.",
       );
     }
   };
-
-  // ====================================================
-  // VER RESPUESTA DEL ÁREA
-  // ====================================================
 
   const abrirDetalleRespuesta = (respuesta) => {
     limpiarMensajes();
@@ -1358,10 +695,6 @@ const Dispersion = () => {
     setRespuestaSeleccionada(null);
   };
 
-  // ====================================================
-  // TABLA
-  // ====================================================
-
   const columnas = [
     "Archivo",
     "Origen",
@@ -1372,146 +705,93 @@ const Dispersion = () => {
     "Acciones",
   ];
 
-  const dataTabla =
-    dispersionesFiltradas.map(
-      (item) => {
-        const estadoGeneral =
-          obtenerEstadoGeneral(
-            item.destinos
-          );
+  const dataTabla = dispersionesFiltradas.map((item) => {
+    const estadoGeneral = obtenerEstadoGeneral(item.destinos);
 
-        return {
-          _id:
-            item.id,
+    return {
+      _id: item.id,
 
-          Archivo: {
-            main: (
-              <div className="dispersion-file-cell">
-                <strong>
-                  {
-                    item.nombre_archivo
-                  }
-                </strong>
+      Archivo: {
+        main: (
+          <div className="dispersion-file-cell">
+            <strong>{item.nombre_archivo}</strong>
 
-                <span>
-                  {String(
-                    item.extension ||
-                      ""
-                  ).toUpperCase() ||
-                    "Archivo"}
-                </span>
-              </div>
-            ),
-          },
+            <span>
+              {String(item.extension || "").toUpperCase() || "Archivo"}
+            </span>
+          </div>
+        ),
+      },
 
-          Origen: {
-            main: (
-              <span className="dispersion-origin">
-                {obtenerTextoOrigen(
-                  item.origen
-                )}
-              </span>
-            ),
-          },
+      Origen: {
+        main: (
+          <span className="dispersion-origin">
+            {obtenerTextoOrigen(item.origen)}
+          </span>
+        ),
+      },
 
-          Fecha: {
-            main:
-              formatearFecha(
-                item.fecha_recepcion
-              ),
-          },
+      Fecha: {
+        main: formatearFecha(item.fecha_recepcion),
+      },
 
-          Tamaño: {
-            main:
-              formatearTamano(
-                item.tamano_archivo
-              ),
-          },
+      Tamaño: {
+        main: formatearTamano(item.tamano_archivo),
+      },
 
-          Destinos: {
-            main: (
-              <span className="dispersion-destination-count">
-                {
-                  (
-                    item.destinos ||
-                    []
-                  ).length
-                }{" "}
-                {(
-                  item.destinos ||
-                  []
-                ).length === 1
-                  ? "área"
-                  : "áreas"}
-              </span>
-            ),
-          },
+      Destinos: {
+        main: (
+          <span className="dispersion-destination-count">
+            {(item.destinos || []).length}{" "}
+            {(item.destinos || []).length === 1 ? "área" : "áreas"}
+          </span>
+        ),
+      },
 
-          Envío: {
-            main: (
-              <span
-                className={`dispersion-send-state ${estadoGeneral.clase}`}
+      Envío: {
+        main: (
+          <span className={`dispersion-send-state ${estadoGeneral.clase}`}>
+            {estadoGeneral.texto}
+          </span>
+        ),
+      },
+
+      Acciones: {
+        main: (
+          <div className="actions-cell dispersion-actions">
+            <BotonReutilizable
+              className="btn-action btn-icon edit"
+              onClick={() => abrirVer(item)}
+              title="Ver detalle"
+              aria-label="Ver detalle de dispersión"
+            >
+              <FiEye />
+            </BotonReutilizable>
+
+            <BotonReutilizable
+              className="btn-action btn-icon"
+              onClick={() => abrirArchivo(item)}
+              title="Abrir archivo"
+              aria-label="Abrir archivo"
+            >
+              <FiFileText />
+            </BotonReutilizable>
+
+            {puedeGestionarDispersion && (
+              <BotonReutilizable
+                className="btn-action btn-icon delete"
+                onClick={() => abrirEliminar(item)}
+                title="Eliminar dispersión"
+                aria-label="Eliminar dispersión"
               >
-                {
-                  estadoGeneral.texto
-                }
-              </span>
-            ),
-          },
-
-          Acciones: {
-            main: (
-              <div className="actions-cell dispersion-actions">
-                <BotonReutilizable
-                  className="btn-action btn-icon edit"
-                  onClick={() =>
-                    abrirVer(
-                      item
-                    )
-                  }
-                  title="Ver detalle"
-                  aria-label="Ver detalle de dispersión"
-                >
-                  <FiEye />
-                </BotonReutilizable>
-
-                <BotonReutilizable
-                  className="btn-action btn-icon"
-                  onClick={() =>
-                    abrirArchivo(
-                      item
-                    )
-                  }
-                  title="Abrir archivo"
-                  aria-label="Abrir archivo"
-                >
-                  <FiFileText />
-                </BotonReutilizable>
-
-                {puedeGestionarDispersion && (
-                  <BotonReutilizable
-                    className="btn-action btn-icon delete"
-                    onClick={() =>
-                      abrirEliminar(
-                        item
-                      )
-                    }
-                    title="Eliminar dispersión"
-                    aria-label="Eliminar dispersión"
-                  >
-                    <FiTrash2 />
-                  </BotonReutilizable>
-                )}
-              </div>
-            ),
-          },
-        };
-      }
-    );
-
-  // ====================================================
-  // TABLA RESPUESTAS Y ENTREGAS
-  // ====================================================
+                <FiTrash2 />
+              </BotonReutilizable>
+            )}
+          </div>
+        ),
+      },
+    };
+  });
 
   const columnasRespuestas = [
     "Documento",
@@ -1523,163 +803,106 @@ const Dispersion = () => {
     "Acciones",
   ];
 
-  const dataRespuestas =
-    respuestas.map((item) => ({
-      _id:
-        item.id_evento_respuesta,
+  const dataRespuestas = respuestas.map((item) => ({
+    _id: item.id_evento_respuesta,
 
-      Documento: {
-        main: (
-          <div className="dispersion-response-document">
-            <strong>
-              {item.documento || "Documento"}
-            </strong>
-          </div>
-        ),
-      },
+    Documento: {
+      main: (
+        <div className="dispersion-response-document">
+          <strong>{item.documento || "Documento"}</strong>
+        </div>
+      ),
+    },
 
-      Área: {
-        main:
-          item.area || "Área",
-      },
+    Área: {
+      main: item.area || "Área",
+    },
 
-      Respuesta: {
-        main: (
-          <div className="dispersion-response-preview">
-            {item.respuesta || "Sin comentario"}
-          </div>
-        ),
-      },
+    Respuesta: {
+      main: (
+        <div className="dispersion-response-preview">
+          {item.respuesta || "Sin comentario"}
+        </div>
+      ),
+    },
 
-      "Fecha atención": {
-        main:
-          formatearFecha(
-            item.fecha_respuesta_area
-          ),
-      },
+    "Fecha atención": {
+      main: formatearFecha(item.fecha_respuesta_area),
+    },
 
-      Oficialía: {
-        main: item.respuesta_recibida ? (
-          <span className="dispersion-history-state completed">
-            Recibida
-          </span>
-        ) : (
-          <span className="dispersion-history-state pending">
-            Pendiente
-          </span>
-        ),
-      },
+    Oficialía: {
+      main: item.respuesta_recibida ? (
+        <span className="dispersion-history-state completed">Recibida</span>
+      ) : (
+        <span className="dispersion-history-state pending">Pendiente</span>
+      ),
+    },
 
-      Entrega: {
-        main: item.respuesta_entregada ? (
-          <span className="dispersion-history-state completed">
-            Entregada
-          </span>
-        ) : (
-          <span className="dispersion-history-state pending">
-            Pendiente
-          </span>
-        ),
-      },
+    Entrega: {
+      main: item.respuesta_entregada ? (
+        <span className="dispersion-history-state completed">Entregada</span>
+      ) : (
+        <span className="dispersion-history-state pending">Pendiente</span>
+      ),
+    },
 
-      Acciones: {
-        main: (
-          <div className="actions-cell dispersion-actions">
+    Acciones: {
+      main: (
+        <div className="actions-cell dispersion-actions">
+          <BotonReutilizable
+            className="btn-action btn-icon"
+            onClick={() => abrirDetalleRespuesta(item)}
+            title="Ver respuesta"
+            aria-label="Ver respuesta del área"
+          >
+            <FiMessageSquare />
+          </BotonReutilizable>
+
+          {!item.respuesta_recibida && (
+            <BotonReutilizable
+              className="btn-action btn-icon status-active"
+              onClick={() => abrirRecibirRespuesta(item)}
+              title="Marcar respuesta como recibida"
+              aria-label="Marcar respuesta como recibida por Oficialía"
+            >
+              <FiCheck />
+            </BotonReutilizable>
+          )}
+
+          {item.respuesta_recibida && !item.respuesta_entregada && (
             <BotonReutilizable
               className="btn-action btn-icon"
-              onClick={() =>
-                abrirDetalleRespuesta(item)
-              }
-              title="Ver respuesta"
-              aria-label="Ver respuesta del área"
+              onClick={() => abrirEntregarRespuesta(item)}
+              title="Registrar entrega al ciudadano"
+              aria-label="Registrar entrega de respuesta al ciudadano"
             >
-              <FiMessageSquare />
+              <FiSend />
             </BotonReutilizable>
+          )}
+        </div>
+      ),
+    },
+  }));
 
-            {!item.respuesta_recibida && (
-              <BotonReutilizable
-                className="btn-action btn-icon status-active"
-                onClick={() =>
-                  abrirRecibirRespuesta(item)
-                }
-                title="Marcar respuesta como recibida"
-                aria-label="Marcar respuesta como recibida por Oficialía"
-              >
-                <FiCheck />
-              </BotonReutilizable>
-            )}
+  const urlArchivoSeleccionado = dispersionSeleccionada
+    ? obtenerRutaArchivo(dispersionSeleccionada)
+    : "";
 
-            {item.respuesta_recibida &&
-              !item.respuesta_entregada && (
-                <BotonReutilizable
-                  className="btn-action btn-icon"
-                  onClick={() =>
-                    abrirEntregarRespuesta(item)
-                  }
-                  title="Registrar entrega al ciudadano"
-                  aria-label="Registrar entrega de respuesta al ciudadano"
-                >
-                  <FiSend />
-                </BotonReutilizable>
-              )}
-          </div>
-        ),
-      },
-    }));
+  const extensionSeleccionada = String(dispersionSeleccionada?.extension || "")
+    .trim()
+    .toLowerCase();
 
-  // ====================================================
-  // ARCHIVO DEL MODAL
-  // ====================================================
+  const esPdf = extensionSeleccionada === "pdf";
 
-  const urlArchivoSeleccionado =
-    dispersionSeleccionada
-      ? obtenerRutaArchivo(
-          dispersionSeleccionada
-        )
-      : "";
-
-  const extensionSeleccionada =
-    String(
-      dispersionSeleccionada
-        ?.extension ||
-        ""
-    )
-      .trim()
-      .toLowerCase();
-
-  const esPdf =
-    extensionSeleccionada ===
-    "pdf";
-
-  const esImagen =
-    [
-      "jpg",
-      "jpeg",
-      "png",
-      "webp",
-    ].includes(
-      extensionSeleccionada
-    );
-
-  // ====================================================
-  // RENDER
-  // ====================================================
+  const esImagen = ["jpg", "jpeg", "png", "webp"].includes(
+    extensionSeleccionada,
+  );
 
   return (
     <main className="content-area">
       <section className="content-section">
-
-        {/* ============================================= */}
-        {/* TÍTULO */}
-        {/* ============================================= */}
-
-        <h2 className="card-title">
-          Dispersión
-        </h2>
-
-        {/* ============================================= */}
-        {/* CABECERA */}
-        {/* ============================================= */}
+ 
+        <h2 className="card-title">Dispersión</h2>
 
         <div className="dispersion-header">
           <div>
@@ -1691,73 +914,38 @@ const Dispersion = () => {
           </div>
 
           {puedeGestionarDispersion && (
-            <BotonReutilizable
-              onClick={
-                abrirSubir
-              }
-            >
+            <BotonReutilizable onClick={abrirSubir}>
               Subir documento
             </BotonReutilizable>
           )}
         </div>
 
-        {/* ============================================= */}
-        {/* BUSCADOR */}
-        {/* ============================================= */}
-
         <div className="search-filter-container">
           <FiltroBusqueda
-            value={
-              searchQuery
-            }
-            onChange={(
-              event
-            ) =>
-              setSearchQuery(
-                event.target.value
-              )
-            }
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
             placeholder="Buscar por archivo, origen, área o estado..."
           />
         </div>
 
-        {/* ============================================= */}
-        {/* MENSAJES */}
-        {/* ============================================= */}
-
-        {(mensaje ||
-          error ||
-          errorEventos) && (
+        {(mensaje || error || errorEventos) && (
           <div
             className={
-              error ||
-              errorEventos
+              error || errorEventos
                 ? "page-message page-message-error"
                 : "page-message page-message-success"
             }
           >
-            {error ||
-              errorEventos ||
-              mensaje}
+            {error || errorEventos || mensaje}
           </div>
         )}
 
-        {/* ============================================= */}
-        {/* TABLA */}
-        {/* ============================================= */}
-
         <Card>
           {loading ? (
-            <p>
-              Cargando dispersiones...
-            </p>
-          ) : dispersionesFiltradas
-              .length ===
-            0 ? (
+            <p>Cargando dispersiones...</p>
+          ) : dispersionesFiltradas.length === 0 ? (
             <div className="dispersion-empty">
-              <strong>
-                No hay documentos registrados
-              </strong>
+              <strong>No hay documentos registrados</strong>
 
               <span>
                 {puedeGestionarDispersion
@@ -1767,155 +955,85 @@ const Dispersion = () => {
             </div>
           ) : (
             <TablaReutilizable
-              columns={
-                columnas
-              }
-              data={
-                dataTabla
-              }
-              renderRow={(
-                row
-              ) => (
-                <tr
-                  key={
-                    row._id
-                  }
-                >
-                  {columnas.map(
-                    (
-                      column
-                    ) => (
-                      <td
-                        key={
-                          column
-                        }
-                      >
-                        {row[
-                          column
-                        ]
-                          ?.main ??
-                          ""}
-                      </td>
-                    )
-                  )}
+              columns={columnas}
+              data={dataTabla}
+              renderRow={(row) => (
+                <tr key={row._id}>
+                  {columnas.map((column) => (
+                    <td key={column}>{row[column]?.main ?? ""}</td>
+                  ))}
                 </tr>
               )}
             />
           )}
         </Card>
 
-        {/* ============================================= */}
-        {/* RESPUESTAS Y ENTREGAS */}
-        {/* ============================================= */}
-
         {puedeGestionarDispersion && (
           <>
-        <Card className="dispersion-respuestas-card">
-            <div className="dispersion-section-title">
-              <div>
-                <h3>
-                  Respuestas y Entregas
-                </h3>
-  
-                <p>
-                  Respuestas enviadas por las áreas y seguimiento de su recepción en Oficialía y entrega al ciudadano.
-                </p>
+            <Card className="dispersion-respuestas-card">
+              <div className="dispersion-section-title">
+                <div>
+                  <h3>Respuestas y Entregas</h3>
+
+                  <p>
+                    Respuestas enviadas por las áreas y seguimiento de su
+                    recepción en Oficialía y entrega al ciudadano.
+                  </p>
+                </div>
               </div>
-            </div>
-  
-            {loadingRespuestas ? (
-              <p>
-                Cargando respuestas...
-              </p>
-            ) : respuestas.length === 0 ? (
-              <div className="dispersion-empty dispersion-empty-responses">
-                <strong>
-                  Todavía no hay respuestas enviadas por las áreas
-                </strong>
-  
-                <span>
-                  Cuando un área marque un documento como atendido y envíe su comentario, aparecerá aquí.
-                </span>
-              </div>
-            ) : (
-              <TablaReutilizable
-                columns={
-                  columnasRespuestas
-                }
-                data={
-                  dataRespuestas
-                }
-                renderRow={(row) => (
-                  <tr
-                    key={
-                      row._id
-                    }
-                  >
-                    {columnasRespuestas.map(
-                      (column) => (
-                        <td
-                          key={
-                            column
-                          }
-                        >
-                          {row[column]
-                            ?.main ?? ""}
-                        </td>
-                      )
-                    )}
-                  </tr>
-                )}
-              />
-            )}
-          </Card>
+
+              {loadingRespuestas ? (
+                <p>Cargando respuestas...</p>
+              ) : respuestas.length === 0 ? (
+                <div className="dispersion-empty dispersion-empty-responses">
+                  <strong>
+                    Todavía no hay respuestas enviadas por las áreas
+                  </strong>
+
+                  <span>
+                    Cuando un área marque un documento como atendido y envíe su
+                    comentario, aparecerá aquí.
+                  </span>
+                </div>
+              ) : (
+                <TablaReutilizable
+                  columns={columnasRespuestas}
+                  data={dataRespuestas}
+                  renderRow={(row) => (
+                    <tr key={row._id}>
+                      {columnasRespuestas.map((column) => (
+                        <td key={column}>{row[column]?.main ?? ""}</td>
+                      ))}
+                    </tr>
+                  )}
+                />
+              )}
+            </Card>
           </>
         )}
       </section>
 
-      {/* ================================================= */}
-      {/* MODAL SUBIR DOCUMENTO */}
-      {/* ================================================= */}
-
       <ModalReutilizable
         id="modalSubirDispersion"
         title="Subir documento"
-        isOpen={
-          puedeGestionarDispersion &&
-          isModalSubirOpen
-        }
-        onClose={
-          cerrarSubir
-        }
-        onAccept={
-          handleSubirArchivo
-        }
+        isOpen={puedeGestionarDispersion && isModalSubirOpen}
+        onClose={cerrarSubir}
+        onAccept={handleSubirArchivo}
         acceptButtonText="Registrar documento"
-        loading={
-          saving
-        }
-        errorMessage={
-          errorFormulario
-        }
+        loading={saving}
+        errorMessage={errorFormulario}
         className="modal-dispersion-upload"
       >
         <div className="dispersion-upload-form">
 
-          {/* ============================================= */}
-          {/* ARCHIVO */}
-          {/* ============================================= */}
-
           <div className="dispersion-form-section">
-            <label className="dispersion-form-label">
-              Archivo
-            </label>
+            <label className="dispersion-form-label">Archivo</label>
 
             <label className="dispersion-file-picker">
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                onChange={
-                  handleSeleccionArchivo
-                }
+                onChange={handleSeleccionArchivo}
               />
 
               <span className="dispersion-file-picker-button">
@@ -1934,34 +1052,18 @@ const Dispersion = () => {
             </span>
           </div>
 
-          {/* ============================================= */}
-          {/* ARCHIVO SELECCIONADO */}
-          {/* ============================================= */}
-
           {archivoSeleccionado && (
             <div className="dispersion-selected-file">
               <div>
-                <strong>
-                  {
-                    archivoSeleccionado.name
-                  }
-                </strong>
+                <strong>{archivoSeleccionado.name}</strong>
 
-                <span>
-                  {formatearTamano(
-                    archivoSeleccionado.size
-                  )}
-                </span>
+                <span>{formatearTamano(archivoSeleccionado.size)}</span>
               </div>
 
               <button
                 type="button"
                 className="dispersion-remove-file"
-                onClick={() =>
-                  setArchivoSeleccionado(
-                    null
-                  )
-                }
+                onClick={() => setArchivoSeleccionado(null)}
                 title="Quitar archivo"
                 aria-label="Quitar archivo seleccionado"
               >
@@ -1969,10 +1071,6 @@ const Dispersion = () => {
               </button>
             </div>
           )}
-
-          {/* ============================================= */}
-          {/* FECHA LÍMITE */}
-          {/* ============================================= */}
 
           <div className="dispersion-form-section">
             <label className="dispersion-form-label">
@@ -1982,19 +1080,11 @@ const Dispersion = () => {
             <input
               type="date"
               className="dispersion-date-input"
-              value={
-                fechaLimite
-              }
-              onChange={(
-                event
-              ) => {
-                setFechaLimite(
-                  event.target.value
-                );
+              value={fechaLimite}
+              onChange={(event) => {
+                setFechaLimite(event.target.value);
 
-                setErrorFormulario(
-                  ""
-                );
+                setErrorFormulario("");
               }}
             />
 
@@ -2003,44 +1093,25 @@ const Dispersion = () => {
             </span>
           </div>
 
-          {/* ============================================= */}
-          {/* DESTINOS */}
-          {/* ============================================= */}
-
           <div className="dispersion-form-section">
             <div className="dispersion-destinations-header">
               <div>
-                <label className="dispersion-form-label">
-                  Áreas destino
-                </label>
+                <label className="dispersion-form-label">Áreas destino</label>
 
                 <span className="dispersion-selected-count">
-                  {
-                    destinosSeleccionados.length
-                  }{" "}
-                  {destinosSeleccionados.length ===
-                  1
+                  {destinosSeleccionados.length}{" "}
+                  {destinosSeleccionados.length === 1
                     ? "área seleccionada"
                     : "áreas seleccionadas"}
                 </span>
               </div>
 
               <div className="dispersion-destination-actions">
-                <button
-                  type="button"
-                  onClick={
-                    seleccionarTodas
-                  }
-                >
+                <button type="button" onClick={seleccionarTodas}>
                   Seleccionar visibles
                 </button>
 
-                <button
-                  type="button"
-                  onClick={
-                    limpiarDestinos
-                  }
-                >
+                <button type="button" onClick={limpiarDestinos}>
                   Limpiar
                 </button>
               </div>
@@ -2050,177 +1121,100 @@ const Dispersion = () => {
               type="text"
               className="dispersion-area-search"
               placeholder="Buscar área..."
-              value={
-                busquedaArea
-              }
-              onChange={(
-                event
-              ) =>
-                setBusquedaArea(
-                  event.target.value
-                )
-              }
+              value={busquedaArea}
+              onChange={(event) => setBusquedaArea(event.target.value)}
             />
 
             <div className="dispersion-area-list">
               {loadingAreas ? (
-                <p>
-                  Cargando áreas...
-                </p>
-              ) : areasFiltradas.length ===
-                0 ? (
-                <p className="dispersion-no-areas">
-                  No se encontraron áreas.
-                </p>
+                <p>Cargando áreas...</p>
+              ) : areasFiltradas.length === 0 ? (
+                <p className="dispersion-no-areas">No se encontraron áreas.</p>
               ) : (
-                areasFiltradas.map(
-                  (area) => {
-                    const seleccionado =
-                      destinosSeleccionados.includes(
-                        Number(
-                          area.id
-                        )
-                      );
+                areasFiltradas.map((area) => {
+                  const seleccionado = destinosSeleccionados.includes(
+                    Number(area.id),
+                  );
 
-                    return (
-                      <label
-                        key={
-                          area.id
-                        }
-                        className={`dispersion-area-option ${
-                          seleccionado
-                            ? "selected"
-                            : ""
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={
-                            seleccionado
-                          }
-                          onChange={() =>
-                            toggleArea(
-                              area.id
-                            )
-                          }
-                        />
+                  return (
+                    <label
+                      key={area.id}
+                      className={`dispersion-area-option ${
+                        seleccionado ? "selected" : ""
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={seleccionado}
+                        onChange={() => toggleArea(area.id)}
+                      />
 
-                        <span className="dispersion-area-checkbox" />
+                      <span className="dispersion-area-checkbox" />
 
-                        <span className="dispersion-area-name">
-                          {
-                            area.nombre_area
-                          }
-                        </span>
-                      </label>
-                    );
-                  }
-                )
+                      <span className="dispersion-area-name">
+                        {area.nombre_area}
+                      </span>
+                    </label>
+                  );
+                })
               )}
             </div>
           </div>
         </div>
       </ModalReutilizable>
 
-      {/* ================================================= */}
-      {/* MODAL DETALLE */}
-      {/* ================================================= */}
-
       <ModalReutilizable
         id="modalVerDispersion"
         title="Detalle de dispersión"
-        isOpen={
-          isModalVerOpen
-        }
-        onClose={
-          cerrarVer
-        }
-        onAccept={
-          cerrarVer
-        }
+        isOpen={isModalVerOpen}
+        onClose={cerrarVer}
+        onAccept={cerrarVer}
         acceptButtonText="Cerrar"
         className="modal-dispersion-detail"
       >
         {dispersionSeleccionada && (
           <div className="dispersion-detail">
-
-            {/* =========================================== */}
-            {/* RESUMEN */}
-            {/* =========================================== */}
-
             <div className="dispersion-detail-summary">
               <div>
-                <span>
-                  Archivo
-                </span>
+                <span>Archivo</span>
+
+                <strong>{dispersionSeleccionada.nombre_archivo}</strong>
+              </div>
+
+              <div>
+                <span>Origen</span>
 
                 <strong>
-                  {
-                    dispersionSeleccionada.nombre_archivo
-                  }
+                  {obtenerTextoOrigen(dispersionSeleccionada.origen)}
                 </strong>
               </div>
 
               <div>
-                <span>
-                  Origen
-                </span>
+                <span>Fecha de registro</span>
 
                 <strong>
-                  {obtenerTextoOrigen(
-                    dispersionSeleccionada.origen
-                  )}
+                  {formatearFecha(dispersionSeleccionada.fecha_recepcion)}
                 </strong>
               </div>
 
               <div>
-                <span>
-                  Fecha de registro
-                </span>
+                <span>Tamaño</span>
 
                 <strong>
-                  {formatearFecha(
-                    dispersionSeleccionada.fecha_recepcion
-                  )}
-                </strong>
-              </div>
-
-              <div>
-                <span>
-                  Tamaño
-                </span>
-
-                <strong>
-                  {formatearTamano(
-                    dispersionSeleccionada.tamano_archivo
-                  )}
+                  {formatearTamano(dispersionSeleccionada.tamano_archivo)}
                 </strong>
               </div>
             </div>
 
-            {/* =========================================== */}
-            {/* VISOR + DESTINOS */}
-            {/* =========================================== */}
-
             <div className="dispersion-detail-grid">
-
-              {/* ========================================= */}
-              {/* VISOR */}
-              {/* ========================================= */}
 
               <div className="dispersion-preview">
                 <div className="dispersion-preview-header">
-                  <strong>
-                    Vista del archivo
-                  </strong>
+                  <strong>Vista del archivo</strong>
 
                   <button
                     type="button"
-                    onClick={() =>
-                      abrirArchivo(
-                        dispersionSeleccionada
-                      )
-                    }
+                    onClick={() => abrirArchivo(dispersionSeleccionada)}
                   >
                     Abrir archivo
                   </button>
@@ -2228,12 +1222,8 @@ const Dispersion = () => {
 
                 {esPdf && (
                   <iframe
-                    src={
-                      urlArchivoSeleccionado
-                    }
-                    title={
-                      dispersionSeleccionada.nombre_archivo
-                    }
+                    src={urlArchivoSeleccionado}
+                    title={dispersionSeleccionada.nombre_archivo}
                     className="dispersion-file-frame"
                   />
                 )}
@@ -2241,279 +1231,170 @@ const Dispersion = () => {
                 {esImagen && (
                   <div className="dispersion-image-preview">
                     <img
-                      src={
-                        urlArchivoSeleccionado
-                      }
-                      alt={
-                        dispersionSeleccionada.nombre_archivo
-                      }
+                      src={urlArchivoSeleccionado}
+                      alt={dispersionSeleccionada.nombre_archivo}
                     />
                   </div>
                 )}
 
-                {!esPdf &&
-                  !esImagen && (
-                    <div className="dispersion-file-no-preview">
-                      <strong>
-                        Vista previa no disponible
-                      </strong>
+                {!esPdf && !esImagen && (
+                  <div className="dispersion-file-no-preview">
+                    <strong>Vista previa no disponible</strong>
 
-                      <span>
-                        Este tipo de archivo debe abrirse con su aplicación correspondiente.
-                      </span>
+                    <span>
+                      Este tipo de archivo debe abrirse con su aplicación
+                      correspondiente.
+                    </span>
 
-                      <BotonReutilizable
-                        onClick={() =>
-                          abrirArchivo(
-                            dispersionSeleccionada
-                          )
-                        }
-                      >
-                        Abrir archivo
-                      </BotonReutilizable>
-                    </div>
-                  )}
+                    <BotonReutilizable
+                      onClick={() => abrirArchivo(dispersionSeleccionada)}
+                    >
+                      Abrir archivo
+                    </BotonReutilizable>
+                  </div>
+                )}
               </div>
-
-              {/* ========================================= */}
-              {/* DESTINOS */}
-              {/* ========================================= */}
 
               <div className="dispersion-destinations-panel">
                 <div className="dispersion-panel-title">
                   <div>
-                    <strong>
-                      Áreas destino
-                    </strong>
+                    <strong>Áreas destino</strong>
 
                     <span>
-                      {
-                        (
-                          dispersionSeleccionada.destinos ||
-                          []
-                        ).length
-                      }{" "}
-                      destinos
+                      {(dispersionSeleccionada.destinos || []).length} destinos
                     </span>
                   </div>
                 </div>
 
                 <div className="dispersion-destination-list">
-                  {(
-                    dispersionSeleccionada.destinos ||
-                    []
-                  ).length ===
-                  0 ? (
+                  {(dispersionSeleccionada.destinos || []).length === 0 ? (
                     <p className="dispersion-no-areas">
                       Este documento no tiene áreas destino.
                     </p>
                   ) : (
-                    (
-                      dispersionSeleccionada.destinos ||
-                      []
-                    ).map(
-                      (
-                        destino
-                      ) => {
-                        const seguimiento =
-                          calcularSeguimiento(
-                            destino
-                          );
+                    (dispersionSeleccionada.destinos || []).map((destino) => {
+                      const seguimiento = calcularSeguimiento(destino);
 
-                        return (
-                          <div
-                            key={
-                              destino.id
-                            }
-                            className="dispersion-destination-card"
-                          >
-                            <div className="dispersion-destination-info">
+                      return (
+                        <div
+                          key={destino.id}
+                          className="dispersion-destination-card"
+                        >
+                          <div className="dispersion-destination-info">
+     
+                            <strong>
+                              {destino.area?.nombre_area || "Área"}
+                            </strong>
 
-                              {/* ================================= */}
-                              {/* ÁREA */}
-                              {/* ================================= */}
+                            <div className="dispersion-destination-meta">
+                              <span>Transferencia:</span>
+
+                              <strong
+                                className={`dispersion-send-state ${
+                                  destino.estado_envio || "pendiente"
+                                }`}
+                              >
+                                {obtenerTextoEstadoEnvio(destino.estado_envio)}
+                              </strong>
+                            </div>
+
+                            <div className="dispersion-destination-meta">
+                              <span>Estado del oficio:</span>
+
+                              <strong
+                                className={`dispersion-document-state ${obtenerClaseEstadoDocumento(
+                                  destino.estado_documento,
+                                )}`}
+                              >
+                                {obtenerTextoEstadoDocumento(
+                                  destino.estado_documento,
+                                )}
+                              </strong>
+                            </div>
+
+                            <div className="dispersion-destination-meta">
+                              <span>Fecha límite:</span>
 
                               <strong>
-                                {destino.area
-                                  ?.nombre_area ||
-                                  "Área"}
+                                {formatearFechaCorta(destino.fecha_limite)}
                               </strong>
+                            </div>
 
-                              {/* ================================= */}
-                              {/* TRANSFERENCIA */}
-                              {/* ================================= */}
+                            <div className="dispersion-destination-meta">
+                              <span>Tiempo:</span>
 
+                              <strong
+                                className={`dispersion-time-state ${seguimiento.clase}`}
+                              >
+                                {seguimiento.texto}
+                              </strong>
+                            </div>
+
+                            {destino.fecha_recepcion && (
                               <div className="dispersion-destination-meta">
-                                <span>
-                                  Transferencia:
-                                </span>
-
-                                <strong
-                                  className={`dispersion-send-state ${
-                                    destino.estado_envio ||
-                                    "pendiente"
-                                  }`}
-                                >
-                                  {obtenerTextoEstadoEnvio(
-                                    destino.estado_envio
-                                  )}
-                                </strong>
-                              </div>
-
-                              {/* ================================= */}
-                              {/* ESTADO DEL OFICIO */}
-                              {/* ================================= */}
-
-                              <div className="dispersion-destination-meta">
-                                <span>
-                                  Estado del oficio:
-                                </span>
-
-                                <strong
-                                  className={`dispersion-document-state ${obtenerClaseEstadoDocumento(
-                                    destino.estado_documento
-                                  )}`}
-                                >
-                                  {obtenerTextoEstadoDocumento(
-                                    destino.estado_documento
-                                  )}
-                                </strong>
-                              </div>
-
-                              {/* ================================= */}
-                              {/* FECHA LÍMITE */}
-                              {/* ================================= */}
-
-                              <div className="dispersion-destination-meta">
-                                <span>
-                                  Fecha límite:
-                                </span>
+                                <span>Recibido:</span>
 
                                 <strong>
-                                  {formatearFechaCorta(
-                                    destino.fecha_limite
-                                  )}
+                                  {formatearFecha(destino.fecha_recepcion)}
                                 </strong>
                               </div>
+                            )}
 
-                              {/* ================================= */}
-                              {/* SEMÁFORO */}
-                              {/* ================================= */}
-
+                            {(destino.fecha_atencion ||
+                              destino.fecha_respuesta) && (
                               <div className="dispersion-destination-meta">
-                                <span>
-                                  Tiempo:
-                                </span>
+                                <span>Atendido:</span>
 
-                                <strong
-                                  className={`dispersion-time-state ${seguimiento.clase}`}
-                                >
-                                  {
-                                    seguimiento.texto
-                                  }
+                                <strong>
+                                  {formatearFecha(
+                                    destino.fecha_atencion ||
+                                      destino.fecha_respuesta,
+                                  )}
                                 </strong>
                               </div>
+                            )}
 
-                              {/* ================================= */}
-                              {/* FECHA DE RECEPCIÓN */}
-                              {/* ================================= */}
+                            {(destino.respuesta_area || destino.respuesta) && (
+                              <div className="dispersion-area-response-box">
+                                <strong>Respuesta del área</strong>
 
-                              {destino.fecha_recepcion && (
-                                <div className="dispersion-destination-meta">
-                                  <span>
-                                    Recibido:
-                                  </span>
+                                <p>
+                                  {destino.respuesta_area || destino.respuesta}
+                                </p>
+                              </div>
+                            )}
 
-                                  <strong>
-                                    {formatearFecha(
-                                      destino.fecha_recepcion
-                                    )}
-                                  </strong>
-                                </div>
-                              )}
+                            {destino.motivo_devolucion && (
+                              <div className="dispersion-return-box">
+                                <strong>Documento devuelto</strong>
 
-                              {/* ================================= */}
-                              {/* FECHA DE RESPUESTA */}
-                              {/* ================================= */}
+                                <span>{destino.motivo_devolucion}</span>
 
-                              {(destino.fecha_atencion ||
-                                destino.fecha_respuesta) && (
-                                <div className="dispersion-destination-meta">
-                                  <span>
-                                    Atendido:
-                                  </span>
+                                {destino.comentario_devolucion && (
+                                  <p>{destino.comentario_devolucion}</p>
+                                )}
+                              </div>
+                            )}
 
-                                  <strong>
-                                    {formatearFecha(
-                                      destino.fecha_atencion ||
-                                        destino.fecha_respuesta
-                                    )}
-                                  </strong>
-                                </div>
-                              )}
-
-                              {(destino.respuesta_area ||
-                                destino.respuesta) && (
-                                <div className="dispersion-area-response-box">
-                                  <strong>
-                                    Respuesta del área
-                                  </strong>
-
-                                  <p>
-                                    {destino.respuesta_area ||
-                                      destino.respuesta}
-                                  </p>
-                                </div>
-                              )}
-
-                              {destino.motivo_devolucion && (
-                                <div className="dispersion-return-box">
-                                  <strong>
-                                    Documento devuelto
-                                  </strong>
-
-                                  <span>
-                                    {destino.motivo_devolucion}
-                                  </span>
-
-                                  {destino.comentario_devolucion && (
-                                    <p>
-                                      {destino.comentario_devolucion}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
-
-                              {/* ================================= */}
-                              {/* ERROR P2P */}
-                              {/* ================================= */}
-
-                              {destino.error_envio && (
-                                <span className="dispersion-destination-error">
-                                  {
-                                    destino.error_envio
-                                  }
-                                </span>
-                              )}
-                            </div>
+                            {destino.error_envio && (
+                              <span className="dispersion-destination-error">
+                                {destino.error_envio}
+                              </span>
+                            )}
                           </div>
-                        );
-                      }
-                    )
+                        </div>
+                      );
+                    })
                   )}
                 </div>
 
-                {/* ======================================= */}
-                {/* INFORMACIÓN P2P */}
-                {/* ======================================= */}
-
                 <div className="dispersion-p2p-note">
-                  <strong>
-                    Transferencia P2P
-                  </strong>
+                  <strong>Transferencia P2P</strong>
 
                   <p>
-                    Los destinos y el seguimiento administrativo ya están registrados. La comunicación P2P se conectará posteriormente para transferir físicamente el archivo a cada equipo.
+                    Los destinos y el seguimiento administrativo ya están
+                    registrados. La comunicación P2P se conectará posteriormente
+                    para transferir físicamente el archivo a cada equipo.
                   </p>
                 </div>
               </div>
@@ -2522,59 +1403,35 @@ const Dispersion = () => {
         )}
       </ModalReutilizable>
 
-      {/* ================================================= */}
-      {/* MODAL VER RESPUESTA DEL ÁREA */}
-      {/* ================================================= */}
-
       <ModalReutilizable
         id="modalVerRespuestaArea"
         title="Respuesta del área"
-        isOpen={
-          isModalRespuestaOpen
-        }
-        onClose={
-          cerrarDetalleRespuesta
-        }
-        onAccept={
-          cerrarDetalleRespuesta
-        }
+        isOpen={isModalRespuestaOpen}
+        onClose={cerrarDetalleRespuesta}
+        onAccept={cerrarDetalleRespuesta}
         acceptButtonText="Cerrar"
       >
         {respuestaSeleccionada && (
           <div className="dispersion-response-detail">
             <div>
-              <span>
-                Documento
-              </span>
-              <strong>
-                {respuestaSeleccionada.documento}
-              </strong>
+              <span>Documento</span>
+              <strong>{respuestaSeleccionada.documento}</strong>
             </div>
 
             <div>
-              <span>
-                Área responsable
-              </span>
-              <strong>
-                {respuestaSeleccionada.area}
-              </strong>
+              <span>Área responsable</span>
+              <strong>{respuestaSeleccionada.area}</strong>
             </div>
 
             <div>
-              <span>
-                Fecha de atención
-              </span>
+              <span>Fecha de atención</span>
               <strong>
-                {formatearFecha(
-                  respuestaSeleccionada.fecha_respuesta_area
-                )}
+                {formatearFecha(respuestaSeleccionada.fecha_respuesta_area)}
               </strong>
             </div>
 
             <div className="dispersion-response-detail-comment">
-              <span>
-                Respuesta / comentario del área
-              </span>
+              <span>Respuesta / comentario del área</span>
               <p>
                 {respuestaSeleccionada.respuesta ||
                   "El área no agregó un comentario."}
@@ -2583,26 +1440,22 @@ const Dispersion = () => {
 
             <div className="dispersion-response-history">
               <div>
-                <span>
-                  Recibida por Oficialía
-                </span>
+                <span>Recibida por Oficialía</span>
                 <strong>
                   {respuestaSeleccionada.respuesta_recibida
                     ? formatearFecha(
-                        respuestaSeleccionada.fecha_recepcion_oficialia
+                        respuestaSeleccionada.fecha_recepcion_oficialia,
                       )
                     : "Pendiente"}
                 </strong>
               </div>
 
               <div>
-                <span>
-                  Entregada al ciudadano
-                </span>
+                <span>Entregada al ciudadano</span>
                 <strong>
                   {respuestaSeleccionada.respuesta_entregada
                     ? formatearFecha(
-                        respuestaSeleccionada.fecha_entrega_ciudadano
+                        respuestaSeleccionada.fecha_entrega_ciudadano,
                       )
                     : "Pendiente"}
                 </strong>
@@ -2612,51 +1465,31 @@ const Dispersion = () => {
         )}
       </ModalReutilizable>
 
-      {/* ================================================= */}
-      {/* MODAL RECIBIR RESPUESTA */}
-      {/* ================================================= */}
-
       <ModalReutilizable
         id="modalRecibirRespuesta"
         title="Confirmar respuesta recibida"
-        isOpen={
-          puedeGestionarDispersion &&
-          isModalRecibirOpen
-        }
-        onClose={
-          cerrarRecibirRespuesta
-        }
-        onAccept={
-          registrarRecepcionRespuesta
-        }
+        isOpen={puedeGestionarDispersion && isModalRecibirOpen}
+        onClose={cerrarRecibirRespuesta}
+        onAccept={registrarRecepcionRespuesta}
         acceptButtonText="Confirmar recepción"
-        loading={
-          savingEventos
-        }
-        errorMessage={
-          errorFormulario
-        }
+        loading={savingEventos}
+        errorMessage={errorFormulario}
       >
         {respuestaSeleccionada && (
           <>
             <p>
-              <strong>Documento:</strong>{" "}
-              {respuestaSeleccionada.documento}
+              <strong>Documento:</strong> {respuestaSeleccionada.documento}
             </p>
 
             <p>
-              <strong>Área:</strong>{" "}
-              {respuestaSeleccionada.area}
+              <strong>Área:</strong> {respuestaSeleccionada.area}
             </p>
 
             <div className="dispersion-response-confirm-box">
-              <strong>
-                Respuesta del área
-              </strong>
+              <strong>Respuesta del área</strong>
 
               <p>
-                {respuestaSeleccionada.respuesta ||
-                  "Sin comentario adicional."}
+                {respuestaSeleccionada.respuesta || "Sin comentario adicional."}
               </p>
             </div>
 
@@ -2664,112 +1497,65 @@ const Dispersion = () => {
               label="Comentario de Oficialía"
               isTextarea
               rows={4}
-              value={
-                comentarioOficialia
-              }
-              onChange={(event) =>
-                setComentarioOficialia(
-                  event.target.value
-                )
-              }
+              value={comentarioOficialia}
+              onChange={(event) => setComentarioOficialia(event.target.value)}
               placeholder="Comentario opcional sobre la recepción..."
             />
           </>
         )}
       </ModalReutilizable>
 
-      {/* ================================================= */}
-      {/* MODAL ENTREGAR RESPUESTA */}
-      {/* ================================================= */}
-
       <ModalReutilizable
         id="modalEntregarRespuesta"
         title="Registrar entrega al ciudadano"
-        isOpen={
-          puedeGestionarDispersion &&
-          isModalEntregarOpen
-        }
-        onClose={
-          cerrarEntregarRespuesta
-        }
-        onAccept={
-          registrarEntregaRespuesta
-        }
+        isOpen={puedeGestionarDispersion && isModalEntregarOpen}
+        onClose={cerrarEntregarRespuesta}
+        onAccept={registrarEntregaRespuesta}
         acceptButtonText="Registrar entrega"
-        loading={
-          savingEventos
-        }
-        errorMessage={
-          errorFormulario
-        }
+        loading={savingEventos}
+        errorMessage={errorFormulario}
       >
         {respuestaSeleccionada && (
           <>
             <p>
-              <strong>Documento:</strong>{" "}
-              {respuestaSeleccionada.documento}
+              <strong>Documento:</strong> {respuestaSeleccionada.documento}
             </p>
 
             <p>
-              Esta acción dejará registrada la fecha en que Oficialía entregó o comunicó la respuesta al ciudadano.
+              Esta acción dejará registrada la fecha en que Oficialía entregó o
+              comunicó la respuesta al ciudadano.
             </p>
 
             <CampoFormulario
               label="Comentario de entrega"
               isTextarea
               rows={4}
-              value={
-                comentarioOficialia
-              }
-              onChange={(event) =>
-                setComentarioOficialia(
-                  event.target.value
-                )
-              }
+              value={comentarioOficialia}
+              onChange={(event) => setComentarioOficialia(event.target.value)}
               placeholder="Ej. El ciudadano acudió personalmente a Oficialía..."
             />
           </>
         )}
       </ModalReutilizable>
 
-      {/* ================================================= */}
-      {/* MODAL ELIMINAR */}
-      {/* ================================================= */}
-
       <ModalReutilizable
         id="modalEliminarDispersion"
         title="Eliminar dispersión"
-        isOpen={
-          puedeGestionarDispersion &&
-          isModalEliminarOpen
-        }
-        onClose={
-          cerrarEliminar
-        }
-        onAccept={
-          handleEliminar
-        }
+        isOpen={puedeGestionarDispersion && isModalEliminarOpen}
+        onClose={cerrarEliminar}
+        onAccept={handleEliminar}
         acceptButtonText="Eliminar"
-        loading={
-          saving
-        }
-        errorMessage={
-          error
-        }
+        loading={saving}
+        errorMessage={error}
       >
         <p>
           ¿Desea eliminar el registro de{" "}
-          <strong>
-            {
-              dispersionAEliminar
-                ?.nombre_archivo
-            }
-          </strong>
-          ?
+          <strong>{dispersionAEliminar?.nombre_archivo}</strong>?
         </p>
 
         <p>
-          También se eliminarán sus áreas destino y el seguimiento asociado a ellas.
+          También se eliminarán sus áreas destino y el seguimiento asociado a
+          ellas.
         </p>
       </ModalReutilizable>
     </main>

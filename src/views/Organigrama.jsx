@@ -98,10 +98,7 @@ const formularioAreaInicial = {
 };
 
 const Organigrama = () => {
-  // ======================================================
   // PRIVILEGIOS Y ALCANCE
-  // ======================================================
-
   const {
     loading: loadingPermisos,
     error: errorPermisos,
@@ -111,21 +108,6 @@ const Organigrama = () => {
   const puedeGestionarOrganigrama = tienePrivilegio("Gestionar Organigrama");
 
   const puedeRevisarOrganigrama = tienePrivilegio("Revisar Organigrama");
-
-  /*
-    El comportamiento ya no depende del nombre del rol
-    ni de IDs fijos.
-
-    - Gestionar Organigrama:
-      historial completo de gestión y herramientas de RH.
-
-    - Revisar Organigrama:
-      historial de Presidencia, con solicitudes, autorizados
-      y rechazados; autoriza/rechaza únicamente solicitados.
-
-    - Sin privilegios administrativos:
-      consulta exclusivamente el organigrama vigente.
-  */
   const esConsultaGeneral =
     !puedeGestionarOrganigrama && !puedeRevisarOrganigrama;
 
@@ -195,10 +177,7 @@ const Organigrama = () => {
   const [isModalVerOpen, setIsModalVerOpen] = useState(false);
   const [nivelesVista, setNivelesVista] = useState([]);
 
-  // ======================================================
   // CONSULTA INSTITUCIONAL
-  // ======================================================
-
   const [organigramaVigente, setOrganigramaVigente] = useState(null);
   const [nivelesConsulta, setNivelesConsulta] = useState([]);
   const [loadingConsulta, setLoadingConsulta] = useState(false);
@@ -219,38 +198,21 @@ const Organigrama = () => {
 
   const [isModalSolicitarOpen, setIsModalSolicitarOpen] = useState(false);
 
-  // ======================================================
-  // MODALES DE PRESIDENCIA
-  // ======================================================
-
+  //MODALES DE PRESIDENCIA
   const [isModalAutorizarOpen, setIsModalAutorizarOpen] = useState(false);
   const [isModalRechazarOpen, setIsModalRechazarOpen] = useState(false);
   const [organigramaRevision, setOrganigramaRevision] = useState(null);
   const [observacionesRechazo, setObservacionesRechazo] = useState("");
-  // ======================================================
+  
   // MODAL COMPARAR VERSIONES
-  // ======================================================
-
   const [isModalCompararOpen, setIsModalCompararOpen] = useState(false);
-
   const [organigramaComparacion, setOrganigramaComparacion] = useState(null);
-
   const [idVersionComparar, setIdVersionComparar] = useState("");
-
   const [resultadoComparacion, setResultadoComparacion] = useState(null);
-
   const [comparandoVersiones, setComparandoVersiones] = useState(false);
 
-  // ======================================================
-  // CARGAR DIRECTAMENTE EL ORGANIGRAMA VIGENTE
-  // ======================================================
-  //
-  // Para consulta general usamos directamente la respuesta de
-  // GET /api/organigramas/vigente. Esa respuesta ya contiene
-  // la estructura (niveles), por lo que NO hacemos una segunda
-  // petición a /organigramas/:id.
-  // ======================================================
-
+  //CARGAR DIRECTAMENTE EL ORGANIGRAMA VIGENTE
+ 
   useEffect(() => {
     if (!esConsultaGeneral) {
       setOrganigramaVigente(null);
@@ -667,10 +629,7 @@ const Organigrama = () => {
     }
   };
 
-  // ======================================================
-  // PRESIDENCIA - AUTORIZAR
-  // ======================================================
-
+  // AUTORIZACION DE ORGANIGRAMA POR PRESIDENCIA
   const abrirAutorizar = (org) => {
     limpiarMensajes();
     setOrganigramaRevision(org);
@@ -698,10 +657,7 @@ const Organigrama = () => {
     }
   };
 
-  // ======================================================
-  // PRESIDENCIA - RECHAZAR
-  // ======================================================
-
+  // RECHAZAR ORGANIGRAMA POR PRESIDENCIA
   const abrirRechazar = (org) => {
     limpiarMensajes();
     setOrganigramaRevision(org);
@@ -741,11 +697,7 @@ const Organigrama = () => {
     }
   };
 
-  // ======================================================
-  // EXPORTAR PDF
-  // PDF VECTORIAL - SIN HTML2CANVAS
-  // ======================================================
-
+  //EXPORTAR PDF
   const exportarOrganigramaPdf = async ({ nivelesExportar, organigrama }) => {
     if (!Array.isArray(nivelesExportar) || nivelesExportar.length === 0) {
       setErrorVista("El organigrama no tiene una estructura para exportar.");
@@ -763,10 +715,7 @@ const Organigrama = () => {
     setErrorVista("");
 
     try {
-      // ==================================================
       // CONSTRUIR ÁRBOL
-      // ==================================================
-
       const porId = new Map();
 
       const hijosPorPadre = new Map();
@@ -808,10 +757,7 @@ const Organigrama = () => {
 
       const raiz = raices[0];
 
-      // ==================================================
-      // ORDENAR HIJOS
-      // ==================================================
-
+      //  ORDENAR HIJOS
       hijosPorPadre.forEach((lista) => {
         lista.sort((a, b) =>
           String(a.area?.nombre_area || "").localeCompare(
@@ -821,12 +767,7 @@ const Organigrama = () => {
         );
       });
 
-      // ==================================================
       // CONTAR HOJAS
-      // Determina cuánto espacio horizontal necesita
-      // cada rama.
-      // ==================================================
-
       const contarHojas = (nodo, visitados = new Set()) => {
         const id = Number(nodo.id);
 
@@ -852,10 +793,7 @@ const Organigrama = () => {
 
       const totalHojas = contarHojas(raiz);
 
-      // ==================================================
       // MEDIDAS DEL ORGANIGRAMA
-      // ==================================================
-
       const anchoNodo = 48;
       const altoNodo = 19;
 
@@ -867,19 +805,12 @@ const Organigrama = () => {
 
       const inicioY = 42;
 
-      /*
-      Cada hoja necesita el ancho de una caja
-      más separación.
-    */
       const anchoArbol = Math.max(
         260,
         totalHojas * (anchoNodo + espacioHorizontal),
       );
 
-      // ==================================================
       // PROFUNDIDAD
-      // ==================================================
-
       const obtenerProfundidad = (nodo, visitados = new Set()) => {
         const id = Number(nodo.id);
 
@@ -908,19 +839,7 @@ const Organigrama = () => {
       const altoArbol =
         profundidad * (altoNodo + espacioVertical) + inicioY + margenInferior;
 
-      // ==================================================
-      // TAMAÑO DE PÁGINA
-      // ==================================================
-
-      /*
-      Usamos un PDF de tamaño personalizado.
-
-      Esto evita encoger un organigrama grande
-      hasta que el texto sea ilegible.
-    */
-
       const anchoPagina = Math.max(297, anchoArbol + margenX * 2);
-
       const altoPagina = Math.max(210, altoArbol);
 
       const pdf = new jsPDF({
@@ -931,24 +850,14 @@ const Organigrama = () => {
         format: [anchoPagina, altoPagina],
       });
 
-      // ==================================================
       // ENCABEZADO
-      // ==================================================
-
       pdf.setTextColor(30, 30, 30);
-
       pdf.setFont("helvetica", "bold");
-
       pdf.setFontSize(16);
-
       pdf.text(String(organigrama.titulo || "Organigrama"), margenX, 14);
-
       pdf.setFont("helvetica", "normal");
-
       pdf.setFontSize(9);
-
       pdf.text(`Versión: ${organigrama.version ?? "—"}`, margenX, 20);
-
       pdf.text(
         `Fecha de creación: ${formatearFecha(organigrama.fecha_solicitud)}`,
         margenX,
@@ -965,10 +874,7 @@ const Organigrama = () => {
         );
       }
 
-      // ==================================================
       // CALCULAR POSICIONES
-      // ==================================================
-
       const posiciones = new Map();
 
       let cursorX = margenX;
@@ -992,10 +898,7 @@ const Organigrama = () => {
 
         const y = inicioY + profundidadActual * (altoNodo + espacioVertical);
 
-        // ================================================
-        // HOJA
-        // ================================================
-
+        //HOJA
         if (hijos.length === 0) {
           const x = cursorX;
 
@@ -1009,22 +912,15 @@ const Organigrama = () => {
           return;
         }
 
-        // ================================================
         // POSICIONAR HIJOS PRIMERO
-        // ================================================
-
         hijos.forEach((hijo) =>
           posicionarNodo(hijo, profundidadActual + 1, siguientes),
         );
 
         const primera = posiciones.get(Number(hijos[0].id));
-
         const ultima = posiciones.get(Number(hijos[hijos.length - 1].id));
-
         const centroPrimero = primera.x + anchoNodo / 2;
-
         const centroUltimo = ultima.x + anchoNodo / 2;
-
         const centro = (centroPrimero + centroUltimo) / 2;
 
         posiciones.set(id, {
@@ -1036,10 +932,7 @@ const Organigrama = () => {
 
       posicionarNodo(raiz);
 
-      // ==================================================
       // DIBUJAR CONEXIONES
-      // ==================================================
-
       pdf.setDrawColor(52, 139, 173);
 
       pdf.setLineWidth(0.45);
@@ -1053,7 +946,6 @@ const Organigrama = () => {
         }
 
         const hijo = posiciones.get(Number(item.id));
-
         const padre = posiciones.get(Number(item.id_nivel_superior));
 
         if (!hijo || !padre) {
@@ -1061,35 +953,17 @@ const Organigrama = () => {
         }
 
         const padreX = padre.x + anchoNodo / 2;
-
         const padreY = padre.y + altoNodo;
-
         const hijoX = hijo.x + anchoNodo / 2;
-
         const hijoY = hijo.y;
-
         const mitadY = padreY + (hijoY - padreY) / 2;
 
-        /*
-          Línea vertical desde padre.
-        */
         pdf.line(padreX, padreY, padreX, mitadY);
-
-        /*
-          Línea horizontal hasta hijo.
-        */
         pdf.line(padreX, mitadY, hijoX, mitadY);
-
-        /*
-          Línea vertical hacia el hijo.
-        */
         pdf.line(hijoX, mitadY, hijoX, hijoY);
       });
 
-      // ==================================================
-      // DIBUJAR NODOS
-      // ==================================================
-
+      //DIBUJAR NODOS
       nivelesExportar.forEach((item) => {
         const posicion = posiciones.get(Number(item.id));
 
@@ -1101,17 +975,12 @@ const Organigrama = () => {
           item.id_nivel_superior === null ||
           item.id_nivel_superior === undefined;
 
-        // ================================================
         // CAJA
-        // ================================================
-
         if (esRaiz) {
           pdf.setFillColor(52, 139, 173);
-
           pdf.setDrawColor(52, 139, 173);
         } else {
           pdf.setFillColor(255, 255, 255);
-
           pdf.setDrawColor(52, 139, 173);
         }
 
@@ -1125,16 +994,10 @@ const Organigrama = () => {
           "FD",
         );
 
-        // ================================================
-        // NOMBRE
-        // ================================================
-
         const nombre = String(item.area?.nombre_area || "Sin área");
-
         const lineasNombre = pdf.splitTextToSize(nombre, anchoNodo - 6);
 
         pdf.setFont("helvetica", "bold");
-
         pdf.setFontSize(7.5);
 
         if (esRaiz) {
@@ -1144,7 +1007,6 @@ const Organigrama = () => {
         }
 
         const altoTexto = lineasNombre.length * 3;
-
         const inicioTexto =
           posicion.y + Math.max(6, (altoNodo - altoTexto) / 2);
 
@@ -1159,10 +1021,7 @@ const Organigrama = () => {
           );
         });
 
-        // ================================================
         // NIVEL
-        // ================================================
-
         pdf.setFont("helvetica", "normal");
 
         pdf.setFontSize(6);
@@ -1183,10 +1042,7 @@ const Organigrama = () => {
         );
       });
 
-      // ==================================================
       // NOMBRE DE ARCHIVO
-      // ==================================================
-
       const tituloSeguro = String(organigrama.titulo || "Organigrama")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
@@ -1207,19 +1063,12 @@ const Organigrama = () => {
     }
   };
 
-  // ======================================================
   // COMPARAR VERSIONES
-  // ======================================================
-
   const abrirComparar = (org) => {
     limpiarMensajes();
-
     setOrganigramaComparacion(org);
-
     setIdVersionComparar("");
-
     setResultadoComparacion(null);
-
     setIsModalCompararOpen(true);
   };
 
@@ -1229,11 +1078,8 @@ const Organigrama = () => {
     }
 
     setIsModalCompararOpen(false);
-
     setOrganigramaComparacion(null);
-
     setIdVersionComparar("");
-
     setResultadoComparacion(null);
   };
 
@@ -1249,14 +1095,11 @@ const Organigrama = () => {
     }
 
     setComparandoVersiones(true);
-
     setErrorVista("");
 
     try {
       const actual = await obtenerOrganigrama(organigramaComparacion.id);
-
       const anterior = await obtenerOrganigrama(Number(idVersionComparar));
-
       const resultado = compararVersionesOrganigrama(
         anterior.niveles || [],
         actual.niveles || [],
@@ -1267,17 +1110,13 @@ const Organigrama = () => {
 
         actual: {
           id: actual.id,
-
           titulo: actual.titulo,
-
           version: actual.version,
         },
 
         anterior: {
           id: anterior.id,
-
           titulo: anterior.titulo,
-
           version: anterior.version,
         },
       });
@@ -1290,9 +1129,7 @@ const Organigrama = () => {
     }
   };
 
-  // ======================================================
   // TABLA ORGANIGRAMAS
-  // ======================================================
   const columnasOrganigramas = [
     "Título",
     "Versión",
@@ -1526,10 +1363,7 @@ const Organigrama = () => {
     },
   }));
 
-  // ======================================================
   // VERSIONES DISPONIBLES PARA COMPARAR
-  // ======================================================
-
   const versionesDisponiblesComparacion = useMemo(() => {
     if (!organigramaComparacion) {
       return [];
@@ -1996,10 +1830,7 @@ const Organigrama = () => {
           Organigrama: <strong>{selectedOrg?.titulo}</strong>
         </p>
       </ModalReutilizable>
-      {/* ================================================= */}
       {/* AUTORIZAR - PRESIDENCIA */}
-      {/* ================================================= */}
-
       <ModalReutilizable
         id="modalAutorizarOrganigrama"
         title="Autorizar organigrama"
@@ -2024,10 +1855,7 @@ const Organigrama = () => {
         </p>
       </ModalReutilizable>
 
-      {/* ================================================= */}
       {/* RECHAZAR - PRESIDENCIA */}
-      {/* ================================================= */}
-
       <ModalReutilizable
         id="modalRechazarOrganigrama"
         title="Rechazar organigrama"
@@ -2054,10 +1882,7 @@ const Organigrama = () => {
         />
       </ModalReutilizable>
 
-      {/* ================================================= */}
       {/* MODAL COMPARAR VERSIONES */}
-      {/* ================================================= */}
-
       <ModalReutilizable
         id="modalCompararOrganigramas"
         title="Comparar versiones"
@@ -2106,10 +1931,7 @@ const Organigrama = () => {
 
         {resultadoComparacion && (
           <div className="comparacion-resultados">
-            {/* ============================================= */}
             {/* RESUMEN */}
-            {/* ============================================= */}
-
             <div className="comparacion-resumen">
               <div className="comparacion-resumen-item agregado">
                 <strong>{resultadoComparacion.resumen.agregadas}</strong>
@@ -2142,10 +1964,7 @@ const Organigrama = () => {
               </div>
             )}
 
-            {/* ============================================= */}
             {/* AGREGADAS */}
-            {/* ============================================= */}
-
             {resultadoComparacion.agregadas.length > 0 && (
               <div className="comparacion-seccion">
                 <h4>Áreas agregadas</h4>
@@ -2162,10 +1981,7 @@ const Organigrama = () => {
               </div>
             )}
 
-            {/* ============================================= */}
             {/* ELIMINADAS */}
-            {/* ============================================= */}
-
             {resultadoComparacion.eliminadas.length > 0 && (
               <div className="comparacion-seccion">
                 <h4>Áreas eliminadas</h4>
@@ -2182,10 +1998,7 @@ const Organigrama = () => {
               </div>
             )}
 
-            {/* ============================================= */}
             {/* MOVIDAS */}
-            {/* ============================================= */}
-
             {resultadoComparacion.movidas.length > 0 && (
               <div className="comparacion-seccion">
                 <h4>Cambios de dependencia</h4>
@@ -2202,10 +2015,7 @@ const Organigrama = () => {
               </div>
             )}
 
-            {/* ============================================= */}
             {/* CAMBIOS DE NIVEL */}
-            {/* ============================================= */}
-
             {resultadoComparacion.nivelModificado.length > 0 && (
               <div className="comparacion-seccion">
                 <h4>Cambios de nivel</h4>
