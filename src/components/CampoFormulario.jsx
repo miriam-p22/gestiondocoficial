@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import "../styles/CampoFormulario.css";
 
-import {
-  FiEye,
-  FiEyeOff,
-} from "react-icons/fi";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 const CampoFormulario = ({
   label,
@@ -20,86 +17,50 @@ const CampoFormulario = ({
 
   ...props
 }) => {
-  const [
-    mostrarPassword,
-    setMostrarPassword,
-  ] = useState(false);
+  const [mostrarPassword, setMostrarPassword] = useState(false);
 
-  let InputElement =
-    "input";
+  let InputElement = "input";
 
   if (isSelect) {
-    InputElement =
-      "select";
+    InputElement = "select";
   }
 
   if (isTextarea) {
-    InputElement =
-      "textarea";
+    InputElement = "textarea";
   }
 
   const inputType =
-    type === "password"
-      ? mostrarPassword
-        ? "text"
-        : "password"
-      : type;
+    type === "password" ? (mostrarPassword ? "text" : "password") : type;
 
   return (
     <label
       className="field"
       style={{
-        position:
-          "relative",
+        position: "relative",
       }}
     >
-      <span className="label-text">
-        {label}
-      </span>
+      <span className="label-text">{label}</span>
 
       <InputElement
         className="input"
-        type={
-          isTextarea
-            ? undefined
-            : inputType
-        }
-        value={
-          value
-        }
-        onChange={
-          onChange
-        }
-        placeholder={
-          placeholder
-        }
-        required={
-          required
-        }
+        type={isTextarea ? undefined : inputType}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
         {...props}
       >
-        {
-          children
-        }
+        {children}
       </InputElement>
 
-      {type ===
-        "password" &&
-        !isTextarea &&
-        !isSelect && (
-          <span
-            className="password-icon-formulario"
-            onClick={() =>
-              setMostrarPassword(
-                !mostrarPassword
-              )
-            }
-          >
-            {mostrarPassword
-              ? <FiEye />
-              : <FiEyeOff />}
-          </span>
-        )}
+      {type === "password" && !isTextarea && !isSelect && (
+        <span
+          className="password-icon-formulario"
+          onClick={() => setMostrarPassword(!mostrarPassword)}
+        >
+          {mostrarPassword ? <FiEye /> : <FiEyeOff />}
+        </span>
+      )}
     </label>
   );
 };

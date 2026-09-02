@@ -28,7 +28,6 @@ const DashboardFiltros = ({ anio, mes, setAnio, setMes, onActualizar }) => {
   return (
     <div className="dashboard-filtros">
       <div className="periodo-filtros">
-        
         <DropdownReutilizable
           label="Año:"
           value={anio}
@@ -46,7 +45,6 @@ const DashboardFiltros = ({ anio, mes, setAnio, setMes, onActualizar }) => {
         <button className="btn-actualizar" onClick={onActualizar}>
           <i className="fas fa-sync-alt"></i> Actualizar
         </button>
-
       </div>
     </div>
   );

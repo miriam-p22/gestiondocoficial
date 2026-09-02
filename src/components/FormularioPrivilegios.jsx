@@ -7,11 +7,7 @@ const FormularioPrivilegios = ({
   loading = false,
 }) => {
   if (loading) {
-    return (
-      <div className="privilegios-loading">
-        Cargando privilegios...
-      </div>
-    );
+    return <div className="privilegios-loading">Cargando privilegios...</div>;
   }
 
   if (privilegios.length === 0) {
@@ -25,24 +21,19 @@ const FormularioPrivilegios = ({
   return (
     <div className="privilegios-lista">
       {privilegios.map((privilegio) => {
-        const seleccionado =
-          seleccionados.includes(privilegio.id);
+        const seleccionado = seleccionados.includes(privilegio.id);
 
         return (
           <label
             key={privilegio.id}
             className={`privilegio-item ${
-              seleccionado
-                ? "privilegio-seleccionado"
-                : ""
+              seleccionado ? "privilegio-seleccionado" : ""
             }`}
           >
             <input
               type="checkbox"
               checked={seleccionado}
-              onChange={() =>
-                onChange(privilegio.id)
-              }
+              onChange={() => onChange(privilegio.id)}
             />
 
             <span className="privilegio-checkbox-text">

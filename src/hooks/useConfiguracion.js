@@ -29,10 +29,7 @@ export const useConfiguracion = ({
       setConfiguracion(data || null);
       return data;
     } catch (err) {
-      setError(
-        err?.message ||
-          "No fue posible cargar la configuración SMTP."
-      );
+      setError(err?.message || "No fue posible cargar la configuración SMTP.");
       throw err;
     }
   }, [permisosCargados, puedeNotificaciones]);
@@ -51,8 +48,7 @@ export const useConfiguracion = ({
       return data;
     } catch (err) {
       setError(
-        err?.message ||
-          "No fue posible comprobar el estado del sistema."
+        err?.message || "No fue posible comprobar el estado del sistema.",
       );
       throw err;
     } finally {
@@ -100,7 +96,7 @@ export const useConfiguracion = ({
       try {
         await Promise.all(tareas);
       } catch {
-        // El error ya queda almacenado en el hook.
+        
       } finally {
         if (activo) {
           setLoading(false);
@@ -123,9 +119,7 @@ export const useConfiguracion = ({
 
   const guardarConfiguracion = async (datos) => {
     if (!permisosCargados || !puedeNotificaciones) {
-      throw new Error(
-        "No tiene permiso para gestionar las notificaciones."
-      );
+      throw new Error("No tiene permiso para gestionar las notificaciones.");
     }
 
     setSaving(true);
@@ -140,10 +134,7 @@ export const useConfiguracion = ({
       setConfiguracion(data);
       return data;
     } catch (err) {
-      setError(
-        err?.message ||
-          "No fue posible guardar la configuración SMTP."
-      );
+      setError(err?.message || "No fue posible guardar la configuración SMTP.");
       throw err;
     } finally {
       setSaving(false);
@@ -152,9 +143,7 @@ export const useConfiguracion = ({
 
   const probarSmtp = async () => {
     if (!permisosCargados || !puedeNotificaciones) {
-      throw new Error(
-        "No tiene permiso para gestionar las notificaciones."
-      );
+      throw new Error("No tiene permiso para gestionar las notificaciones.");
     }
 
     setChecking(true);
@@ -165,10 +154,7 @@ export const useConfiguracion = ({
         method: "POST",
       });
     } catch (err) {
-      setError(
-        err?.message ||
-          "No fue posible probar el servidor SMTP."
-      );
+      setError(err?.message || "No fue posible probar el servidor SMTP.");
       throw err;
     } finally {
       setChecking(false);

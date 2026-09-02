@@ -11,25 +11,66 @@ class ModalDashboard extends React.Component {
 
     this.state = {
       areaFiltro: "",
-      statusFiltro: ""
+      statusFiltro: "",
     };
 
     this.documentos = [
-      { area: "Recursos Humanos", tipo: "Notificación de trabajos.pdf", recepcion: "20-09-2025", respuesta: "21-09-2025", estatus: "Turnado" },
-      { area: "Contabilidad Técnica", tipo: "Solicitud de Viáticos.jpg", recepcion: "20-09-2025", respuesta: "22-09-2025", estatus: "Vencido" },
-      { area: "Presidencia", tipo: "Uso de espacio público.pdf", recepcion: "22-09-2025", respuesta: "25-09-2025", estatus: "En proceso" },
-      { area: "Obras Públicas", tipo: "Informe de servicios públicos.pdf", recepcion: "25-09-2025", respuesta: "29-09-2025", estatus: "Turnado" },
-      { area: "Ley de Archivo", tipo: "Clasificación de expedientes.pdf", recepcion: "26-09-2025", respuesta: "30-09-2025", estatus: "En proceso" },
-      { area: "Turismo", tipo: "Proyectos de promoción.pdf", recepcion: "26-09-2025", respuesta: "29-09-2025", estatus: "Vencido" },
-      { area: "Turismo", tipo: "Informe Flujo turístico.pdf", recepcion: "28-09-2025", respuesta: "30-09-2025", estatus: "Turnado" }
+      {
+        area: "Recursos Humanos",
+        tipo: "Notificación de trabajos.pdf",
+        recepcion: "20-09-2025",
+        respuesta: "21-09-2025",
+        estatus: "Turnado",
+      },
+      {
+        area: "Contabilidad Técnica",
+        tipo: "Solicitud de Viáticos.jpg",
+        recepcion: "20-09-2025",
+        respuesta: "22-09-2025",
+        estatus: "Vencido",
+      },
+      {
+        area: "Presidencia",
+        tipo: "Uso de espacio público.pdf",
+        recepcion: "22-09-2025",
+        respuesta: "25-09-2025",
+        estatus: "En proceso",
+      },
+      {
+        area: "Obras Públicas",
+        tipo: "Informe de servicios públicos.pdf",
+        recepcion: "25-09-2025",
+        respuesta: "29-09-2025",
+        estatus: "Turnado",
+      },
+      {
+        area: "Ley de Archivo",
+        tipo: "Clasificación de expedientes.pdf",
+        recepcion: "26-09-2025",
+        respuesta: "30-09-2025",
+        estatus: "En proceso",
+      },
+      {
+        area: "Turismo",
+        tipo: "Proyectos de promoción.pdf",
+        recepcion: "26-09-2025",
+        respuesta: "29-09-2025",
+        estatus: "Vencido",
+      },
+      {
+        area: "Turismo",
+        tipo: "Informe Flujo turístico.pdf",
+        recepcion: "28-09-2025",
+        respuesta: "30-09-2025",
+        estatus: "Turnado",
+      },
     ];
   }
 
-  // 🔍 FILTRADO SIN HOOKS
   getDocumentosFiltrados() {
     const { areaFiltro, statusFiltro } = this.state;
 
-    return this.documentos.filter(doc => {
+    return this.documentos.filter((doc) => {
       const filtroArea = areaFiltro ? doc.area === areaFiltro : true;
       const filtroStatus = statusFiltro ? doc.estatus === statusFiltro : true;
       return filtroArea && filtroStatus;
@@ -44,7 +85,7 @@ class ModalDashboard extends React.Component {
       "Tipo de Documento",
       "Fecha de Recepción",
       "Fecha de Respuesta",
-      "Estatus"
+      "Estatus",
     ];
 
     return (
@@ -57,8 +98,7 @@ class ModalDashboard extends React.Component {
         className="modal-dashboard-ancho"
         hideFooter={true}
       >
-
-        {/* FILTROS (FUNCIONANDO) */}
+        {/* FILTROS */}
         <div className="filters">
           <DropdownReutilizable
             label="Área"
@@ -71,7 +111,7 @@ class ModalDashboard extends React.Component {
               { label: "Contabilidad Técnica", status: "Contabilidad Técnica" },
               { label: "Obras Públicas", status: "Obras Públicas" },
               { label: "Ley de Archivo", status: "Ley de Archivo" },
-              { label: "Turismo", status: "Turismo" }
+              { label: "Turismo", status: "Turismo" },
             ]}
           />
 
@@ -83,7 +123,7 @@ class ModalDashboard extends React.Component {
               { label: "Todos los estatus", status: "" },
               { label: "Turnado", status: "Turnado" },
               { label: "En proceso", status: "En proceso" },
-              { label: "Vencido", status: "Vencido" }
+              { label: "Vencido", status: "Vencido" },
             ]}
           />
         </div>
@@ -98,11 +138,12 @@ class ModalDashboard extends React.Component {
               <td>{row.tipo}</td>
               <td>{row.recepcion}</td>
               <td>{row.respuesta}</td>
-              <td><EtiquetaEstado estatus={row.estatus} /></td>
+              <td>
+                <EtiquetaEstado estatus={row.estatus} />
+              </td>
             </tr>
           )}
         />
-
       </ModalReutilizable>
     );
   }

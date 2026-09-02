@@ -1,8 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { apiFetch } from "../api/api";
 
@@ -22,38 +18,18 @@ export const useArchivoFisico = () => {
     setError("");
 
     try {
-      /*
-        Primero consultamos los permisos.
-
-        Esto evita solicitar documentos/clasificaciones
-        cuando el usuario no debe entrar al módulo.
-      */
-      const dataPermisos =
-        await apiFetch(
-          "/archivo-fisico/permisos"
-        );
-
+      /* Consulta de permisos*/
+      const dataPermisos = await apiFetch("/archivo-fisico/permisos");
       const permisosActuales = {
-        gestionar:
-          Boolean(
-            dataPermisos?.gestionar
-          ),
+        gestionar: Boolean(dataPermisos?.gestionar),
 
-        consultar_global:
-          Boolean(
-            dataPermisos
-              ?.consultar_global
-          ),
+        consultar_global: Boolean(dataPermisos?.consultar_global),
       };
 
-      setPermisos(
-        permisosActuales
-      );
+      setPermisos(permisosActuales);
 
       const puedeConsultar =
-        permisosActuales.gestionar ||
-        permisosActuales
-          .consultar_global;
+        permisosActuales.gestionar || permisosActuales.consultar_global;
 
       if (!puedeConsultar) {
         setDocumentos([]);
@@ -61,33 +37,15 @@ export const useArchivoFisico = () => {
         return;
       }
 
-      const [
-        dataDocumentos,
-        dataClasificaciones,
-      ] = await Promise.all([
-        apiFetch(
-          "/archivo-fisico"
-        ),
-
-        apiFetch(
-          "/clasificaciones"
-        ),
+      const [dataDocumentos, dataClasificaciones] = await Promise.all([
+        apiFetch("/archivo-fisico"),
+        apiFetch("/clasificaciones"),
       ]);
 
-      setDocumentos(
-        Array.isArray(
-          dataDocumentos
-        )
-          ? dataDocumentos
-          : []
-      );
+      setDocumentos(Array.isArray(dataDocumentos) ? dataDocumentos : []);
 
       setClasificaciones(
-        Array.isArray(
-          dataClasificaciones
-        )
-          ? dataClasificaciones
-          : []
+        Array.isArray(dataClasificaciones) ? dataClasificaciones : [],
       );
     } catch (err) {
       setDocumentos([]);
@@ -95,7 +53,7 @@ export const useArchivoFisico = () => {
 
       setError(
         err?.message ||
-          "No fue posible cargar la información del Archivo Físico."
+          "No fue posible cargar la información del Archivo Físico.",
       );
     } finally {
       setLoading(false);
@@ -106,21 +64,15 @@ export const useArchivoFisico = () => {
     cargar();
   }, [cargar]);
 
-  const guardarResguardo = async (
-    idDestino,
-    datos
-  ) => {
+  const guardarResguardo = async (idDestino, datos) => {
     setSaving(true);
     setError("");
 
     try {
-      const guardado = await apiFetch(
-        `/archivo-fisico/destino/${idDestino}`,
-        {
-          method: "PUT",
-          body: JSON.stringify(datos),
-        }
-      );
+      const guardado = await apiFetch(`/archivo-fisico/destino/${idDestino}`, {
+        method: "PUT",
+        body: JSON.stringify(datos),
+      });
 
       setDocumentos((actuales) =>
         actuales.map((item) =>
@@ -129,16 +81,13 @@ export const useArchivoFisico = () => {
                 ...item,
                 archivoFisico: guardado,
               }
-            : item
-        )
+            : item,
+        ),
       );
 
       return guardado;
     } catch (err) {
-      setError(
-        err?.message ||
-          "No fue posible guardar el resguardo físico."
-      );
+      setError(err?.message || "No fue posible guardar el resguardo físico.");
       throw err;
     } finally {
       setSaving(false);
@@ -150,25 +99,16 @@ export const useArchivoFisico = () => {
     setError("");
 
     try {
-      const nueva = await apiFetch(
-        "/clasificaciones",
-        {
-          method: "POST",
-          body: JSON.stringify(datos),
-        }
-      );
+      const nueva = await apiFetch("/clasificaciones", {
+        method: "POST",
+        body: JSON.stringify(datos),
+      });
 
-      setClasificaciones((actuales) => [
-        ...actuales,
-        nueva,
-      ]);
+      setClasificaciones((actuales) => [...actuales, nueva]);
 
       return nueva;
     } catch (err) {
-      setError(
-        err?.message ||
-          "No fue posible crear la clasificación."
-      );
+      setError(err?.message || "No fue posible crear la clasificación.");
       throw err;
     } finally {
       setSaving(false);

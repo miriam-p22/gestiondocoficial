@@ -1,378 +1,199 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { apiFetch } from "../api/api";
 
-export const useNotificaciones = (
-  opciones = {}
-) => {
-  const {
-    autoLoad = true,
-  } = opciones;
-
-  const [
-    notificaciones,
-    setNotificaciones,
-  ] = useState([]);
-
-  const [
-    loading,
-    setLoading,
-  ] = useState(false);
-
-  const [
-    saving,
-    setSaving,
-  ] = useState(false);
-
-  const [
-    error,
-    setError,
-  ] = useState("");
-
-  // ======================================================
-  // LIMPIAR ERROR
-  // ======================================================
+export const useNotificaciones = (opciones = {}) => {
+  const { autoLoad = true } = opciones;
+  const [notificaciones, setNotificaciones] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const limpiarError = () => {
     setError("");
   };
 
-  // ======================================================
-  // CANTIDAD DE NO LEÍDAS
-  // ======================================================
+  //CANTIDAD DE NO LEÍDAS
+  const cantidadNoLeidas = useMemo(
+    () =>
+      notificaciones.filter((notificacion) => notificacion.leida !== true)
+        .length,
+    [notificaciones],
+  );
 
-  const cantidadNoLeidas =
-    useMemo(
-      () =>
-        notificaciones.filter(
-          (notificacion) =>
-            notificacion.leida !== true
-        ).length,
-      [notificaciones]
-    );
+  //CARGAR TODAS LAS NOTIFICACIONES
+  const cargarNotificaciones = useCallback(async (opcionesCarga = {}) => {
+    const { silencioso = false } = opcionesCarga;
 
-  // ======================================================
-  // CARGAR TODAS LAS NOTIFICACIONES
-  // ======================================================
+    if (!silencioso) {
+      setLoading(true);
+      setError("");
+    }
 
-  const cargarNotificaciones =
-    useCallback(
-      async (
-        opcionesCarga = {}
-      ) => {
-        const {
-          silencioso = false,
-        } = opcionesCarga;
+    try {
+      const data = await apiFetch("/notificaciones");
+      const lista = Array.isArray(data) ? data : [];
 
-        if (!silencioso) {
-          setLoading(true);
-          setError("");
-        }
+      setNotificaciones(lista);
 
-        try {
-          const data =
-            await apiFetch(
-              "/notificaciones"
-            );
+      return lista;
+    } catch (err) {
+      const mensaje =
+        err?.message || "No fue posible cargar las notificaciones.";
 
-          const lista =
-            Array.isArray(data)
-              ? data
-              : [];
+      if (!silencioso) {
+        setError(mensaje);
 
-          setNotificaciones(
-            lista
-          );
+        setNotificaciones([]);
+      }
 
-          return lista;
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible cargar las notificaciones.";
-
-          /*
-            En una actualización automática silenciosa
-            conservamos las notificaciones que ya están
-            visibles. Un fallo temporal de conexión no
-            debe vaciar la campana.
-          */
-          if (!silencioso) {
-            setError(
-              mensaje
-            );
-
-            setNotificaciones(
-              []
-            );
-          }
-
-          return [];
-        } finally {
-          if (!silencioso) {
-            setLoading(
-              false
-            );
-          }
-        }
-      },
-      []
-    );
-
-  // ======================================================
-  // CARGA AUTOMÁTICA Y ACTUALIZACIÓN PERIÓDICA
-  // ======================================================
+      return [];
+    } finally {
+      if (!silencioso) {
+        setLoading(false);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!autoLoad) {
       return undefined;
     }
-
-    /*
-      Primera carga:
-      muestra el estado de carga normalmente.
-    */
     cargarNotificaciones();
+    
+    const intervalo = setInterval(() => {
+      cargarNotificaciones({
+        silencioso: true,
+      });
+    }, 15000);
 
-    /*
-      Polling silencioso cada 15 segundos.
-      Permite que las nuevas notificaciones
-      aparezcan sin recargar la aplicación.
-    */
-    const intervalo =
-      setInterval(
-        () => {
-          cargarNotificaciones({
-            silencioso: true,
-          });
-        },
-        15000
-      );
+    const manejarFoco = () => {
+      cargarNotificaciones({
+        silencioso: true,
+      });
+    };
 
-    /*
-      Si el usuario cambia de ventana y después
-      regresa a la aplicación, actualizamos
-      inmediatamente la campana.
-    */
-    const manejarFoco =
-      () => {
-        cargarNotificaciones({
-          silencioso: true,
-        });
-      };
+    window.addEventListener("focus", manejarFoco);
 
-    window.addEventListener(
-      "focus",
-      manejarFoco
-    );
-
-    /*
-      Limpieza al desmontar el hook para evitar
-      intervalos o listeners duplicados.
-    */
     return () => {
-      clearInterval(
-        intervalo
+      clearInterval(intervalo);
+
+      window.removeEventListener("focus", manejarFoco);
+    };
+  }, [autoLoad, cargarNotificaciones]);
+
+  //MARCAR COMO LEÍDA
+  const marcarComoLeida = async (id) => {
+    const notificacionId = Number(id);
+
+    if (!Number.isInteger(notificacionId) || notificacionId <= 0) {
+      throw new Error("El identificador de la notificación no es válido.");
+    }
+
+    setSaving(true);
+    setError("");
+
+    try {
+      const actualizada = await apiFetch(
+        `/notificaciones/${notificacionId}/leer`,
+        {
+          method: "PUT",
+        },
       );
 
-      window.removeEventListener(
-        "focus",
-        manejarFoco
+      setNotificaciones((actuales) =>
+        actuales.map((notificacion) =>
+          Number(notificacion.id) === Number(actualizada.id)
+            ? actualizada
+            : notificacion,
+        ),
       );
-    };
-  }, [
-    autoLoad,
-    cargarNotificaciones,
-  ]);
 
-  // ======================================================
-  // MARCAR UNA COMO LEÍDA
-  // ======================================================
+      return actualizada;
+    } catch (err) {
+      const mensaje =
+        err?.message || "No fue posible marcar la notificación como leída.";
 
-  const marcarComoLeida =
-    async (id) => {
-      const notificacionId =
-        Number(id);
+      setError(mensaje);
 
-      if (
-        !Number.isInteger(
-          notificacionId
-        ) ||
-        notificacionId <= 0
-      ) {
-        throw new Error(
-          "El identificador de la notificación no es válido."
-        );
-      }
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  };
 
-      setSaving(true);
-      setError("");
+  //MARCAR TODAS COMO LEÍDAS
+  const marcarTodasComoLeidas = async () => {
+    setSaving(true);
+    setError("");
 
-      try {
-        const actualizada =
-          await apiFetch(
-            `/notificaciones/${notificacionId}/leer`,
-            {
-              method: "PUT",
-            }
-          );
+    try {
+      const resultado = await apiFetch("/notificaciones/leer-todas", {
+        method: "PUT",
+      });
 
-        setNotificaciones(
-          (actuales) =>
-            actuales.map(
-              (notificacion) =>
-                Number(
-                  notificacion.id
-                ) ===
-                Number(
-                  actualizada.id
-                )
-                  ? actualizada
-                  : notificacion
-            )
-        );
+      const fechaLectura = new Date().toISOString();
 
-        return actualizada;
-      } catch (err) {
-        const mensaje =
-          err?.message ||
-          "No fue posible marcar la notificación como leída.";
+      setNotificaciones((actuales) =>
+        actuales.map((notificacion) =>
+          notificacion.leida
+            ? notificacion
+            : {
+                ...notificacion,
+                leida: true,
+                fecha_lectura: fechaLectura,
+              },
+        ),
+      );
 
-        setError(
-          mensaje
-        );
+      return resultado;
+    } catch (err) {
+      const mensaje =
+        err?.message ||
+        "No fue posible marcar todas las notificaciones como leídas.";
 
-        throw err;
-      } finally {
-        setSaving(
-          false
-        );
-      }
-    };
+      setError(mensaje);
 
-  // ======================================================
-  // MARCAR TODAS COMO LEÍDAS
-  // ======================================================
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  };
 
-  const marcarTodasComoLeidas =
-    async () => {
-      setSaving(true);
-      setError("");
+  //ELIMINAR NOTIFICACIÓN
+  const eliminarNotificacion = async (id) => {
+    const notificacionId = Number(id);
 
-      try {
-        const resultado =
-          await apiFetch(
-            "/notificaciones/leer-todas",
-            {
-              method: "PUT",
-            }
-          );
+    if (!Number.isInteger(notificacionId) || notificacionId <= 0) {
+      throw new Error("El identificador de la notificación no es válido.");
+    }
 
-        const fechaLectura =
-          new Date().toISOString();
+    setSaving(true);
+    setError("");
 
-        setNotificaciones(
-          (actuales) =>
-            actuales.map(
-              (notificacion) =>
-                notificacion.leida
-                  ? notificacion
-                  : {
-                      ...notificacion,
-                      leida: true,
-                      fecha_lectura:
-                        fechaLectura,
-                    }
-            )
-        );
+    try {
+      const resultado = await apiFetch(`/notificaciones/${notificacionId}`, {
+        method: "DELETE",
+      });
 
-        return resultado;
-      } catch (err) {
-        const mensaje =
-          err?.message ||
-          "No fue posible marcar todas las notificaciones como leídas.";
+      setNotificaciones((actuales) =>
+        actuales.filter(
+          (notificacion) => Number(notificacion.id) !== notificacionId,
+        ),
+      );
 
-        setError(
-          mensaje
-        );
+      return resultado;
+    } catch (err) {
+      const mensaje =
+        err?.message || "No fue posible eliminar la notificación.";
 
-        throw err;
-      } finally {
-        setSaving(
-          false
-        );
-      }
-    };
+      setError(mensaje);
 
-  // ======================================================
-  // ELIMINAR NOTIFICACIÓN
-  // ======================================================
-
-  const eliminarNotificacion =
-    async (id) => {
-      const notificacionId =
-        Number(id);
-
-      if (
-        !Number.isInteger(
-          notificacionId
-        ) ||
-        notificacionId <= 0
-      ) {
-        throw new Error(
-          "El identificador de la notificación no es válido."
-        );
-      }
-
-      setSaving(true);
-      setError("");
-
-      try {
-        const resultado =
-          await apiFetch(
-            `/notificaciones/${notificacionId}`,
-            {
-              method:
-                "DELETE",
-            }
-          );
-
-        setNotificaciones(
-          (actuales) =>
-            actuales.filter(
-              (notificacion) =>
-                Number(
-                  notificacion.id
-                ) !==
-                notificacionId
-            )
-        );
-
-        return resultado;
-      } catch (err) {
-        const mensaje =
-          err?.message ||
-          "No fue posible eliminar la notificación.";
-
-        setError(
-          mensaje
-        );
-
-        throw err;
-      } finally {
-        setSaving(
-          false
-        );
-      }
-    };
-
-  // ======================================================
-  // RETORNO
-  // ======================================================
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return {
     notificaciones,
@@ -389,8 +210,7 @@ export const useNotificaciones = (
     marcarTodasComoLeidas,
     eliminarNotificacion,
 
-    refresh:
-      cargarNotificaciones,
+    refresh: cargarNotificaciones,
 
     limpiarError,
   };

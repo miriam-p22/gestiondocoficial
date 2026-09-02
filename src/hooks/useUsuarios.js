@@ -1,8 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { apiFetch } from "../api/api";
 
@@ -17,19 +13,14 @@ export const useUsuarios = () => {
 
   const cargarCatalogos = useCallback(async () => {
     try {
-      const [rolesData, areasData] =
-        await Promise.all([
-          apiFetch("/roles"),
-          apiFetch("/areas"),
-        ]);
+      const [rolesData, areasData] = await Promise.all([
+        apiFetch("/roles"),
+        apiFetch("/areas"),
+      ]);
 
-      setRoles(
-        Array.isArray(rolesData) ? rolesData : []
-      );
+      setRoles(Array.isArray(rolesData) ? rolesData : []);
 
-      setAreas(
-        Array.isArray(areasData) ? areasData : []
-      );
+      setAreas(Array.isArray(areasData) ? areasData : []);
     } catch (err) {
       setError(err.message);
       throw err;
@@ -43,9 +34,7 @@ export const useUsuarios = () => {
     try {
       const data = await apiFetch("/usuarios");
 
-      setUsuarios(
-        Array.isArray(data) ? data : []
-      );
+      setUsuarios(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -58,29 +47,17 @@ export const useUsuarios = () => {
     setError(null);
 
     try {
-      const [
-        usuariosData,
-        rolesData,
-        areasData,
-      ] = await Promise.all([
+      const [usuariosData, rolesData, areasData] = await Promise.all([
         apiFetch("/usuarios"),
         apiFetch("/roles"),
         apiFetch("/areas"),
       ]);
 
-      setUsuarios(
-        Array.isArray(usuariosData)
-          ? usuariosData
-          : []
-      );
+      setUsuarios(Array.isArray(usuariosData) ? usuariosData : []);
 
-      setRoles(
-        Array.isArray(rolesData) ? rolesData : []
-      );
+      setRoles(Array.isArray(rolesData) ? rolesData : []);
 
-      setAreas(
-        Array.isArray(areasData) ? areasData : []
-      );
+      setAreas(Array.isArray(areasData) ? areasData : []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -97,18 +74,12 @@ export const useUsuarios = () => {
     setError(null);
 
     try {
-      const nuevoUsuario = await apiFetch(
-        "/usuarios",
-        {
-          method: "POST",
-          body: JSON.stringify(datos),
-        }
-      );
+      const nuevoUsuario = await apiFetch("/usuarios", {
+        method: "POST",
+        body: JSON.stringify(datos),
+      });
 
-      setUsuarios((actuales) => [
-        ...actuales,
-        nuevoUsuario,
-      ]);
+      setUsuarios((actuales) => [...actuales, nuevoUsuario]);
 
       return nuevoUsuario;
     } catch (err) {
@@ -119,28 +90,20 @@ export const useUsuarios = () => {
     }
   };
 
-  const actualizarUsuario = async (
-    id,
-    datos
-  ) => {
+  const actualizarUsuario = async (id, datos) => {
     setSaving(true);
     setError(null);
 
     try {
-      const usuarioActualizado = await apiFetch(
-        `/usuarios/${id}`,
-        {
-          method: "PUT",
-          body: JSON.stringify(datos),
-        }
-      );
+      const usuarioActualizado = await apiFetch(`/usuarios/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(datos),
+      });
 
       setUsuarios((actuales) =>
         actuales.map((usuario) =>
-          usuario.id === id
-            ? usuarioActualizado
-            : usuario
-        )
+          usuario.id === id ? usuarioActualizado : usuario,
+        ),
       );
 
       return usuarioActualizado;
@@ -152,10 +115,7 @@ export const useUsuarios = () => {
     }
   };
 
-  const cambiarEstadoUsuario = async (
-    id,
-    status
-  ) => {
+  const cambiarEstadoUsuario = async (id, status) => {
     return actualizarUsuario(id, {
       status,
     });
@@ -171,9 +131,7 @@ export const useUsuarios = () => {
       });
 
       setUsuarios((actuales) =>
-        actuales.filter(
-          (usuario) => usuario.id !== id
-        )
+        actuales.filter((usuario) => usuario.id !== id),
       );
     } catch (err) {
       setError(err.message);

@@ -57,17 +57,9 @@ const FormularioUsuario = ({
 
       <div className="usuario-form-field">
         <CampoFormulario
-          label={
-            isEdit
-              ? "Nueva contraseña"
-              : "Contraseña"
-          }
+          label={isEdit ? "Nueva contraseña" : "Contraseña"}
           type="password"
-          placeholder={
-            isEdit
-              ? "Dejar vacío para conservarla"
-              : "Contraseña"
-          }
+          placeholder={isEdit ? "Dejar vacío para conservarla" : "Contraseña"}
           name="contrasenia"
           value={userData.contrasenia || ""}
           onChange={onInputChange}
@@ -89,10 +81,7 @@ const FormularioUsuario = ({
           </option>
 
           {areas.map((area) => (
-            <option
-              key={area.id}
-              value={area.id}
-            >
+            <option key={area.id} value={area.id}>
               {area.nombre_area}
             </option>
           ))}
@@ -113,10 +102,7 @@ const FormularioUsuario = ({
           </option>
 
           {roles.map((rol) => (
-            <option
-              key={rol.id}
-              value={rol.id}
-            >
+            <option key={rol.id} value={rol.id}>
               {rol.nombre_rol}
             </option>
           ))}

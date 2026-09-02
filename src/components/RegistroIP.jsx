@@ -1,7 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 
 import ModalReutilizable from "./ModalReutilizable";
 import CampoFormulario from "./CampoFormulario";
@@ -15,10 +12,7 @@ const esIpv4Valida = (valor) => {
   }
 
   return partes.every((parte) => {
-    if (
-      parte === "" ||
-      !/^\d+$/.test(parte)
-    ) {
+    if (parte === "" || !/^\d+$/.test(parte)) {
       return false;
     }
 
@@ -44,14 +38,9 @@ const RegistroIP = ({
   registro = null,
   saving = false,
 }) => {
-  const [formData, setFormData] =
-    useState(estadoInicial);
-
-  const [error, setError] =
-    useState("");
-
-  const esEdicion =
-    Boolean(registro?.id);
+  const [formData, setFormData] = useState(estadoInicial);
+  const [error, setError] = useState("");
+  const esEdicion = Boolean(registro?.id);
 
   useEffect(() => {
     if (!isOpen) {
@@ -60,14 +49,10 @@ const RegistroIP = ({
 
     if (registro) {
       setFormData({
-        id_area:
-          String(registro.id_area || ""),
-        ip_areas:
-          registro.ip_areas || "",
-        grupo:
-          registro.grupo || "",
-        ip_rh:
-          Boolean(registro.ip_rh),
+        id_area: String(registro.id_area || ""),
+        ip_areas: registro.ip_areas || "",
+        grupo: registro.grupo || "",
+        ip_rh: Boolean(registro.ip_rh),
       });
     } else {
       setFormData(estadoInicial);
@@ -77,19 +62,11 @@ const RegistroIP = ({
   }, [isOpen, registro]);
 
   const handleInputChange = (event) => {
-    const {
-      name,
-      value,
-      type,
-      checked,
-    } = event.target;
+    const { name, value, type, checked } = event.target;
 
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        type === "checkbox"
-          ? checked
-          : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -102,42 +79,26 @@ const RegistroIP = ({
 
     try {
       if (!formData.id_area) {
-        throw new Error(
-          "Seleccione un área."
-        );
+        throw new Error("Seleccione un área.");
       }
 
       if (!formData.ip_areas.trim()) {
-        throw new Error(
-          "Capture una dirección IP."
-        );
+        throw new Error("Capture una dirección IP.");
       }
 
       if (!esIpv4Valida(formData.ip_areas)) {
-        throw new Error(
-          "La dirección IP no tiene un formato IPv4 válido."
-        );
+        throw new Error("La dirección IP no tiene un formato IPv4 válido.");
       }
 
       const datos = {
-        id_area:
-          Number(formData.id_area),
-
-        ip_areas:
-          formData.ip_areas.trim(),
-
-        grupo:
-          formData.grupo.trim() || null,
-
-        ip_rh:
-          Boolean(formData.ip_rh),
+        id_area: Number(formData.id_area),
+        ip_areas: formData.ip_areas.trim(),
+        grupo: formData.grupo.trim() || null,
+        ip_rh: Boolean(formData.ip_rh),
       };
 
       if (esEdicion) {
-        await onUpdate(
-          registro.id,
-          datos
-        );
+        await onUpdate(registro.id, datos);
       } else {
         await onRegister(datos);
       }
@@ -145,38 +106,23 @@ const RegistroIP = ({
       setFormData(estadoInicial);
       onClose();
     } catch (err) {
-      setError(
-        err?.message ||
-          "No fue posible guardar la dirección IP."
-      );
+      setError(err?.message || "No fue posible guardar la dirección IP.");
     }
   };
 
   return (
     <ModalReutilizable
-      title={
-        esEdicion
-          ? "Editar dirección IP"
-          : "Registrar dirección IP"
-      }
+      title={esEdicion ? "Editar dirección IP" : "Registrar dirección IP"}
       isOpen={isOpen}
       onClose={onClose}
       onAccept={handleAccept}
       acceptButtonText={
-        saving
-          ? "Guardando..."
-          : esEdicion
-            ? "Actualizar"
-            : "Guardar"
+        saving ? "Guardando..." : esEdicion ? "Actualizar" : "Guardar"
       }
       cancelButtonText="Cancelar"
     >
       <div className="registro-ip-form">
-        {error && (
-          <div className="registro-ip-error">
-            {error}
-          </div>
-        )}
+        {error && <div className="registro-ip-error">{error}</div>}
 
         <CampoFormulario
           label="Área"
@@ -186,15 +132,10 @@ const RegistroIP = ({
           onChange={handleInputChange}
           required
         >
-          <option value="">
-            Seleccione un área
-          </option>
+          <option value="">Seleccione un área</option>
 
           {areas.map((area) => (
-            <option
-              key={area.id}
-              value={area.id}
-            >
+            <option key={area.id} value={area.id}>
               {area.nombre_area}
             </option>
           ))}
@@ -225,9 +166,7 @@ const RegistroIP = ({
             onChange={handleInputChange}
           />
 
-          <span>
-            Marcar como equipo de Recursos Humanos
-          </span>
+          <span>Marcar como equipo de Recursos Humanos</span>
         </label>
 
         <div className="registro-ip-help">

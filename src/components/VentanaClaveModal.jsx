@@ -2,8 +2,14 @@ import React from "react";
 import "../styles/VentanaClaveIP.css";
 import CampoInicioSesion from "./CampoInicioSesion";
 
-
-const VentanaClaveModal = ({ isOpen, onClose, onConfirm, clave, setClave, mensaje }) => {
+const VentanaClaveModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  clave,
+  setClave,
+  mensaje,
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -11,13 +17,12 @@ const VentanaClaveModal = ({ isOpen, onClose, onConfirm, clave, setClave, mensaj
       <div className="modal-content">
         <h2>Ingresa la Clave Especial</h2>
 
-       <CampoInicioSesion
-  type="password"
-  placeholder="Escribe la clave"
-  value={clave}
-  onChange={(e) => setClave(e.target.value)}
-/>
-
+        <CampoInicioSesion
+          type="password"
+          placeholder="Escribe la clave"
+          value={clave}
+          onChange={(e) => setClave(e.target.value)}
+        />
 
         {mensaje && (
           <p className={mensaje.tipo === "ok" ? "msg-ok" : "msg-error"}>

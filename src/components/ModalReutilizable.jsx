@@ -22,20 +22,13 @@ const ModalReutilizable = ({
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (
-      typeof onAccept === "function" &&
-      !loading
-    ) {
+    if (typeof onAccept === "function" && !loading) {
       await onAccept();
     }
   };
 
   return (
-    <div
-      className="modal"
-      id={id}
-      aria-hidden={!isOpen}
-    >
+    <div className="modal" id={id} aria-hidden={!isOpen}>
       <div
         className={`modal-card ${className}`}
         role="dialog"
@@ -43,9 +36,7 @@ const ModalReutilizable = ({
         aria-labelledby={`${id}-title`}
       >
         <header className="modal-head">
-          <h3 id={`${id}-title`}>
-            {title}
-          </h3>
+          <h3 id={`${id}-title`}>{title}</h3>
 
           <button
             type="button"
@@ -61,9 +52,7 @@ const ModalReutilizable = ({
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
             {errorMessage && (
-              <div className="form-error-message">
-                {errorMessage}
-              </div>
+              <div className="form-error-message">{errorMessage}</div>
             )}
 
             {children}
@@ -76,9 +65,7 @@ const ModalReutilizable = ({
                 type="submit"
                 disabled={loading}
               >
-                {loading
-                  ? "Guardando..."
-                  : acceptButtonText}
+                {loading ? "Guardando..." : acceptButtonText}
               </button>
 
               <button

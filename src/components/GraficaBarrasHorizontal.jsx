@@ -28,21 +28,18 @@ const GraficaBarrasHorizontal = ({ onBarClick }) => {
         </div>
       </div>
 
-      {/* 🔥 CLIC EN TODA ESTA ÁREA ABRE EL MODAL */}
       <div
         className="grafico-horizontal-contenedor"
         onClick={() => onBarClick?.()}
         style={{ cursor: "pointer" }}
       >
 
-        {/* Eje Y */}
         <div className="eje-y-areas">
           {datosAreas.map((item, idx) => (
             <div key={idx}>{item.area}</div>
           ))}
         </div>
 
-        {/* Gráfico */}
         <div className="grafico-principal" id="graficoPrincipal">
           <div className="barras-contenedor-horizontal">
             {datosAreas.map((item, idx) => (

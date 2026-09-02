@@ -6,10 +6,7 @@ const CampoInicioSesion = ({ type, value, onChange, placeholder }) => {
   const [mostrarPassword, setMostrarPassword] = useState(false);
 
   const inputType =
-  type === "password"
-    ? (mostrarPassword ? "text" : "password")
-    : type;
-
+    type === "password" ? (mostrarPassword ? "text" : "password") : type;
 
   return (
     <div className="campo-reutilizable" style={{ position: "relative" }}>
@@ -23,7 +20,7 @@ const CampoInicioSesion = ({ type, value, onChange, placeholder }) => {
 
       {type === "password" && (
         <span
-        className="password-icon"
+          className="password-icon"
           onClick={() => setMostrarPassword(!mostrarPassword)}
         >
           {mostrarPassword ? <FiEye /> : <FiEyeOff />}

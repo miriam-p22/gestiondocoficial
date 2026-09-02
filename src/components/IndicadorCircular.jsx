@@ -9,7 +9,7 @@ const IndicadorCircular = ({ valor, porcentaje, titulo, color }) => {
       <div
         className="circulo-progreso"
         style={{
-          background: `conic-gradient(var(--color-segmento) 0deg ${grados}deg, #e0e0e0 ${grados}deg)`
+          background: `conic-gradient(var(--color-segmento) 0deg ${grados}deg, #e0e0e0 ${grados}deg)`,
         }}
       >
         <span className="valor">{valor}</span>

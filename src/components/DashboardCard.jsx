@@ -1,6 +1,13 @@
 import React from "react";
 
-const DashboardCard = ({ title, value, subtitle = "", icon = null, tone = "neutral", onClick = null }) => {
+const DashboardCard = ({
+  title,
+  value,
+  subtitle = "",
+  icon = null,
+  tone = "neutral",
+  onClick = null,
+}) => {
   const clickable = typeof onClick === "function";
 
   return (
@@ -15,7 +22,9 @@ const DashboardCard = ({ title, value, subtitle = "", icon = null, tone = "neutr
       <div className="dashboard-card-content">
         <span className="dashboard-card-title">{title}</span>
         <strong className="dashboard-card-value">{value}</strong>
-        {subtitle && <small className="dashboard-card-subtitle">{subtitle}</small>}
+        {subtitle && (
+          <small className="dashboard-card-subtitle">{subtitle}</small>
+        )}
       </div>
     </button>
   );

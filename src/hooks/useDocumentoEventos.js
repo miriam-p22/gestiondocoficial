@@ -1,324 +1,153 @@
-import {
-  useCallback,
-  useState,
-} from "react";
+import { useCallback, useState } from "react";
 
-const API_URL =
-  "http://localhost:3001/api/documentos-eventos";
-
-// ======================================================
-// TOKEN
-// ======================================================
+const API_URL = "http://localhost:3001/api/documentos-eventos";
 
 const obtenerToken = () => {
   try {
-    return localStorage.getItem(
-      "token"
-    );
+    return localStorage.getItem("token");
   } catch {
     return null;
   }
 };
 
-// ======================================================
-// FETCH AUTENTICADO
-// ======================================================
-
-const apiFetch = (
-  url,
-  options = {}
-) => {
-  const token =
-    obtenerToken();
-
-  const headers =
-    new Headers(
-      options.headers ||
-        {}
-    );
+//FETCH AUTENTICADO
+const apiFetch = (url, options = {}) => {
+  const token = obtenerToken();
+  const headers = new Headers(options.headers || {});
 
   if (token) {
-    headers.set(
-      "Authorization",
-      `Bearer ${token}`
-    );
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
-  return fetch(
-    url,
-    {
-      ...options,
-      headers,
-    }
-  );
+  return fetch(url, {
+    ...options,
+    headers,
+  });
 };
 
-// ======================================================
-// MENSAJE DE ERROR
-// ======================================================
-
-const obtenerMensajeError = async (
-  response
-) => {
+const obtenerMensajeError = async (response) => {
   try {
-    const data =
-      await response.json();
+    const data = await response.json();
 
-    return (
-      data?.error ||
-      data?.message ||
-      `Error HTTP ${response.status}`
-    );
+    return data?.error || data?.message || `Error HTTP ${response.status}`;
   } catch {
     return `Error HTTP ${response.status}`;
   }
 };
 
-// ======================================================
-// HOOK
-// ======================================================
+export const useDocumentoEventos = () => {
+  const [eventos, setEventos] = useState([]);
+  const [respuestas, setRespuestas] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const limpiarError = useCallback(() => setError(""), []);
 
-export const useDocumentoEventos =
-  () => {
-    const [
-      eventos,
-      setEventos,
-    ] = useState([]);
+  //CARGAR HISTORIAL
+  const cargarEventos = useCallback(async (idDispersion) => {
+    setLoading(true);
+    setError("");
 
-    const [
-      respuestas,
-      setRespuestas,
-    ] = useState([]);
+    try {
+      const response = await apiFetch(`${API_URL}/dispersion/${idDispersion}`);
 
-    const [
-      loading,
-      setLoading,
-    ] = useState(false);
+      if (!response.ok) {
+        throw new Error(await obtenerMensajeError(response));
+      }
 
-    const [
-      saving,
-      setSaving,
-    ] = useState(false);
+      const data = await response.json();
 
-    const [
-      error,
-      setError,
-    ] = useState("");
+      setEventos(Array.isArray(data) ? data : []);
 
-    const limpiarError =
-      useCallback(
-        () =>
-          setError(""),
-        []
-      );
+      return data;
+    } catch (err) {
+      const mensaje = err?.message || "No fue posible cargar el historial.";
 
-    // ==================================================
-    // CARGAR HISTORIAL
-    // ==================================================
+      setError(mensaje);
 
-    const cargarEventos =
-      useCallback(
-        async (
-          idDispersion
-        ) => {
-          setLoading(true);
-          setError("");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-          try {
-            const response =
-              await apiFetch(
-                `${API_URL}/dispersion/${idDispersion}`
-              );
+  const cargarRespuestas = useCallback(async () => {
+    setLoading(true);
+    setError("");
 
-            if (
-              !response.ok
-            ) {
-              throw new Error(
-                await obtenerMensajeError(
-                  response
-                )
-              );
-            }
+    try {
+      const response = await apiFetch(`${API_URL}/respuestas`);
 
-            const data =
-              await response.json();
+      if (!response.ok) {
+        throw new Error(await obtenerMensajeError(response));
+      }
 
-            setEventos(
-              Array.isArray(
-                data
-              )
-                ? data
-                : []
-            );
+      const data = await response.json();
 
-            return data;
-          } catch (err) {
-            const mensaje =
-              err?.message ||
-              "No fue posible cargar el historial.";
+      setRespuestas(Array.isArray(data) ? data : []);
 
-            setError(
-              mensaje
-            );
+      return data;
+    } catch (err) {
+      const mensaje = err?.message || "No fue posible cargar las respuestas.";
 
-            throw err;
-          } finally {
-            setLoading(
-              false
-            );
-          }
+      setError(mensaje);
+
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  //CREAR EVENTO DE OFICIALÍA
+  const crearEvento = useCallback(async (data) => {
+    setSaving(true);
+    setError("");
+
+    try {
+      const response = await apiFetch(API_URL, {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
         },
-        []
-      );
 
-    // ==================================================
-    // CARGAR RESPUESTAS PARA OFICIALÍA
-    // ==================================================
+        body: JSON.stringify(data),
+      });
 
-    const cargarRespuestas =
-      useCallback(
-        async () => {
-          setLoading(true);
-          setError("");
+      if (!response.ok) {
+        throw new Error(await obtenerMensajeError(response));
+      }
 
-          try {
-            const response =
-              await apiFetch(
-                `${API_URL}/respuestas`
-              );
+      const nuevo = await response.json();
 
-            if (
-              !response.ok
-            ) {
-              throw new Error(
-                await obtenerMensajeError(
-                  response
-                )
-              );
-            }
+      setEventos((actuales) => [nuevo, ...actuales]);
 
-            const data =
-              await response.json();
+      return nuevo;
+    } catch (err) {
+      const mensaje = err?.message || "No fue posible registrar el evento.";
 
-            setRespuestas(
-              Array.isArray(
-                data
-              )
-                ? data
-                : []
-            );
+      setError(mensaje);
 
-            return data;
-          } catch (err) {
-            const mensaje =
-              err?.message ||
-              "No fue posible cargar las respuestas.";
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  }, []);
 
-            setError(
-              mensaje
-            );
+  return {
+    eventos,
+    respuestas,
 
-            throw err;
-          } finally {
-            setLoading(
-              false
-            );
-          }
-        },
-        []
-      );
+    loading,
+    saving,
+    error,
 
-    // ==================================================
-    // CREAR EVENTO DE OFICIALÍA
-    // ==================================================
+    cargarEventos,
+    cargarRespuestas,
+    crearEvento,
 
-    const crearEvento =
-      useCallback(
-        async (data) => {
-          setSaving(true);
-          setError("");
-
-          try {
-            const response =
-              await apiFetch(
-                API_URL,
-                {
-                  method:
-                    "POST",
-
-                  headers: {
-                    "Content-Type":
-                      "application/json",
-                  },
-
-                  body:
-                    JSON.stringify(
-                      data
-                    ),
-                }
-              );
-
-            if (
-              !response.ok
-            ) {
-              throw new Error(
-                await obtenerMensajeError(
-                  response
-                )
-              );
-            }
-
-            const nuevo =
-              await response.json();
-
-            setEventos(
-              (
-                actuales
-              ) => [
-                nuevo,
-                ...actuales,
-              ]
-            );
-
-            return nuevo;
-          } catch (err) {
-            const mensaje =
-              err?.message ||
-              "No fue posible registrar el evento.";
-
-            setError(
-              mensaje
-            );
-
-            throw err;
-          } finally {
-            setSaving(
-              false
-            );
-          }
-        },
-        []
-      );
-
-    // ==================================================
-    // RETURN
-    // ==================================================
-
-    return {
-      eventos,
-      respuestas,
-
-      loading,
-      saving,
-      error,
-
-      cargarEventos,
-      cargarRespuestas,
-      crearEvento,
-
-      limpiarError,
-    };
+    limpiarError,
   };
+};
 
-export default
-  useDocumentoEventos;
+export default useDocumentoEventos;

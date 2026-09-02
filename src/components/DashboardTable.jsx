@@ -11,7 +11,9 @@ const DashboardTable = ({ title, subtitle = "", columns = [], rows = [] }) => {
       </div>
 
       {rows.length === 0 ? (
-        <div className="dashboard-empty-state">No hay información para mostrar.</div>
+        <div className="dashboard-empty-state">
+          No hay información para mostrar.
+        </div>
       ) : (
         <div className="dashboard-table-wrapper">
           <table className="dashboard-table">

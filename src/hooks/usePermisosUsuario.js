@@ -1,70 +1,46 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { apiFetch } from "../api/api";
 
 export const usePermisosUsuario = () => {
-  const [privilegios, setPrivilegios] =
-    useState([]);
+  const [privilegios, setPrivilegios] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [loading, setLoading] =
-    useState(true);
+  const cargarPermisos = useCallback(async () => {
+    setLoading(true);
+    setError("");
 
-  const [error, setError] =
-    useState("");
+    try {
+      const data = await apiFetch("/permisos-usuario");
 
-  const cargarPermisos = useCallback(
-    async () => {
-      setLoading(true);
-      setError("");
+      const titulos = Array.isArray(data?.titulos) ? data.titulos : [];
 
-      try {
-        const data =
-          await apiFetch(
-            "/permisos-usuario"
-          );
+      setPrivilegios(titulos);
 
-        const titulos =
-          Array.isArray(data?.titulos)
-            ? data.titulos
-            : [];
+      return titulos;
+    } catch (err) {
+      setError(
+        err?.message || "No fue posible consultar los permisos del usuario.",
+      );
 
-        setPrivilegios(titulos);
+      setPrivilegios([]);
 
-        return titulos;
-      } catch (err) {
-        setError(
-          err?.message ||
-            "No fue posible consultar los permisos del usuario."
-        );
-
-        setPrivilegios([]);
-
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     cargarPermisos().catch(() => {});
   }, [cargarPermisos]);
 
-  const conjunto = useMemo(
-    () => new Set(privilegios),
-    [privilegios]
-  );
+  const conjunto = useMemo(() => new Set(privilegios), [privilegios]);
 
   const tienePrivilegio = useCallback(
-    (titulo) =>
-      conjunto.has(titulo),
-    [conjunto]
+    (titulo) => conjunto.has(titulo),
+    [conjunto],
   );
 
   return {

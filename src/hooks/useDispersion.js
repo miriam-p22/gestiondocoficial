@@ -1,22 +1,7 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 
-// ======================================================
-// CONFIGURACIÓN
-// ======================================================
-
-const API_BASE =
-  "http://localhost:3001/api";
-
-const DISPERSION_URL =
-  `${API_BASE}/dispersion`;
-
-// ======================================================
-// OBTENER TOKEN DE SESIÓN
-// ======================================================
+const API_BASE = "http://localhost:3001/api";
+const DISPERSION_URL = `${API_BASE}/dispersion`;
 
 const obtenerToken = () => {
   try {
@@ -26,1195 +11,628 @@ const obtenerToken = () => {
   }
 };
 
-// ======================================================
-// FETCH AUTENTICADO
-// ======================================================
 
-const apiFetch = (
-  url,
-  options = {}
-) => {
-  const token =
-    obtenerToken();
-
-  const headers =
-    new Headers(
-      options.headers ||
-        {}
-    );
+const apiFetch = (url, options = {}) => {
+  const token = obtenerToken();
+  const headers = new Headers(options.headers || {});
 
   if (token) {
-    headers.set(
-      "Authorization",
-      `Bearer ${token}`
-    );
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
-  return fetch(
-    url,
-    {
-      ...options,
-      headers,
-    }
-  );
+  return fetch(url, {
+    ...options,
+    headers,
+  });
 };
 
-// ======================================================
-// OBTENER MENSAJE DE ERROR
-// ======================================================
-
-const obtenerMensajeError = async (
-  response
-) => {
+//OBTENER MENSAJE DE ERROR
+const obtenerMensajeError = async (response) => {
   try {
-    const data =
-      await response.json();
+    const data = await response.json();
 
-    return (
-      data?.error ||
-      data?.message ||
-      `Error HTTP ${response.status}`
-    );
+    return data?.error || data?.message || `Error HTTP ${response.status}`;
   } catch {
     return `Error HTTP ${response.status}`;
   }
 };
 
-// ======================================================
-// HOOK
-// ======================================================
 
 export const useDispersion = () => {
-  // ====================================================
-  // ESTADOS
-  // ====================================================
+  const [dispersiones, setDispersiones] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  const [
-    dispersiones,
-    setDispersiones,
-  ] = useState([]);
+  const limpiarError = useCallback(() => {
+    setError("");
+  }, []);
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(false);
-
-  const [
-    saving,
-    setSaving,
-  ] = useState(false);
-
-  const [
-    error,
-    setError,
-  ] = useState("");
-
-  // ====================================================
-  // LIMPIAR ERROR
-  // ====================================================
-
-  const limpiarError =
-    useCallback(() => {
-      setError("");
-    }, []);
-
-  // ====================================================
-  // ACTUALIZAR DESTINO EN ESTADO LOCAL
-  // ====================================================
-
-  const actualizarDestinoLocal =
-    useCallback(
-      (
-        idDispersion,
-        idArea,
-        nuevoDestino
-      ) => {
-        setDispersiones(
-          (actuales) =>
-            actuales.map(
-              (dispersion) => {
-                if (
-                  Number(
-                    dispersion.id
-                  ) !==
-                  Number(
-                    idDispersion
-                  )
-                ) {
-                  return dispersion;
-                }
-
-                return {
-                  ...dispersion,
-
-                  destinos:
-                    (
-                      dispersion.destinos ||
-                      []
-                    ).map(
-                      (destino) =>
-                        Number(
-                          destino.id_area
-                        ) ===
-                        Number(
-                          idArea
-                        )
-                          ? nuevoDestino
-                          : destino
-                    ),
-                };
-              }
-            )
-        );
-      },
-      []
-    );
-
-  // ====================================================
-  // CARGAR DISPERSIONES
-  // ====================================================
-
-  const cargarDispersiones =
-    useCallback(
-      async (
-        filtros = {}
-      ) => {
-        setLoading(true);
-        setError("");
-
-        try {
-          const params =
-            new URLSearchParams();
-
-          if (
-            filtros.origen
-          ) {
-            params.set(
-              "origen",
-              filtros.origen
-            );
+  const actualizarDestinoLocal = useCallback(
+    (idDispersion, idArea, nuevoDestino) => {
+      setDispersiones((actuales) =>
+        actuales.map((dispersion) => {
+          if (Number(dispersion.id) !== Number(idDispersion)) {
+            return dispersion;
           }
 
-          if (
-            filtros.id_area
-          ) {
-            params.set(
-              "id_area",
-              filtros.id_area
-            );
-          }
+          return {
+            ...dispersion,
 
-          if (
-            filtros.estado_envio
-          ) {
-            params.set(
-              "estado_envio",
-              filtros.estado_envio
-            );
-          }
+            destinos: (dispersion.destinos || []).map((destino) =>
+              Number(destino.id_area) === Number(idArea)
+                ? nuevoDestino
+                : destino,
+            ),
+          };
+        }),
+      );
+    },
+    [],
+  );
 
-          if (
-            filtros.estado_documento
-          ) {
-            params.set(
-              "estado_documento",
-              filtros.estado_documento
-            );
-          }
+  //CARGAR DISPERSIONES
+  const cargarDispersiones = useCallback(async (filtros = {}) => {
+    setLoading(true);
+    setError("");
 
-          const query =
-            params.toString();
+    try {
+      const params = new URLSearchParams();
 
-          const url =
-            query
-              ? `${DISPERSION_URL}?${query}`
-              : DISPERSION_URL;
+      if (filtros.origen) {
+        params.set("origen", filtros.origen);
+      }
 
-          const response =
-            await apiFetch(url);
+      if (filtros.id_area) {
+        params.set("id_area", filtros.id_area);
+      }
 
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
-          }
+      if (filtros.estado_envio) {
+        params.set("estado_envio", filtros.estado_envio);
+      }
 
-          const data =
-            await response.json();
+      if (filtros.estado_documento) {
+        params.set("estado_documento", filtros.estado_documento);
+      }
 
-          setDispersiones(
-            Array.isArray(data)
-              ? data
-              : []
-          );
+      const query = params.toString();
+      const url = query ? `${DISPERSION_URL}?${query}` : DISPERSION_URL;
+      const response = await apiFetch(url);
 
-          return data;
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible cargar las dispersiones.";
+      if (!response.ok) {
+        throw new Error(await obtenerMensajeError(response));
+      }
 
-          setError(mensaje);
+      const data = await response.json();
 
-          throw err;
-        } finally {
-          setLoading(false);
-        }
-      },
-      []
-    );
+      setDispersiones(Array.isArray(data) ? data : []);
 
-  // ====================================================
-  // CARGA INICIAL
-  // ====================================================
+      return data;
+    } catch (err) {
+      const mensaje = err?.message || "No fue posible cargar las dispersiones.";
 
+      setError(mensaje);
+
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  //CARGA INICIAL
   useEffect(() => {
-    cargarDispersiones().catch(
-      () => {}
-    );
-  }, [
-    cargarDispersiones,
-  ]);
+    cargarDispersiones().catch(() => {});
+  }, [cargarDispersiones]);
 
-  // ====================================================
-  // OBTENER DISPERSIÓN POR ID
-  // ====================================================
+  //OBTENER DISPERSIÓN POR ID
+  const obtenerDispersion = useCallback(async (id) => {
+    setError("");
 
-  const obtenerDispersion =
-    useCallback(
-      async (id) => {
-        setError("");
+    try {
+      const response = await apiFetch(`${DISPERSION_URL}/${id}`);
 
-        try {
-          const response =
-            await apiFetch(
-              `${DISPERSION_URL}/${id}`
-            );
+      if (!response.ok) {
+        throw new Error(await obtenerMensajeError(response));
+      }
 
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
-          }
+      return await response.json();
+    } catch (err) {
+      const mensaje = err?.message || "No fue posible obtener la dispersión.";
 
-          return await response.json();
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible obtener la dispersión.";
+      setError(mensaje);
 
-          setError(mensaje);
+      throw err;
+    }
+  }, []);
 
-          throw err;
-        }
-      },
-      []
-    );
+  //SUBIR ARCHIVO DESDE LAPTOP
+  const subirArchivo = useCallback(
+    async ({ archivo, destinos, fecha_limite }) => {
+      if (!archivo) {
+        throw new Error("Debe seleccionar un archivo.");
+      }
 
-  // ====================================================
-  // SUBIR ARCHIVO DESDE LAPTOP
-  // ====================================================
+      if (!Array.isArray(destinos) || destinos.length === 0) {
+        throw new Error("Debe seleccionar al menos un área destino.");
+      }
 
-  const subirArchivo =
-    useCallback(
-      async ({
-        archivo,
-        destinos,
-        fecha_limite,
-      }) => {
-        if (!archivo) {
-          throw new Error(
-            "Debe seleccionar un archivo."
-          );
+      if (!fecha_limite) {
+        throw new Error("Debe indicar la fecha límite de atención.");
+      }
+
+      setSaving(true);
+      setError("");
+
+      try {
+        const formData = new FormData();
+        formData.append("archivo", archivo);
+        formData.append("destinos", JSON.stringify(destinos.map(Number)));
+        formData.append("fecha_limite", fecha_limite);
+
+        const response = await apiFetch(`${DISPERSION_URL}/subir`, {
+          method: "POST",
+
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(await obtenerMensajeError(response));
         }
 
-        if (
-          !Array.isArray(
-            destinos
-          ) ||
-          destinos.length ===
-            0
-        ) {
-          throw new Error(
-            "Debe seleccionar al menos un área destino."
-          );
+        const nueva = await response.json();
+
+        setDispersiones((actuales) => [nueva, ...actuales]);
+
+        return nueva;
+      } catch (err) {
+        const mensaje = err?.message || "No fue posible subir el archivo.";
+
+        setError(mensaje);
+
+        throw err;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [],
+  );
+
+  const crearDispersion = useCallback(async (data) => {
+    setSaving(true);
+    setError("");
+
+    try {
+      const response = await apiFetch(DISPERSION_URL, {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(await obtenerMensajeError(response));
+      }
+
+      const nueva = await response.json();
+
+      setDispersiones((actuales) => [nueva, ...actuales]);
+
+      return nueva;
+    } catch (err) {
+      const mensaje = err?.message || "No fue posible crear la dispersión.";
+
+      setError(mensaje);
+
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  }, []);
+
+  //ACTUALIZAR DISPERSIÓN
+  const actualizarDispersion = useCallback(async (id, data) => {
+    setSaving(true);
+    setError("");
+
+    try {
+      const response = await apiFetch(`${DISPERSION_URL}/${id}`, {
+        method: "PUT",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(await obtenerMensajeError(response));
+      }
+
+      const actualizado = await response.json();
+
+      setDispersiones((actuales) =>
+        actuales.map((item) =>
+          Number(item.id) === Number(id) ? actualizado : item,
+        ),
+      );
+
+      return actualizado;
+    } catch (err) {
+      const mensaje =
+        err?.message || "No fue posible actualizar la dispersión.";
+
+      setError(mensaje);
+
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  }, []);
+
+  //OBTENER DESTINOS
+  const obtenerDestinos = useCallback(async (idDispersion) => {
+    setError("");
+
+    try {
+      const response = await apiFetch(
+        `${DISPERSION_URL}/${idDispersion}/destinos`,
+      );
+
+      if (!response.ok) {
+        throw new Error(await obtenerMensajeError(response));
+      }
+
+      return await response.json();
+    } catch (err) {
+      const mensaje = err?.message || "No fue posible consultar los destinos.";
+
+      setError(mensaje);
+
+      throw err;
+    }
+  }, []);
+
+  //AGREGAR DESTINO
+  const agregarDestino = useCallback(
+    async (idDispersion, idArea, fechaLimite = null) => {
+      setSaving(true);
+      setError("");
+
+      try {
+        const response = await apiFetch(
+          `${DISPERSION_URL}/${idDispersion}/destinos`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+              id_area: Number(idArea),
+
+              fecha_limite: fechaLimite,
+            }),
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(await obtenerMensajeError(response));
         }
 
-        if (!fecha_limite) {
-          throw new Error(
-            "Debe indicar la fecha límite de atención."
-          );
-        }
-
-        setSaving(true);
-        setError("");
-
-        try {
-          const formData =
-            new FormData();
-
-          // ==================================================
-          // ARCHIVO
-          // ==================================================
-
-          formData.append(
-            "archivo",
-            archivo
-          );
-
-          // ==================================================
-          // DESTINOS
-          // ==================================================
-
-          formData.append(
-            "destinos",
-            JSON.stringify(
-              destinos.map(
-                Number
-              )
-            )
-          );
-
-          // ==================================================
-          // FECHA LÍMITE
-          // ==================================================
-
-          formData.append(
-            "fecha_limite",
-            fecha_limite
-          );
-
-          // ==================================================
-          // PETICIÓN
-          // ==================================================
-
-          const response =
-            await apiFetch(
-              `${DISPERSION_URL}/subir`,
-              {
-                method:
-                  "POST",
-
-                body:
-                  formData,
-              }
-            );
-
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
-          }
-
-          const nueva =
-            await response.json();
-
-          // ==================================================
-          // ACTUALIZACIÓN LOCAL
-          // ==================================================
-
-          setDispersiones(
-            (actuales) => [
-              nueva,
-              ...actuales,
-            ]
-          );
-
-          return nueva;
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible subir el archivo.";
-
-          setError(mensaje);
-
-          throw err;
-        } finally {
-          setSaving(false);
-        }
-      },
-      []
-    );
-
-  // ====================================================
-  // CREAR DISPERSIÓN DESDE JSON
-  // ====================================================
-  //
-  // Sirve para pruebas y posteriormente para la app móvil.
-  //
-  // ====================================================
-
-  const crearDispersion =
-    useCallback(
-      async (data) => {
-        setSaving(true);
-        setError("");
-
-        try {
-          const response =
-            await apiFetch(
-              DISPERSION_URL,
-              {
-                method:
-                  "POST",
-
-                headers: {
-                  "Content-Type":
-                    "application/json",
-                },
-
-                body:
-                  JSON.stringify(
-                    data
-                  ),
-              }
-            );
-
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
-          }
-
-          const nueva =
-            await response.json();
-
-          setDispersiones(
-            (actuales) => [
-              nueva,
-              ...actuales,
-            ]
-          );
-
-          return nueva;
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible crear la dispersión.";
-
-          setError(mensaje);
-
-          throw err;
-        } finally {
-          setSaving(false);
-        }
-      },
-      []
-    );
-
-  // ====================================================
-  // ACTUALIZAR DISPERSIÓN
-  // ====================================================
-
-  const actualizarDispersion =
-    useCallback(
-      async (
-        id,
-        data
-      ) => {
-        setSaving(true);
-        setError("");
-
-        try {
-          const response =
-            await apiFetch(
-              `${DISPERSION_URL}/${id}`,
-              {
-                method:
-                  "PUT",
-
-                headers: {
-                  "Content-Type":
-                    "application/json",
-                },
-
-                body:
-                  JSON.stringify(
-                    data
-                  ),
-              }
-            );
-
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
-          }
-
-          const actualizado =
-            await response.json();
-
-          setDispersiones(
-            (actuales) =>
-              actuales.map(
-                (item) =>
-                  Number(
-                    item.id
-                  ) ===
-                  Number(id)
-                    ? actualizado
-                    : item
-              )
-          );
-
-          return actualizado;
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible actualizar la dispersión.";
-
-          setError(mensaje);
-
-          throw err;
-        } finally {
-          setSaving(false);
-        }
-      },
-      []
-    );
-
-  // ====================================================
-  // OBTENER DESTINOS
-  // ====================================================
-
-  const obtenerDestinos =
-    useCallback(
-      async (
-        idDispersion
-      ) => {
-        setError("");
-
-        try {
-          const response =
-            await apiFetch(
-              `${DISPERSION_URL}/${idDispersion}/destinos`
-            );
-
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
-          }
-
-          return await response.json();
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible consultar los destinos.";
-
-          setError(mensaje);
-
-          throw err;
-        }
-      },
-      []
-    );
-
-  // ====================================================
-  // AGREGAR DESTINO
-  // ====================================================
-
-  const agregarDestino =
-    useCallback(
-      async (
-        idDispersion,
-        idArea,
-        fechaLimite =
-          null
-      ) => {
-        setSaving(true);
-        setError("");
-
-        try {
-          const response =
-            await apiFetch(
-              `${DISPERSION_URL}/${idDispersion}/destinos`,
-              {
-                method:
-                  "POST",
-
-                headers: {
-                  "Content-Type":
-                    "application/json",
-                },
-
-                body:
-                  JSON.stringify({
-                    id_area:
-                      Number(
-                        idArea
-                      ),
-
-                    fecha_limite:
-                      fechaLimite,
-                  }),
-              }
-            );
-
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
-          }
-
-          const destino =
-            await response.json();
-
-          setDispersiones(
-            (actuales) =>
-              actuales.map(
-                (dispersion) => {
-                  if (
-                    Number(
-                      dispersion.id
-                    ) !==
-                    Number(
-                      idDispersion
-                    )
-                  ) {
-                    return dispersion;
-                  }
-
-                  return {
-                    ...dispersion,
-
-                    destinos: [
-                      ...(
-                        dispersion.destinos ||
-                        []
-                      ),
-
-                      destino,
-                    ],
-                  };
-                }
-              )
-          );
-
-          return destino;
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible agregar el destino.";
-
-          setError(mensaje);
-
-          throw err;
-        } finally {
-          setSaving(false);
-        }
-      },
-      []
-    );
-
-  // ====================================================
-  // ELIMINAR DESTINO
-  // ====================================================
-
-  const eliminarDestino =
-    useCallback(
-      async (
-        idDispersion,
-        idArea
-      ) => {
-        setSaving(true);
-        setError("");
-
-        try {
-          const response =
-            await apiFetch(
-              `${DISPERSION_URL}/${idDispersion}/destinos/${idArea}`,
-              {
-                method:
-                  "DELETE",
-              }
-            );
-
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
-          }
-
-          setDispersiones(
-            (actuales) =>
-              actuales.map(
-                (dispersion) => {
-                  if (
-                    Number(
-                      dispersion.id
-                    ) !==
-                    Number(
-                      idDispersion
-                    )
-                  ) {
-                    return dispersion;
-                  }
-
-                  return {
-                    ...dispersion,
-
-                    destinos:
-                      (
-                        dispersion.destinos ||
-                        []
-                      ).filter(
-                        (destino) =>
-                          Number(
-                            destino.id_area
-                          ) !==
-                          Number(
-                            idArea
-                          )
-                      ),
-                  };
-                }
-              )
-          );
-
-          return true;
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible eliminar el destino.";
-
-          setError(mensaje);
-
-          throw err;
-        } finally {
-          setSaving(false);
-        }
-      },
-      []
-    );
-
-  // ====================================================
-  // ACTUALIZAR ESTADO DE TRANSFERENCIA
-  // ====================================================
-  //
-  // pendiente | enviado | error
-  //
-  // ====================================================
-
-  const actualizarEstadoDestino =
-    useCallback(
-      async (
-        idDispersion,
-        idArea,
+        const destino = await response.json();
+
+        setDispersiones((actuales) =>
+          actuales.map((dispersion) => {
+            if (Number(dispersion.id) !== Number(idDispersion)) {
+              return dispersion;
+            }
+
+            return {
+              ...dispersion,
+
+              destinos: [...(dispersion.destinos || []), destino],
+            };
+          }),
+        );
+
+        return destino;
+      } catch (err) {
+        const mensaje = err?.message || "No fue posible agregar el destino.";
+
+        setError(mensaje);
+
+        throw err;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [],
+  );
+
+  //ELIMINAR DESTINO
+  const eliminarDestino = useCallback(async (idDispersion, idArea) => {
+    setSaving(true);
+    setError("");
+
+    try {
+      const response = await apiFetch(
+        `${DISPERSION_URL}/${idDispersion}/destinos/${idArea}`,
         {
-          estado_envio,
-          error_envio =
-            null,
-        }
-      ) => {
-        setSaving(true);
-        setError("");
+          method: "DELETE",
+        },
+      );
 
-        try {
-          const response =
-            await apiFetch(
-              `${DISPERSION_URL}/${idDispersion}/destinos/${idArea}/estado`,
-              {
-                method:
-                  "PUT",
+      if (!response.ok) {
+        throw new Error(await obtenerMensajeError(response));
+      }
 
-                headers: {
-                  "Content-Type":
-                    "application/json",
-                },
-
-                body:
-                  JSON.stringify({
-                    estado_envio,
-                    error_envio,
-                  }),
-              }
-            );
-
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
+      setDispersiones((actuales) =>
+        actuales.map((dispersion) => {
+          if (Number(dispersion.id) !== Number(idDispersion)) {
+            return dispersion;
           }
 
-          const destino =
-            await response.json();
+          return {
+            ...dispersion,
 
-          actualizarDestinoLocal(
-            idDispersion,
-            idArea,
-            destino
-          );
+            destinos: (dispersion.destinos || []).filter(
+              (destino) => Number(destino.id_area) !== Number(idArea),
+            ),
+          };
+        }),
+      );
 
-          return destino;
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible actualizar el estado de transferencia.";
+      return true;
+    } catch (err) {
+      const mensaje = err?.message || "No fue posible eliminar el destino.";
 
-          setError(mensaje);
+      setError(mensaje);
 
-          throw err;
-        } finally {
-          setSaving(false);
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  }, []);
+
+  //ACTUALIZAR ESTADO DE TRANSFERENCIA
+  const actualizarEstadoDestino = useCallback(
+    async (idDispersion, idArea, { estado_envio, error_envio = null }) => {
+      setSaving(true);
+      setError("");
+
+      try {
+        const response = await apiFetch(
+          `${DISPERSION_URL}/${idDispersion}/destinos/${idArea}/estado`,
+          {
+            method: "PUT",
+
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+              estado_envio,
+              error_envio,
+            }),
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(await obtenerMensajeError(response));
         }
-      },
-      [
-        actualizarDestinoLocal,
-      ]
-    );
 
-  // ====================================================
-  // ACTUALIZAR ESTADO ADMINISTRATIVO DEL OFICIO
-  // ====================================================
-  //
-  // turnado
-  // recibido
-  // en proceso
-  // respondido
-  // devuelto
-  //
-  // ====================================================
+        const destino = await response.json();
 
-  const actualizarEstadoDocumento =
-    useCallback(
-      async (
-        idDispersion,
-        idArea,
-        data
-      ) => {
-        setSaving(true);
-        setError("");
+        actualizarDestinoLocal(idDispersion, idArea, destino);
 
-        try {
-          const token =
-            obtenerToken();
+        return destino;
+      } catch (err) {
+        const mensaje =
+          err?.message ||
+          "No fue posible actualizar el estado de transferencia.";
 
-          const response =
-            await apiFetch(
-              `${DISPERSION_URL}/${idDispersion}/destinos/${idArea}/documento`,
-              {
-                method:
-                  "PUT",
+        setError(mensaje);
 
-                headers: {
-                  "Content-Type":
-                    "application/json",
+        throw err;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [actualizarDestinoLocal],
+  );
 
-                  ...(token
-                    ? {
-                        Authorization:
-                          `Bearer ${token}`,
-                      }
-                    : {}),
-                },
+  //ACTUALIZAR ESTADO ADMINISTRATIVO DEL OFICIO
+  const actualizarEstadoDocumento = useCallback(
+    async (idDispersion, idArea, data) => {
+      setSaving(true);
+      setError("");
 
-                body:
-                  JSON.stringify(
-                    data
-                  ),
-              }
-            );
+      try {
+        const token = obtenerToken();
 
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
-          }
+        const response = await apiFetch(
+          `${DISPERSION_URL}/${idDispersion}/destinos/${idArea}/documento`,
+          {
+            method: "PUT",
 
-          const destino =
-            await response.json();
+            headers: {
+              "Content-Type": "application/json",
 
-          actualizarDestinoLocal(
-            idDispersion,
-            idArea,
-            destino
-          );
+              ...(token
+                ? {
+                    Authorization: `Bearer ${token}`,
+                  }
+                : {}),
+            },
 
-          return destino;
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible actualizar el estado del documento.";
+            body: JSON.stringify(data),
+          },
+        );
 
-          setError(mensaje);
-
-          throw err;
-        } finally {
-          setSaving(false);
+        if (!response.ok) {
+          throw new Error(await obtenerMensajeError(response));
         }
-      },
-      [
-        actualizarDestinoLocal,
-      ]
-    );
 
-  // ====================================================
-  // ACTUALIZAR FECHA LÍMITE
-  // ====================================================
+        const destino = await response.json();
 
-  const actualizarFechaLimite =
-    useCallback(
-      async (
-        idDispersion,
-        idArea,
-        fechaLimite
-      ) => {
-        setSaving(true);
-        setError("");
+        actualizarDestinoLocal(idDispersion, idArea, destino);
 
-        try {
-          const response =
-            await apiFetch(
-              `${DISPERSION_URL}/${idDispersion}/destinos/${idArea}/fecha-limite`,
-              {
-                method:
-                  "PUT",
+        return destino;
+      } catch (err) {
+        const mensaje =
+          err?.message || "No fue posible actualizar el estado del documento.";
 
-                headers: {
-                  "Content-Type":
-                    "application/json",
-                },
+        setError(mensaje);
 
-                body:
-                  JSON.stringify({
-                    fecha_limite:
-                      fechaLimite,
-                  }),
-              }
-            );
+        throw err;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [actualizarDestinoLocal],
+  );
 
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
-          }
+  //ACTUALIZAR FECHA LÍMITE
+  const actualizarFechaLimite = useCallback(
+    async (idDispersion, idArea, fechaLimite) => {
+      setSaving(true);
+      setError("");
 
-          const destino =
-            await response.json();
+      try {
+        const response = await apiFetch(
+          `${DISPERSION_URL}/${idDispersion}/destinos/${idArea}/fecha-limite`,
+          {
+            method: "PUT",
 
-          actualizarDestinoLocal(
-            idDispersion,
-            idArea,
-            destino
-          );
+            headers: {
+              "Content-Type": "application/json",
+            },
 
-          return destino;
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible actualizar la fecha límite.";
+            body: JSON.stringify({
+              fecha_limite: fechaLimite,
+            }),
+          },
+        );
 
-          setError(mensaje);
-
-          throw err;
-        } finally {
-          setSaving(false);
+        if (!response.ok) {
+          throw new Error(await obtenerMensajeError(response));
         }
-      },
-      [
-        actualizarDestinoLocal,
-      ]
-    );
 
-  // ====================================================
-  // REINTENTAR TRANSFERENCIA
-  // ====================================================
+        const destino = await response.json();
 
-  const reintentarDestino =
-    useCallback(
-      async (
-        idDispersion,
-        idArea
-      ) => {
-        setSaving(true);
-        setError("");
+        actualizarDestinoLocal(idDispersion, idArea, destino);
 
-        try {
-          const response =
-            await apiFetch(
-              `${DISPERSION_URL}/${idDispersion}/destinos/${idArea}/reintentar`,
-              {
-                method:
-                  "PUT",
-              }
-            );
+        return destino;
+      } catch (err) {
+        const mensaje =
+          err?.message || "No fue posible actualizar la fecha límite.";
 
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
-          }
+        setError(mensaje);
 
-          const destino =
-            await response.json();
+        throw err;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [actualizarDestinoLocal],
+  );
 
-          actualizarDestinoLocal(
-            idDispersion,
-            idArea,
-            destino
-          );
+  //REINTENTAR TRANSFERENCIA
+  const reintentarDestino = useCallback(
+    async (idDispersion, idArea) => {
+      setSaving(true);
+      setError("");
 
-          return destino;
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible preparar el reintento.";
+      try {
+        const response = await apiFetch(
+          `${DISPERSION_URL}/${idDispersion}/destinos/${idArea}/reintentar`,
+          {
+            method: "PUT",
+          },
+        );
 
-          setError(mensaje);
-
-          throw err;
-        } finally {
-          setSaving(false);
+        if (!response.ok) {
+          throw new Error(await obtenerMensajeError(response));
         }
-      },
-      [
-        actualizarDestinoLocal,
-      ]
-    );
 
-  // ====================================================
-  // ELIMINAR DISPERSIÓN
-  // ====================================================
+        const destino = await response.json();
 
-  const eliminarDispersion =
-    useCallback(
-      async (id) => {
-        setSaving(true);
-        setError("");
+        actualizarDestinoLocal(idDispersion, idArea, destino);
 
-        try {
-          const response =
-            await apiFetch(
-              `${DISPERSION_URL}/${id}`,
-              {
-                method:
-                  "DELETE",
-              }
-            );
+        return destino;
+      } catch (err) {
+        const mensaje = err?.message || "No fue posible preparar el reintento.";
 
-          if (
-            !response.ok
-          ) {
-            throw new Error(
-              await obtenerMensajeError(
-                response
-              )
-            );
-          }
+        setError(mensaje);
 
-          setDispersiones(
-            (actuales) =>
-              actuales.filter(
-                (item) =>
-                  Number(
-                    item.id
-                  ) !==
-                  Number(id)
-              )
-          );
+        throw err;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [actualizarDestinoLocal],
+  );
 
-          return true;
-        } catch (err) {
-          const mensaje =
-            err?.message ||
-            "No fue posible eliminar la dispersión.";
+  //ELIMINAR DISPERSIÓN
+  const eliminarDispersion = useCallback(async (id) => {
+    setSaving(true);
+    setError("");
 
-          setError(mensaje);
+    try {
+      const response = await apiFetch(`${DISPERSION_URL}/${id}`, {
+        method: "DELETE",
+      });
 
-          throw err;
-        } finally {
-          setSaving(false);
-        }
-      },
-      []
-    );
+      if (!response.ok) {
+        throw new Error(await obtenerMensajeError(response));
+      }
 
-  // ====================================================
-  // RETURN
-  // ====================================================
+      setDispersiones((actuales) =>
+        actuales.filter((item) => Number(item.id) !== Number(id)),
+      );
+
+      return true;
+    } catch (err) {
+      const mensaje = err?.message || "No fue posible eliminar la dispersión.";
+
+      setError(mensaje);
+
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  }, []);
 
   return {
-    // Datos
     dispersiones,
 
-    // Estados
     loading,
     saving,
     error,
 
-    // Consulta
     cargarDispersiones,
     obtenerDispersion,
 
-    // Dispersión
     subirArchivo,
     crearDispersion,
     actualizarDispersion,
     eliminarDispersion,
 
-    // Destinos
     obtenerDestinos,
     agregarDestino,
     eliminarDestino,
 
-    // Transferencia P2P
     actualizarEstadoDestino,
     reintentarDestino,
 
-    // Seguimiento administrativo
     actualizarEstadoDocumento,
     actualizarFechaLimite,
 
-    // Utilidades
     limpiarError,
   };
 };

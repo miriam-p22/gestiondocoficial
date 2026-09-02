@@ -10,9 +10,7 @@ const ICONOS = {
 const DashboardAlert = ({ type = "info", title, text }) => {
   return (
     <div className={`dashboard-alert dashboard-alert-${type}`}>
-      <div className="dashboard-alert-icon">
-        {ICONOS[type] || ICONOS.info}
-      </div>
+      <div className="dashboard-alert-icon">{ICONOS[type] || ICONOS.info}</div>
 
       <div>
         <strong>{title}</strong>

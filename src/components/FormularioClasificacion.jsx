@@ -25,7 +25,11 @@ const FormularioClasificacion = ({ datos = {} }) => {
           defaultValue={datos.ubicacion || ""}
           required
         />
-        <CampoFormulario label="Función (S/C)" isSelect defaultValue={datos.funcion || ""}>
+        <CampoFormulario
+          label="Función (S/C)"
+          isSelect
+          defaultValue={datos.funcion || ""}
+        >
           <option value="">Selecciona...</option>
           <option value="S">Sustantiva</option>
           <option value="C">Común</option>

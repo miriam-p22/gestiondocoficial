@@ -1,15 +1,8 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { apiFetch } from "../api/api";
 
-export const useIps = (
-  puedeGestionar = false,
-  permisosCargados = false
-) => {
+export const useIps = (puedeGestionar = false, permisosCargados = false) => {
   const [ips, setIps] = useState([]);
   const [areas, setAreas] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -44,21 +37,14 @@ export const useIps = (
     setError("");
 
     try {
-      const [dataIps, dataAreas] =
-        await Promise.all([
-          apiFetch("/ips"),
-          apiFetch("/areas"),
-        ]);
+      const [dataIps, dataAreas] = await Promise.all([
+        apiFetch("/ips"),
+        apiFetch("/areas"),
+      ]);
 
-      const listaIps =
-        Array.isArray(dataIps)
-          ? dataIps
-          : [];
+      const listaIps = Array.isArray(dataIps) ? dataIps : [];
 
-      const listaAreas =
-        Array.isArray(dataAreas)
-          ? dataAreas
-          : [];
+      const listaAreas = Array.isArray(dataAreas) ? dataAreas : [];
 
       setIps(listaIps);
       setAreas(listaAreas);
@@ -69,8 +55,7 @@ export const useIps = (
       };
     } catch (err) {
       const mensaje =
-        err?.message ||
-        "No fue posible cargar las direcciones IP.";
+        err?.message || "No fue posible cargar las direcciones IP.";
 
       setError(mensaje);
       setIps([]);
@@ -80,10 +65,7 @@ export const useIps = (
     } finally {
       setLoading(false);
     }
-  }, [
-    puedeGestionar,
-    permisosCargados,
-  ]);
+  }, [puedeGestionar, permisosCargados]);
 
   useEffect(() => {
     cargar().catch(() => {});
@@ -91,9 +73,7 @@ export const useIps = (
 
   const validarGestion = () => {
     if (!puedeGestionar) {
-      throw new Error(
-        "No tiene permiso para gestionar direcciones IP."
-      );
+      throw new Error("No tiene permiso para gestionar direcciones IP.");
     }
   };
 
@@ -104,33 +84,24 @@ export const useIps = (
     setError("");
 
     try {
-      const nueva = await apiFetch(
-        "/ips",
-        {
-          method: "POST",
-          body: JSON.stringify(datos),
-        }
-      );
+      const nueva = await apiFetch("/ips", {
+        method: "POST",
+        body: JSON.stringify(datos),
+      });
 
       setIps((actuales) =>
-        [...actuales, nueva].sort(
-          (a, b) =>
-            String(
-              a.area?.nombre_area || ""
-            ).localeCompare(
-              String(
-                b.area?.nombre_area || ""
-              ),
-              "es"
-            )
-        )
+        [...actuales, nueva].sort((a, b) =>
+          String(a.area?.nombre_area || "").localeCompare(
+            String(b.area?.nombre_area || ""),
+            "es",
+          ),
+        ),
       );
 
       return nueva;
     } catch (err) {
       const mensaje =
-        err?.message ||
-        "No fue posible registrar la dirección IP.";
+        err?.message || "No fue posible registrar la dirección IP.";
 
       setError(mensaje);
       throw err;
@@ -139,40 +110,28 @@ export const useIps = (
     }
   };
 
-  const actualizarIp = async (
-    id,
-    datos
-  ) => {
+  const actualizarIp = async (id, datos) => {
     validarGestion();
 
     setSaving(true);
     setError("");
 
     try {
-      const actualizada =
-        await apiFetch(
-          `/ips/${id}`,
-          {
-            method: "PUT",
-            body: JSON.stringify(
-              datos
-            ),
-          }
-        );
+      const actualizada = await apiFetch(`/ips/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(datos),
+      });
 
       setIps((actuales) =>
         actuales.map((item) =>
-          item.id === actualizada.id
-            ? actualizada
-            : item
-        )
+          item.id === actualizada.id ? actualizada : item,
+        ),
       );
 
       return actualizada;
     } catch (err) {
       const mensaje =
-        err?.message ||
-        "No fue posible actualizar la dirección IP.";
+        err?.message || "No fue posible actualizar la dirección IP.";
 
       setError(mensaje);
       throw err;
@@ -188,26 +147,16 @@ export const useIps = (
     setError("");
 
     try {
-      const respuesta =
-        await apiFetch(
-          `/ips/${id}`,
-          {
-            method: "DELETE",
-          }
-        );
+      const respuesta = await apiFetch(`/ips/${id}`, {
+        method: "DELETE",
+      });
 
-      setIps((actuales) =>
-        actuales.filter(
-          (item) =>
-            item.id !== id
-        )
-      );
+      setIps((actuales) => actuales.filter((item) => item.id !== id));
 
       return respuesta;
     } catch (err) {
       const mensaje =
-        err?.message ||
-        "No fue posible eliminar la dirección IP.";
+        err?.message || "No fue posible eliminar la dirección IP.";
 
       setError(mensaje);
       throw err;

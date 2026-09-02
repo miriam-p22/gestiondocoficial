@@ -3,19 +3,8 @@ import React from "react";
 import ModalReutilizable from "./ModalReutilizable";
 import CampoFormulario from "./CampoFormulario";
 
-/* ======================
-   LISTA DE ROLES
-====================== */
-const roles = [
-  "Administrador",
-  "Coordinador",
-  "Supervisor",
-  "Usuario",
-];
+const roles = ["Administrador", "Coordinador", "Supervisor", "Usuario"];
 
-/* ======================
-   FORMULARIO
-====================== */
 const FormularioRegistro = ({ formData, onInputChange }) => {
   return (
     <>
@@ -74,18 +63,20 @@ const FormularioRegistro = ({ formData, onInputChange }) => {
         onChange={onInputChange}
         required
       >
-        <option value="" disabled>Rol</option>
+        <option value="" disabled>
+          Rol
+        </option>
         {roles.map((r) => (
-          <option key={r} value={r}>{r}</option>
+          <option key={r} value={r}>
+            {r}
+          </option>
         ))}
       </CampoFormulario>
     </>
   );
 };
 
-/* ==========================
-   COMPONENTE CONTROLADO
-=========================== */
+/* COMPONENTE CONTROLADO*/
 const RegistroUsuario = ({ isOpen, onClose, onRegister }) => {
   const [formData, setFormData] = React.useState({
     nombre: "",
@@ -118,8 +109,7 @@ const RegistroUsuario = ({ isOpen, onClose, onRegister }) => {
       return;
     }
 
-    onRegister(formData); // ← se envía al padre
-
+    onRegister(formData);
     // limpiar
     setFormData({
       nombre: "",
