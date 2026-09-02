@@ -1,9 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
-const claverhController = require(
-  "../controllers/claverh.controller"
-);
+const claverhController = require("../controllers/claverh.controller");
 
 const handleApiError = (res, error, customMessage) => {
   console.error("[Error API Clave RH]:", error);
@@ -27,19 +24,13 @@ const handleApiError = (res, error, customMessage) => {
     });
   }
 
-  if (
-    error.message === "DUPLICATE" ||
-    error.code === "P2002"
-  ) {
+  if (error.message === "DUPLICATE" || error.code === "P2002") {
     return res.status(409).json({
       error: "Ya existe un registro con esa clave RH.",
     });
   }
 
-  if (
-    error.message === "NOT_FOUND" ||
-    error.code === "P2025"
-  ) {
+  if (error.message === "NOT_FOUND" || error.code === "P2025") {
     return res.status(404).json({
       error: "La clave RH solicitada no existe.",
     });
@@ -47,8 +38,7 @@ const handleApiError = (res, error, customMessage) => {
 
   return res.status(500).json({
     error:
-      customMessage ||
-      "Ocurrió un error inesperado al procesar la clave RH.",
+      customMessage || "Ocurrió un error inesperado al procesar la clave RH.",
   });
 };
 
@@ -59,28 +49,18 @@ router.get("/", async (req, res) => {
 
     return res.status(200).json(claves);
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al consultar las claves RH."
-    );
+    return handleApiError(res, error, "Error al consultar las claves RH.");
   }
 });
 
 // Obtener una clave por ID
 router.get("/:id", async (req, res) => {
   try {
-    const clave = await claverhController.getById(
-      req.params.id
-    );
+    const clave = await claverhController.getById(req.params.id);
 
     return res.status(200).json(clave);
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al consultar la clave RH."
-    );
+    return handleApiError(res, error, "Error al consultar la clave RH.");
   }
 });
 
@@ -91,29 +71,18 @@ router.post("/", async (req, res) => {
 
     return res.status(201).json(clave);
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al crear la clave RH."
-    );
+    return handleApiError(res, error, "Error al crear la clave RH.");
   }
 });
 
 // Actualizar una clave
 router.put("/:id", async (req, res) => {
   try {
-    const clave = await claverhController.update(
-      req.params.id,
-      req.body
-    );
+    const clave = await claverhController.update(req.params.id, req.body);
 
     return res.status(200).json(clave);
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al actualizar la clave RH."
-    );
+    return handleApiError(res, error, "Error al actualizar la clave RH.");
   }
 });
 
@@ -126,11 +95,7 @@ router.delete("/:id", async (req, res) => {
       message: "Clave RH eliminada correctamente.",
     });
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al eliminar la clave RH."
-    );
+    return handleApiError(res, error, "Error al eliminar la clave RH.");
   }
 });
 

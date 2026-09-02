@@ -11,9 +11,7 @@ const convertirId = (valor) => {
 };
 
 const obtenerTitulo = (data) => {
-  const titulo = String(
-    data?.titulo_privilegio ?? ""
-  ).trim();
+  const titulo = String(data?.titulo_privilegio ?? "").trim();
 
   if (!titulo) {
     throw new Error("INVALID_DATA");
@@ -31,19 +29,18 @@ const getAll = async () => {
 };
 
 const getById = async (id) => {
-  const privilegio =
-    await prisma.privilegio.findUnique({
-      where: {
-        id: convertirId(id),
-      },
-      include: {
-        roles: {
-          include: {
-            rol: true,
-          },
+  const privilegio = await prisma.privilegio.findUnique({
+    where: {
+      id: convertirId(id),
+    },
+    include: {
+      roles: {
+        include: {
+          rol: true,
         },
       },
-    });
+    },
+  });
 
   if (!privilegio) {
     throw new Error("NOT_FOUND");
@@ -55,12 +52,11 @@ const getById = async (id) => {
 const create = async (data) => {
   const titulo = obtenerTitulo(data);
 
-  const duplicado =
-    await prisma.privilegio.findFirst({
-      where: {
-        titulo_privilegio: titulo,
-      },
-    });
+  const duplicado = await prisma.privilegio.findFirst({
+    where: {
+      titulo_privilegio: titulo,
+    },
+  });
 
   if (duplicado) {
     throw new Error("DUPLICATE");
@@ -70,10 +66,7 @@ const create = async (data) => {
     titulo_privilegio: titulo,
   };
 
-  if (
-    data.id !== undefined &&
-    data.id !== ""
-  ) {
+  if (data.id !== undefined && data.id !== "") {
     datos.id = convertirId(data.id);
   }
 
@@ -85,12 +78,11 @@ const create = async (data) => {
 const update = async (id, data) => {
   const privilegioId = convertirId(id);
 
-  const actual =
-    await prisma.privilegio.findUnique({
-      where: {
-        id: privilegioId,
-      },
-    });
+  const actual = await prisma.privilegio.findUnique({
+    where: {
+      id: privilegioId,
+    },
+  });
 
   if (!actual) {
     throw new Error("NOT_FOUND");
@@ -101,15 +93,14 @@ const update = async (id, data) => {
       ? obtenerTitulo(data)
       : actual.titulo_privilegio;
 
-  const duplicado =
-    await prisma.privilegio.findFirst({
-      where: {
-        titulo_privilegio: titulo,
-        NOT: {
-          id: privilegioId,
-        },
+  const duplicado = await prisma.privilegio.findFirst({
+    where: {
+      titulo_privilegio: titulo,
+      NOT: {
+        id: privilegioId,
       },
-    });
+    },
+  });
 
   if (duplicado) {
     throw new Error("DUPLICATE");
@@ -126,36 +117,31 @@ const update = async (id, data) => {
 };
 
 const remove = async (id) => {
-  const privilegioId =
-    convertirId(id);
+  const privilegioId = convertirId(id);
 
-  const privilegio =
-    await prisma.privilegio.findUnique({
-      where: {
-        id: privilegioId,
-      },
-    });
+  const privilegio = await prisma.privilegio.findUnique({
+    where: {
+      id: privilegioId,
+    },
+  });
 
   if (!privilegio) {
     throw new Error("NOT_FOUND");
   }
 
-  return prisma.$transaction(
-    async (transaction) => {
-      await transaction.rolPermiso.deleteMany({
-        where: {
-          id_privilegio:
-            privilegioId,
-        },
-      });
+  return prisma.$transaction(async (transaction) => {
+    await transaction.rolPermiso.deleteMany({
+      where: {
+        id_privilegio: privilegioId,
+      },
+    });
 
-      return transaction.privilegio.delete({
-        where: {
-          id: privilegioId,
-        },
-      });
-    }
-  );
+    return transaction.privilegio.delete({
+      where: {
+        id: privilegioId,
+      },
+    });
+  });
 };
 
 module.exports = {

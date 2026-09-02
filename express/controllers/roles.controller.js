@@ -67,7 +67,6 @@ const getById = async (id) => {
 
 const create = async (data) => {
   const nombreRol = obtenerNombreRol(data);
-
   const duplicado = await prisma.rol.findFirst({
     where: {
       nombre_rol: nombreRol,

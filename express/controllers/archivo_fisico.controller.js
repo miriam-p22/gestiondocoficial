@@ -1,11 +1,7 @@
 const prisma = require("../db/client");
 const notificacionesController = require("./notificaciones.controller");
-
-const PRIVILEGIO_GESTIONAR =
-  "Gestionar Archivo Físico";
-
-const PRIVILEGIO_CONSULTAR_GLOBAL =
-  "Consultar Archivo Físico Global";
+const PRIVILEGIO_GESTIONAR = "Gestionar Archivo Físico";
+const PRIVILEGIO_CONSULTAR_GLOBAL = "Consultar Archivo Físico Global";
 
 const convertirId = (valor) => {
   const id = Number(valor);
@@ -73,10 +69,7 @@ const tienePrivilegio = async (usuario, tituloPrivilegio) => {
 };
 
 const puedeGestionarArchivo = async (usuario) => {
-  return tienePrivilegio(
-    usuario,
-    PRIVILEGIO_GESTIONAR
-  );
+  return tienePrivilegio(usuario, PRIVILEGIO_GESTIONAR);
 };
 
 const puedeConsultarGlobal = async (usuario) => {
@@ -84,10 +77,7 @@ const puedeConsultarGlobal = async (usuario) => {
     return true;
   }
 
-  return tienePrivilegio(
-    usuario,
-    PRIVILEGIO_CONSULTAR_GLOBAL
-  );
+  return tienePrivilegio(usuario, PRIVILEGIO_CONSULTAR_GLOBAL);
 };
 
 const validarPermisoGestion = async (usuario) => {
@@ -112,7 +102,7 @@ const ejecutarNotificacionSegura = async (callback) => {
   } catch (error) {
     console.error(
       "[ARCHIVO FÍSICO] No fue posible crear la notificación:",
-      error
+      error,
     );
 
     return null;
@@ -194,60 +184,33 @@ const obtenerDestino = async (idDestino) => {
   return destino;
 };
 
-const validarVisibilidad = async (
-  destino,
-  usuario
-) => {
-  await validarPermisoConsulta(
-    usuario
-  );
-
-  /*
-    Archivo Físico es un módulo global:
-    - Gestionar Archivo Físico puede consultar y gestionar.
-    - Consultar Archivo Físico Global puede consultar.
-    - Los demás usuarios no acceden al módulo.
-  */
+const validarVisibilidad = async (destino, usuario) => {
+  await validarPermisoConsulta(usuario);
   return destino;
 };
 
 const getAll = async (usuario) => {
-  await validarPermisoConsulta(
-    usuario
-  );
-
-  /*
-    Solo entran documentos cuyo trámite administrativo
-    ya terminó en estado "atendido".
-
-    Tanto el Responsable de Archivo como quien tenga
-    consulta global visualizan el archivo municipal completo.
-  */
+  await validarPermisoConsulta(usuario);
   return prisma.dispersionDestino.findMany({
     where: {
-      estado_documento:
-        "atendido",
+      estado_documento: "atendido",
     },
 
-    include:
-      includeDestino,
+    include: includeDestino,
 
     orderBy: [
       {
-        fecha_atencion:
-          "desc",
+        fecha_atencion: "desc",
       },
       {
-        id:
-          "desc",
+        id: "desc",
       },
     ],
   });
 };
 
 const getByDestino = async (idDestino, usuario) => {
-  const destino =
-    await obtenerDestino(idDestino);
+  const destino = await obtenerDestino(idDestino);
 
   await validarVisibilidad(destino, usuario);
 
@@ -263,30 +226,24 @@ const validarClasificacion = async (idClasificacion) => {
     return;
   }
 
-  const clasificacion =
-    await prisma.clasificacion.findUnique({
-      where: {
-        id: idClasificacion,
-      },
-      select: {
-        id: true,
-      },
-    });
+  const clasificacion = await prisma.clasificacion.findUnique({
+    where: {
+      id: idClasificacion,
+    },
+    select: {
+      id: true,
+    },
+  });
 
   if (!clasificacion) {
     throw new Error("CLASSIFICATION_NOT_FOUND");
   }
 };
 
-const guardarResguardo = async (
-  idDestino,
-  data,
-  usuario
-) => {
+const guardarResguardo = async (idDestino, data, usuario) => {
   await validarPermisoGestion(usuario);
 
-  const destino =
-    await obtenerDestino(idDestino);
+  const destino = await obtenerDestino(idDestino);
 
   if (destino.estado_documento !== "atendido") {
     throw new Error("DOCUMENT_NOT_FINISHED");
@@ -299,116 +256,74 @@ const guardarResguardo = async (
     data?.id_clasificacion !== null &&
     data?.id_clasificacion !== ""
   ) {
-    idClasificacion =
-      convertirId(data.id_clasificacion);
+    idClasificacion = convertirId(data.id_clasificacion);
   }
 
   await validarClasificacion(idClasificacion);
 
-  const estado =
-    convertirEstado(data?.estado);
+  const estado = convertirEstado(data?.estado);
+  const expediente = limpiarTexto(data?.expediente, 100);
+  const carpeta = limpiarTexto(data?.carpeta, 100);
+  const caja = limpiarTexto(data?.caja, 100);
+  const estante = limpiarTexto(data?.estante, 100);
+  const ubicacionFisica = limpiarTexto(data?.ubicacion_fisica, 255);
+  const observaciones = limpiarTexto(data?.observaciones, 1000);
 
-  const expediente =
-    limpiarTexto(data?.expediente, 100);
-
-  const carpeta =
-    limpiarTexto(data?.carpeta, 100);
-
-  const caja =
-    limpiarTexto(data?.caja, 100);
-
-  const estante =
-    limpiarTexto(data?.estante, 100);
-
-  const ubicacionFisica =
-    limpiarTexto(data?.ubicacion_fisica, 255);
-
-  const observaciones =
-    limpiarTexto(data?.observaciones, 1000);
-
-  if (
-    estado === "resguardado" &&
-    (!idClasificacion || !ubicacionFisica)
-  ) {
+  if (estado === "resguardado" && (!idClasificacion || !ubicacionFisica)) {
     throw new Error("ARCHIVE_DATA_REQUIRED");
   }
 
-  const existente =
-    destino.archivoFisico;
-
-  const yaEstabaResguardado =
-    existente?.estado === "resguardado";
-
+  const existente = destino.archivoFisico;
+  const yaEstabaResguardado = existente?.estado === "resguardado";
   const fechaResguardo =
-    estado === "resguardado"
-      ? existente?.fecha_resguardo || new Date()
-      : null;
+    estado === "resguardado" ? existente?.fecha_resguardo || new Date() : null;
+  const resultado = await prisma.archivoFisico.upsert({
+    where: {
+      id_dispersion_destino: destino.id,
+    },
 
-  const resultado =
-    await prisma.archivoFisico.upsert({
-      where: {
-        id_dispersion_destino: destino.id,
-      },
+    create: {
+      id_dispersion_destino: destino.id,
+      id_clasificacion: idClasificacion,
+      id_usuario_resguardo: usuario.id,
+      expediente,
+      carpeta,
+      caja,
+      estante,
+      ubicacion_fisica: ubicacionFisica,
+      observaciones,
+      estado,
+      fecha_resguardo: fechaResguardo,
+    },
 
-      create: {
-        id_dispersion_destino: destino.id,
-        id_clasificacion: idClasificacion,
-        id_usuario_resguardo: usuario.id,
-        expediente,
-        carpeta,
-        caja,
-        estante,
-        ubicacion_fisica: ubicacionFisica,
-        observaciones,
-        estado,
-        fecha_resguardo: fechaResguardo,
-      },
+    update: {
+      id_clasificacion: idClasificacion,
+      id_usuario_resguardo: usuario.id,
+      expediente,
+      carpeta,
+      caja,
+      estante,
+      ubicacion_fisica: ubicacionFisica,
+      observaciones,
+      estado,
+      fecha_resguardo: fechaResguardo,
+    },
 
-      update: {
-        id_clasificacion: idClasificacion,
-        id_usuario_resguardo: usuario.id,
-        expediente,
-        carpeta,
-        caja,
-        estante,
-        ubicacion_fisica: ubicacionFisica,
-        observaciones,
-        estado,
-        fecha_resguardo: fechaResguardo,
-      },
+    select: selectArchivoFisico,
+  });
 
-      select: selectArchivoFisico,
-    });
-
-  const cambioAResguardado =
-    estado === "resguardado" &&
-    !yaEstabaResguardado;
+  const cambioAResguardado = estado === "resguardado" && !yaEstabaResguardado;
 
   if (cambioAResguardado) {
-    await ejecutarNotificacionSegura(
-      () =>
-        notificacionesController.crearParaArea(
-          destino.id_area,
-          {
-            tipo:
-              "archivo",
-
-            titulo:
-              "Documento resguardado en Archivo Físico",
-
-            mensaje:
-              `El documento "${destino.dispersion?.nombre_archivo || "Documento"}" fue registrado correctamente en el archivo físico municipal.`,
-
-            modulo:
-              "archivo_fisico",
-
-            referencia_id:
-              destino.id,
-
-            ruta:
-              "/documentos",
-          }
-        )
+    await ejecutarNotificacionSegura(() =>
+      notificacionesController.crearParaArea(destino.id_area, {
+        tipo: "archivo",
+        titulo: "Documento resguardado en Archivo Físico",
+        mensaje: `El documento "${destino.dispersion?.nombre_archivo || "Documento"}" fue registrado correctamente en el archivo físico municipal.`,
+        modulo: "archivo_fisico",
+        referencia_id: destino.id,
+        ruta: "/documentos",
+      }),
     );
   }
 
@@ -418,15 +333,10 @@ const guardarResguardo = async (
 const getPermisos = async (usuario) => {
   validarSesion(usuario);
 
-  const gestionar =
-    await puedeGestionarArchivo(usuario);
+  const gestionar = await puedeGestionarArchivo(usuario);
 
   const consultarGlobal =
-    gestionar ||
-    await tienePrivilegio(
-      usuario,
-      PRIVILEGIO_CONSULTAR_GLOBAL
-    );
+    gestionar || (await tienePrivilegio(usuario, PRIVILEGIO_CONSULTAR_GLOBAL));
 
   return {
     gestionar,

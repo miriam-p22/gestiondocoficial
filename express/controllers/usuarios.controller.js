@@ -1,6 +1,5 @@
 const prisma = require("../db/client");
 const bcrypt = require("bcryptjs");
-
 const BCRYPT_ROUNDS = 12;
 
 const convertirId = (valor) => {
@@ -100,9 +99,7 @@ const getById = async (id) => {
 
 const create = async (data) => {
   const nombreCompleto = String(data?.nombre_completo ?? "").trim();
-
   const nombreUsuario = String(data?.nombre_usuario ?? "").trim();
-
   const contrasenia = obtenerContrasenia(data);
 
   if (
@@ -150,17 +147,11 @@ const create = async (data) => {
   return prisma.usuario.create({
     data: {
       nombre_completo: nombreCompleto,
-
       numero_trab: convertirNumeroOpcional(data.numero_trab),
-
       correo_electronico: correo,
-
       nombre_usuario: nombreUsuario,
-
       contrasenia: await bcrypt.hash(String(contrasenia), BCRYPT_ROUNDS),
-
       status: data.status !== undefined ? convertirBooleano(data.status) : true,
-
       fecha_creacion: new Date(),
 
       rol: {
@@ -182,7 +173,6 @@ const create = async (data) => {
 
 const update = async (id, data) => {
   const usuarioId = convertirId(id);
-
   const usuarioActual = await prisma.usuario.findUnique({
     where: {
       id: usuarioId,
@@ -326,10 +316,7 @@ const remove = async (id) => {
     },
   });
 };
-// ======================================================
-// LOGIN
-// ======================================================
-
+//LOGIN
 const login = async (data) => {
   const nombreUsuario = String(
     data?.nombre_usuario ?? data?.usuario ?? "",
@@ -352,17 +339,11 @@ const login = async (data) => {
       id: true,
       id_rol: true,
       id_area: true,
-
       nombre_completo: true,
-
       numero_trab: true,
-
       correo_electronico: true,
-
       nombre_usuario: true,
-
       contrasenia: true,
-
       status: true,
 
       rol: {
@@ -386,19 +367,7 @@ const login = async (data) => {
   }
 
   const contraseniaGuardada = String(usuario.contrasenia ?? "");
-
-  /*
-    Compatibilidad temporal con usuarios existentes:
-
-    - Si la contraseña ya es bcrypt, se valida con bcrypt.compare().
-    - Si todavía está en texto plano, se valida una sola vez y,
-      si es correcta, se migra automáticamente a bcrypt.
-
-    De esta forma no es necesario conocer ni restablecer las
-    contraseñas actuales para hacer la migración.
-  */
-  const esHashBcrypt =
-    /^\$2[aby]\$\d{2}\$/.test(contraseniaGuardada);
+  const esHashBcrypt = /^\$2[aby]\$\d{2}\$/.test(contraseniaGuardada);
 
   let credencialesValidas = false;
 
@@ -408,27 +377,19 @@ const login = async (data) => {
       contraseniaGuardada,
     );
   } else {
-    credencialesValidas =
-      contraseniaGuardada === contrasenia;
+    credencialesValidas = contraseniaGuardada === contrasenia;
   }
 
   if (!credencialesValidas) {
     throw new Error("INVALID_CREDENTIALS");
   }
 
-  /*
-    Primero comprobamos el estado del usuario.
-    Una cuenta inactiva no debe provocar una migración de contraseña.
-  */
   if (usuario.status !== true) {
     throw new Error("USER_INACTIVE");
   }
 
   if (!esHashBcrypt) {
-    const nuevaContraseniaHash = await bcrypt.hash(
-      contrasenia,
-      BCRYPT_ROUNDS,
-    );
+    const nuevaContraseniaHash = await bcrypt.hash(contrasenia, BCRYPT_ROUNDS);
 
     await prisma.usuario.update({
       where: {
@@ -440,42 +401,21 @@ const login = async (data) => {
     });
   }
 
-  /*
-    Nunca regresamos la contraseña.
-  */
-
   return {
     id: usuario.id,
-
     id_rol: usuario.id_rol,
-
     id_area: usuario.id_area,
-
     nombre_completo: usuario.nombre_completo,
-
     numero_trab: usuario.numero_trab,
-
     correo_electronico: usuario.correo_electronico,
-
     nombre_usuario: usuario.nombre_usuario,
-
     rol: usuario.rol,
-
     area: usuario.area,
   };
 };
 
-// ======================================================
-// OBTENER ÁREA DE RECURSOS HUMANOS
-// ======================================================
 
 const obtenerAreaRh = async () => {
-  /*
-    Tu seed real utiliza:
-
-    Dirección de Recursos Humanos
-  */
-
   const area = await prisma.area.findUnique({
     where: {
       nombre_area: "Dirección de Recursos Humanos",
@@ -489,10 +429,7 @@ const obtenerAreaRh = async () => {
   return area;
 };
 
-// ======================================================
-// OBTENER ROL RH
-// ======================================================
-
+//OBTENER ROL RH
 const obtenerRolRh = async () => {
   const rol = await prisma.rol.findUnique({
     where: {
@@ -507,19 +444,13 @@ const obtenerRolRh = async () => {
   return rol;
 };
 
-// ======================================================
-// COMPROBAR SI RH YA FUE REGISTRADO
-// ======================================================
-
+//COMPROBAR SI RH YA FUE REGISTRADO
 const existeUsuarioRh = async () => {
   const area = await obtenerAreaRh();
-
   const rol = await obtenerRolRh();
-
   const usuario = await prisma.usuario.findFirst({
     where: {
       id_area: area.id,
-
       id_rol: rol.id,
     },
 
@@ -531,10 +462,7 @@ const existeUsuarioRh = async () => {
   return Boolean(usuario);
 };
 
-// ======================================================
-// VALIDAR CLAVE ESPECIAL RH
-// ======================================================
-
+//VALIDAR CLAVE ESPECIAL RH
 const validarClaveRegistroRh = async (data) => {
   const clave = String(data?.clave ?? "").trim();
 
@@ -542,22 +470,11 @@ const validarClaveRegistroRh = async (data) => {
     throw new Error("RH_KEY_REQUIRED");
   }
 
-  /*
-      Primero comprobamos que RH
-      todavía NO tenga una cuenta.
-    */
-
   const yaRegistrado = await existeUsuarioRh();
 
   if (yaRegistrado) {
     throw new Error("RH_ALREADY_REGISTERED");
   }
-
-  /*
-      Comparamos contra la tabla
-      claverh que ya existe
-      en tu proyecto.
-    */
 
   const clavesRegistradas = await prisma.claveRh.findMany({
     select: {
@@ -572,14 +489,10 @@ const validarClaveRegistroRh = async (data) => {
   for (const registro of clavesRegistradas) {
     const valorGuardado = String(registro.clave ?? "");
 
-    const esHashBcrypt =
-      /^\$2[aby]\$\d{2}\$/.test(valorGuardado);
+    const esHashBcrypt = /^\$2[aby]\$\d{2}\$/.test(valorGuardado);
 
     if (esHashBcrypt) {
-      const coincide = await bcrypt.compare(
-        clave,
-        valorGuardado,
-      );
+      const coincide = await bcrypt.compare(clave, valorGuardado);
 
       if (coincide) {
         claveValida = registro;
@@ -596,16 +509,8 @@ const validarClaveRegistroRh = async (data) => {
     throw new Error("INVALID_RH_KEY");
   }
 
-  /*
-    Migración automática de la clave RH antigua:
-    si todavía estaba almacenada en texto plano, después
-    de una validación correcta se reemplaza por bcrypt.
-  */
   if (claveLegacy) {
-    const claveHash = await bcrypt.hash(
-      clave,
-      BCRYPT_ROUNDS,
-    );
+    const claveHash = await bcrypt.hash(clave, BCRYPT_ROUNDS);
 
     await prisma.claveRh.update({
       where: {
@@ -624,26 +529,14 @@ const validarClaveRegistroRh = async (data) => {
   };
 };
 
-// ======================================================
-// REGISTRO INICIAL DE RECURSOS HUMANOS
-// ======================================================
-
+//REGISTRO INICIAL DE RECURSOS HUMANOS
 const registroInicialRh = async (data) => {
-  /*
-      Volvemos a validar la clave aquí.
-
-      No confiamos solamente en que
-      React ya haya abierto el modal.
-    */
-
   await validarClaveRegistroRh({
     clave: data?.clave,
   });
 
   const nombreCompleto = String(data?.nombre_completo ?? "").trim();
-
   const nombreUsuario = String(data?.nombre_usuario ?? "").trim();
-
   const contrasenia = String(
     data?.contrasenia ?? data?.contrasennia ?? data?.password ?? "",
   );
@@ -652,17 +545,9 @@ const registroInicialRh = async (data) => {
     throw new Error("INVALID_INITIAL_RH_DATA");
   }
 
-  // ==================================================
-  // ÁREA Y ROL FIJOS
-  // ==================================================
-
+  //ÁREA Y ROL FIJOS
   const area = await obtenerAreaRh();
-
   const rol = await obtenerRolRh();
-
-  // ==================================================
-  // USUARIO DUPLICADO
-  // ==================================================
 
   const usuarioDuplicado = await prisma.usuario.findFirst({
     where: {
@@ -674,10 +559,7 @@ const registroInicialRh = async (data) => {
     throw new Error("DUPLICATE_USERNAME");
   }
 
-  // ==================================================
-  // CORREO
-  // ==================================================
-
+  //CORREO
   const correo =
     data?.correo_electronico === undefined ||
     data?.correo_electronico === null ||
@@ -697,35 +579,18 @@ const registroInicialRh = async (data) => {
     }
   }
 
-  // ==================================================
-  // NÚMERO DE TRABAJADOR
-  // ==================================================
-
+  //NÚMERO DE TRABAJADOR
   const numeroTrab = convertirNumeroOpcional(data?.numero_trab);
 
-  // ==================================================
   // CREAR RH
-  // ==================================================
-
   return prisma.usuario.create({
     data: {
       nombre_completo: nombreCompleto,
-
       numero_trab: numeroTrab,
-
       correo_electronico: correo,
-
       nombre_usuario: nombreUsuario,
-
       contrasenia: await bcrypt.hash(contrasenia, BCRYPT_ROUNDS),
-
-      /*
-          La primera cuenta RH
-          debe quedar activa.
-        */
-
       status: true,
-
       fecha_creacion: new Date(),
 
       rol: {

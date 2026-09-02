@@ -1,9 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const estadosController = require(
-  "../controllers/estados.controller"
-);
+const estadosController = require("../controllers/estados.controller");
 
 const handleApiError = (res, error, customMessage) => {
   console.error("[Error API Estados]:", error);
@@ -23,15 +21,13 @@ const handleApiError = (res, error, customMessage) => {
 
   if (error.message === "INVALID_DATA") {
     return res.status(400).json({
-      error:
-        "Debe enviar el documento y el nombre del estado.",
+      error: "Debe enviar el documento y el nombre del estado.",
     });
   }
 
   if (error.message === "INVALID_STATE") {
     return res.status(400).json({
-      error:
-        "El estado enviado no pertenece a la lista de estados permitidos.",
+      error: "El estado enviado no pertenece a la lista de estados permitidos.",
     });
   }
 
@@ -41,10 +37,7 @@ const handleApiError = (res, error, customMessage) => {
     });
   }
 
-  if (
-    error.message === "NOT_FOUND" ||
-    error.code === "P2025"
-  ) {
+  if (error.message === "NOT_FOUND" || error.code === "P2025") {
     return res.status(404).json({
       error: "El estado solicitado no existe.",
     });
@@ -59,8 +52,7 @@ const handleApiError = (res, error, customMessage) => {
 
   return res.status(500).json({
     error:
-      customMessage ||
-      "Ocurrió un error inesperado al procesar el estado.",
+      customMessage || "Ocurrió un error inesperado al procesar el estado.",
   });
 };
 
@@ -73,28 +65,18 @@ router.get("/", async (req, res) => {
 
     return res.status(200).json(estados);
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al consultar los estados."
-    );
+    return handleApiError(res, error, "Error al consultar los estados.");
   }
 });
 
 // Obtener un estado por ID
 router.get("/:id", async (req, res) => {
   try {
-    const estado = await estadosController.getById(
-      req.params.id
-    );
+    const estado = await estadosController.getById(req.params.id);
 
     return res.status(200).json(estado);
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al consultar el estado."
-    );
+    return handleApiError(res, error, "Error al consultar el estado.");
   }
 });
 
@@ -105,29 +87,18 @@ router.post("/", async (req, res) => {
 
     return res.status(201).json(estado);
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al crear el estado."
-    );
+    return handleApiError(res, error, "Error al crear el estado.");
   }
 });
 
 // Actualizar estado
 router.put("/:id", async (req, res) => {
   try {
-    const estado = await estadosController.update(
-      req.params.id,
-      req.body
-    );
+    const estado = await estadosController.update(req.params.id, req.body);
 
     return res.status(200).json(estado);
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al actualizar el estado."
-    );
+    return handleApiError(res, error, "Error al actualizar el estado.");
   }
 });
 
@@ -140,11 +111,7 @@ router.delete("/:id", async (req, res) => {
       message: "Estado eliminado correctamente.",
     });
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al eliminar el estado."
-    );
+    return handleApiError(res, error, "Error al eliminar el estado.");
   }
 });
 

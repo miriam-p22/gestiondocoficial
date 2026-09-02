@@ -1,19 +1,11 @@
 const prisma = require("../db/client");
 const notificacionesController = require("./notificaciones.controller");
-// ======================================================
-// CONSTANTES
-// ======================================================
-
 const ESTADOS = {
   EDICION: "edicion",
   SOLICITADO: "solicitado",
   AUTORIZADO: "autorizado",
   RECHAZADO: "rechazado",
 };
-
-// ======================================================
-// VALIDACIONES
-// ======================================================
 
 const convertirId = (valor) => {
   const id = Number(valor);
@@ -95,14 +87,7 @@ const convertirObservaciones = (valor) => {
   return texto;
 };
 
-// ======================================================
-// NOTIFICACIÓN SEGURA
-// ======================================================
-//
-// Una falla en notificaciones NO debe impedir
-// autorizar/rechazar/solicitar un organigrama.
-// ======================================================
-
+//NOTIFICACIÓN SEGURA
 const ejecutarNotificacionSegura = async (callback) => {
   try {
     await callback();
@@ -111,10 +96,7 @@ const ejecutarNotificacionSegura = async (callback) => {
   }
 };
 
-// ======================================================
-// RELACIONES
-// ======================================================
-
+//RELACIONES
 const includeRelations = {
   usuario: {
     select: {
@@ -160,10 +142,7 @@ const includeRelations = {
   },
 };
 
-// ======================================================
-// GET ALL
-// ======================================================
-
+//GET ALL
 const getAll = async (filtros = {}) => {
   const where = {};
 
@@ -190,10 +169,7 @@ const getAll = async (filtros = {}) => {
   });
 };
 
-// ======================================================
-// GET BY ID
-// ======================================================
-
+//GET BY ID
 const getById = async (id) => {
   const organigrama = await prisma.organigrama.findUnique({
     where: {
@@ -210,10 +186,7 @@ const getById = async (id) => {
   return organigrama;
 };
 
-// ======================================================
-// GET ORGANIGRAMA VIGENTE
-// ======================================================
-
+//GET ORGANIGRAMA VIGENTE
 const getVigente = async () => {
   const organigrama = await prisma.organigrama.findFirst({
     where: {
@@ -243,77 +216,42 @@ const getVigente = async () => {
   return organigrama;
 };
 
-// ======================================================
-// HISTORIAL Y REVISIÓN PARA PRESIDENCIA
-// ======================================================
-//
-// Presidencia debe visualizar:
-//
-// - SOLICITADOS:
-//   pendientes de autorizar o rechazar.
-//
-// - AUTORIZADOS:
-//   historial de versiones aprobadas.
-//
-// - RECHAZADOS:
-//   historial de versiones rechazadas y sus
-//   observaciones/motivo.
-//
-// NO se incluyen versiones en EDICIÓN porque todavía
-// pertenecen al trabajo interno de Recursos Humanos.
-//
-// ======================================================
-
+//HISTORIAL Y REVISIÓN PARA PRESIDENCIA
 const getPendientesRevision = async () => {
   return prisma.organigrama.findMany({
     where: {
       OR: [
         {
-          estado:
-            ESTADOS.SOLICITADO,
-
-          autorizado:
-            false,
+          estado: ESTADOS.SOLICITADO,
+          autorizado: false,
         },
 
         {
-          estado:
-            ESTADOS.AUTORIZADO,
-
-          autorizado:
-            true,
+          estado: ESTADOS.AUTORIZADO,
+          autorizado: true,
         },
 
         {
-          estado:
-            ESTADOS.RECHAZADO,
-
-          autorizado:
-            false,
+          estado: ESTADOS.RECHAZADO,
+          autorizado: false,
         },
       ],
     },
 
-    include:
-      includeRelations,
+    include: includeRelations,
 
     orderBy: [
       {
-        fecha_solicitud:
-          "desc",
+        fecha_solicitud: "desc",
       },
       {
-        id:
-          "desc",
+        id: "desc",
       },
     ],
   });
 };
 
-// ======================================================
-// VALIDAR USUARIO
-// ======================================================
-
+//VALIDAR USUARIO
 const validarUsuario = async (idUsuario) => {
   const usuario = await prisma.usuario.findUnique({
     where: {
@@ -330,10 +268,7 @@ const validarUsuario = async (idUsuario) => {
   }
 };
 
-// ======================================================
-// OBTENER ORGANIGRAMA BÁSICO
-// ======================================================
-
+//OBTENER ORGANIGRAMA
 const obtenerOrganigramaBasico = async (id) => {
   const organigrama = await prisma.organigrama.findUnique({
     where: {
@@ -352,10 +287,7 @@ const obtenerOrganigramaBasico = async (id) => {
   return organigrama;
 };
 
-// ======================================================
-// VALIDAR ESTRUCTURA
-// ======================================================
-
+//VALIDAR ESTRUCTURA
 const validarEstructura = async (organigramaId) => {
   const niveles = await prisma.nivel.findMany({
     where: {
@@ -375,10 +307,7 @@ const validarEstructura = async (organigramaId) => {
     throw new Error("EMPTY_STRUCTURE");
   }
 
-  // ==================================================
-  // UNA SOLA RAÍZ
-  // ==================================================
-
+  //UNA SOLA RAÍZ
   const raices = niveles.filter(
     (item) =>
       item.id_nivel_superior === null || item.id_nivel_superior === undefined,
@@ -388,20 +317,14 @@ const validarEstructura = async (organigramaId) => {
     throw new Error("INVALID_STRUCTURE");
   }
 
-  // ==================================================
-  // MAPA POR ID
-  // ==================================================
-
+  //MAPA POR ID
   const mapa = new Map();
 
   niveles.forEach((item) => {
     mapa.set(Number(item.id), item);
   });
 
-  // ==================================================
-  // PADRES INEXISTENTES
-  // ==================================================
-
+  //PADRES INEXISTENTES
   for (const item of niveles) {
     if (
       item.id_nivel_superior === null ||
@@ -415,10 +338,7 @@ const validarEstructura = async (organigramaId) => {
     }
   }
 
-  // ==================================================
-  // CICLOS
-  // ==================================================
-
+  //CICLOS
   for (const item of niveles) {
     const visitados = new Set();
 
@@ -437,10 +357,7 @@ const validarEstructura = async (organigramaId) => {
     }
   }
 
-  // ==================================================
-  // ÁREAS REPETIDAS
-  // ==================================================
-
+  //ÁREAS REPETIDAS
   const areas = new Set();
 
   for (const item of niveles) {
@@ -456,10 +373,7 @@ const validarEstructura = async (organigramaId) => {
   return true;
 };
 
-// ======================================================
-// CREATE
-// ======================================================
-
+//CREATE
 const create = async (data) => {
   const titulo = String(data?.titulo ?? "").trim();
 
@@ -480,32 +394,11 @@ const create = async (data) => {
     data: {
       titulo,
       version,
-
-      /*
-        Actualmente esta columna existe
-        como NOT NULL en tu estructura.
-        La seguimos llenando al crear.
-
-        Después, si quieres separar
-        fecha_creacion y fecha_solicitud
-        correctamente, podemos agregar
-        una nueva columna fecha_creacion.
-      */
-      /*
-  Al crear una versión todavía
-  NO se ha enviado a Presidencia.
-*/
-
       fecha_solicitud: null,
-
       fecha_autorizacion: null,
-
       autorizado: false,
-
       estado: ESTADOS.EDICION,
-
       observaciones: null,
-
       usuario: {
         connect: {
           id: idUsuario,
@@ -517,10 +410,7 @@ const create = async (data) => {
   });
 };
 
-// ======================================================
-// UPDATE
-// ======================================================
-
+//UPDATE
 const update = async (id, data) => {
   const organigramaId = convertirId(id);
 
@@ -534,17 +424,9 @@ const update = async (id, data) => {
     throw new Error("NOT_FOUND");
   }
 
-  // ==================================================
-  // AUTORIZADO NO SE EDITA
-  // ==================================================
-
   if (actual.estado === ESTADOS.AUTORIZADO || actual.autorizado === true) {
     throw new Error("ALREADY_AUTHORIZED");
   }
-
-  // ==================================================
-  // SOLICITADO TAMPOCO SE EDITA
-  // ==================================================
 
   if (actual.estado === ESTADOS.SOLICITADO) {
     throw new Error("REQUEST_PENDING");
@@ -578,17 +460,10 @@ const update = async (id, data) => {
     };
   }
 
-  /*
-    Si estaba rechazado y vuelve a editarse,
-    lo regresamos automáticamente a edición.
-  */
   if (actual.estado === ESTADOS.RECHAZADO) {
     datos.estado = ESTADOS.EDICION;
-
     datos.observaciones = null;
-
     datos.fecha_autorizacion = null;
-
     datos.autorizado = false;
   }
 
@@ -598,15 +473,11 @@ const update = async (id, data) => {
     },
 
     data: datos,
-
     include: includeRelations,
   });
 };
 
-// ======================================================
-// SOLICITAR AUTORIZACIÓN
-// ======================================================
-
+//SOLICITAR AUTORIZACIÓN
 const solicitarAutorizacion = async (id) => {
   const organigramaId = convertirId(id);
 
@@ -632,45 +503,29 @@ const solicitarAutorizacion = async (id) => {
 
     data: {
       estado: ESTADOS.SOLICITADO,
-
       autorizado: false,
-
       fecha_solicitud: new Date(),
-
       fecha_autorizacion: null,
-
       observaciones: null,
     },
 
     include: includeRelations,
   });
 
-  // ==================================================
-  // NOTIFICAR A PRESIDENCIA
-  // ==================================================
-
+  //NOTIFICAR A PRESIDENCIA
   await ejecutarNotificacionSegura(() =>
     notificacionesController.crearParaPrivilegio("Revisar Organigrama", {
       tipo: "organigrama",
-
       titulo: "Organigrama pendiente de revisión",
-
       mensaje: `Recursos Humanos solicitó autorización para "${actualizado.titulo}", versión ${actualizado.version}.`,
-
       modulo: "organigrama",
-
       referencia_id: actualizado.id,
-
       ruta: "/organigrama",
     }),
   );
 
   return actualizado;
 };
-
-// ======================================================
-// CANCELAR SOLICITUD
-// ======================================================
 
 const cancelarSolicitud = async (id) => {
   const organigramaId = convertirId(id);
@@ -703,11 +558,8 @@ const cancelarSolicitud = async (id) => {
 
     data: {
       estado: ESTADOS.EDICION,
-
       autorizado: false,
-
       fecha_autorizacion: null,
-
       observaciones: null,
     },
 
@@ -715,13 +567,9 @@ const cancelarSolicitud = async (id) => {
   });
 };
 
-// ======================================================
-// AUTORIZAR
-// ======================================================
-
+//AUTORIZAR
 const autorizar = async (id) => {
   const organigramaId = convertirId(id);
-
   const organigrama = await obtenerOrganigramaBasico(organigramaId);
 
   if (
@@ -735,10 +583,7 @@ const autorizar = async (id) => {
     throw new Error("NOT_REQUESTED");
   }
 
-  // ==================================================
-  // VOLVER A VALIDAR ANTES DE AUTORIZAR
-  // ==================================================
-
+  //VOLVER A VALIDAR ANTES DE AUTORIZAR
   await validarEstructura(organigramaId);
 
   const actualizado = await prisma.organigrama.update({
@@ -748,55 +593,30 @@ const autorizar = async (id) => {
 
     data: {
       estado: ESTADOS.AUTORIZADO,
-
       autorizado: true,
-
       fecha_autorizacion: new Date(),
-
       observaciones: null,
     },
 
     include: includeRelations,
   });
 
-  // ==================================================
-  // NOTIFICAR AL USUARIO QUE CREÓ LA VERSIÓN
-  // ==================================================
-
-  await ejecutarNotificacionSegura(
-  () =>
-    notificacionesController
-      .crearParaPrivilegio(
-        "Gestionar Organigrama",
-        {
-          tipo:
-            "organigrama",
-
-          titulo:
-            "Organigrama autorizado",
-
-          mensaje:
-            `Presidencia autorizó "${actualizado.titulo}", versión ${actualizado.version}.`,
-
-          modulo:
-            "organigrama",
-
-          referencia_id:
-            actualizado.id,
-
-          ruta:
-            "/organigrama",
-        }
-      )
-);
+  //NOTIFICAR AUTORIZACION
+  await ejecutarNotificacionSegura(() =>
+    notificacionesController.crearParaPrivilegio("Gestionar Organigrama", {
+      tipo: "organigrama",
+      titulo: "Organigrama autorizado",
+      mensaje: `Presidencia autorizó "${actualizado.titulo}", versión ${actualizado.version}.`,
+      modulo: "organigrama",
+      referencia_id: actualizado.id,
+      ruta: "/organigrama",
+    }),
+  );
 
   return actualizado;
 };
 
-// ======================================================
-// RECHAZAR
-// ======================================================
-
+//RECHAZAR
 const rechazar = async (id, data = {}) => {
   const organigramaId = convertirId(id);
 
@@ -834,55 +654,29 @@ const rechazar = async (id, data = {}) => {
 
     data: {
       estado: ESTADOS.RECHAZADO,
-
       autorizado: false,
-
       fecha_autorizacion: new Date(),
-
       observaciones,
     },
 
     include: includeRelations,
   });
 
-  // ==================================================
-  // NOTIFICAR A RH / CREADOR
-  // ==================================================
-
-  await ejecutarNotificacionSegura(
-  () =>
-    notificacionesController
-      .crearParaPrivilegio(
-        "Gestionar Organigrama",
-        {
-          tipo:
-            "organigrama",
-
-          titulo:
-            "Organigrama rechazado",
-
-          mensaje:
-            `Presidencia rechazó "${actualizado.titulo}", versión ${actualizado.version}. Motivo: ${observaciones}`,
-
-          modulo:
-            "organigrama",
-
-          referencia_id:
-            actualizado.id,
-
-          ruta:
-            "/organigrama",
-        }
-      )
-);
+  await ejecutarNotificacionSegura(() =>
+    notificacionesController.crearParaPrivilegio("Gestionar Organigrama", {
+      tipo: "organigrama",
+      titulo: "Organigrama rechazado",
+      mensaje: `Presidencia rechazó "${actualizado.titulo}", versión ${actualizado.version}. Motivo: ${observaciones}`,
+      modulo: "organigrama",
+      referencia_id: actualizado.id,
+      ruta: "/organigrama",
+    }),
+  );
 
   return actualizado;
 };
 
-// ======================================================
 // REABRIR RECHAZADO PARA EDICIÓN
-// ======================================================
-
 const reabrirEdicion = async (id) => {
   const organigramaId = convertirId(id);
 
@@ -907,9 +701,7 @@ const reabrirEdicion = async (id) => {
 
     data: {
       estado: ESTADOS.EDICION,
-
       autorizado: false,
-
       fecha_autorizacion: null,
     },
 
@@ -917,10 +709,7 @@ const reabrirEdicion = async (id) => {
   });
 };
 
-// ======================================================
-// DELETE
-// ======================================================
-
+//DELETE
 const remove = async (id) => {
   const organigramaId = convertirId(id);
 
@@ -934,20 +723,12 @@ const remove = async (id) => {
     throw new Error("NOT_FOUND");
   }
 
-  // ==================================================
-  // AUTORIZADO NO SE ELIMINA
-  // ==================================================
-
   if (
     organigrama.estado === ESTADOS.AUTORIZADO ||
     organigrama.autorizado === true
   ) {
     throw new Error("AUTHORIZED_CANNOT_DELETE");
   }
-
-  // ==================================================
-  // SOLICITADO TAMPOCO SE ELIMINA
-  // ==================================================
 
   if (organigrama.estado === ESTADOS.SOLICITADO) {
     throw new Error("REQUEST_PENDING");
@@ -968,17 +749,13 @@ const remove = async (id) => {
   });
 };
 
-// ======================================================
-// EXPORTS
-// ======================================================
-
 module.exports = {
   getAll,
   getById,
 
   getVigente,
   getPendientesRevision,
-
+  
   create,
   update,
 

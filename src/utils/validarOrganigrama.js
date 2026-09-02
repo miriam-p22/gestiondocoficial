@@ -14,9 +14,7 @@ export const validarOrganigrama = (niveles = []) => {
     };
   }
 
-  // ======================================================
-  // SIN ÁREAS
-  // ====================================================
+  // IDENTIFICAR ORGANIGRAMA SIN ÁREAS
   if (niveles.length === 0) {
     return {
       valido: false,
@@ -30,18 +28,12 @@ export const validarOrganigrama = (niveles = []) => {
     };
   }
 
-  // ======================================================
-  // MAPAS AUXILIARES
-  // ======================================================
   const porId = new Map();
 
   niveles.forEach((item) => {
     porId.set(Number(item.id), item);
   });
 
-  // ======================================================
-  // RAÍCES
-  // ======================================================
   const raices = niveles.filter(
     (item) =>
       item.id_nivel_superior === null || item.id_nivel_superior === undefined,
@@ -69,9 +61,7 @@ export const validarOrganigrama = (niveles = []) => {
     });
   }
 
-  // ======================================================
-  // PADRES INEXISTENTES
-  // ======================================================
+  //VALIDAR PADRES INEXISTENTES
   const huerfanos = niveles.filter((item) => {
     if (
       item.id_nivel_superior === null ||
@@ -100,9 +90,7 @@ export const validarOrganigrama = (niveles = []) => {
     });
   }
 
-  // ======================================================
-  // ÁREAS REPETIDAS
-  // ======================================================
+  //ÁREAS REPETIDAS
   const conteoAreas = new Map();
 
   niveles.forEach((item) => {
@@ -135,9 +123,7 @@ export const validarOrganigrama = (niveles = []) => {
     });
   }
 
-  // ======================================================
-  // DETECCIÓN DE CICLOS
-  // ======================================================
+  //DETECCIÓN DE CICLOS
   let tieneCiclo = false;
 
   const visitar = (idInicial) => {
@@ -178,9 +164,7 @@ export const validarOrganigrama = (niveles = []) => {
     });
   }
 
-  // ======================================================
-  // PRESIDENCIA MUNICIPAL
-  // ======================================================
+  //VALIDAR EXISTENCIA DE PRESIDENCIA MUNICIPAL
   const presidencia = niveles.find(
     (item) =>
       String(item.area?.nombre_area || "")
@@ -202,9 +186,6 @@ export const validarOrganigrama = (niveles = []) => {
     });
   }
 
-  // ======================================================
-  // H. CABILDO
-  // ======================================================
   const cabildo = niveles.find(
     (item) =>
       String(item.area?.nombre_area || "")
@@ -226,9 +207,7 @@ export const validarOrganigrama = (niveles = []) => {
     });
   }
 
-  // ======================================================
-  // NIVELES ADMINISTRATIVOS
-  // ======================================================
+  //NIVELES ADMINISTRATIVOS
   const nivelesInvalidos = niveles.filter(
     (item) => !Number.isInteger(Number(item.nivel)) || Number(item.nivel) <= 0,
   );
@@ -247,9 +226,6 @@ export const validarOrganigrama = (niveles = []) => {
     });
   }
 
-  // ======================================================
-  // RESULTADO GENERAL
-  // ======================================================
   const errores = resultados.filter((item) => item.tipo === "error");
 
   return {

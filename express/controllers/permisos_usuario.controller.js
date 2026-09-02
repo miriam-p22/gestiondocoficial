@@ -22,9 +22,7 @@ const getActuales = async (usuario) => {
     },
   });
 
-  const privilegios = permisos
-    .map((item) => item.privilegio)
-    .filter(Boolean);
+  const privilegios = permisos.map((item) => item.privilegio).filter(Boolean);
 
   return {
     id_usuario: usuario.id,
@@ -33,9 +31,7 @@ const getActuales = async (usuario) => {
       nombre: usuario.rol?.nombre_rol || null,
     },
     privilegios,
-    titulos: privilegios.map(
-      (item) => item.titulo_privilegio
-    ),
+    titulos: privilegios.map((item) => item.titulo_privilegio),
   };
 };
 

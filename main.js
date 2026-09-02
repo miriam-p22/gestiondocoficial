@@ -12,9 +12,7 @@ process.env.PRISMA_FORCE_NAPI = "true";
 let mainWindow;
 let apiServer = null;
 
-// ======================================================
-// GUARDAR RESPALDO ZIP
-// ======================================================
+//GUARDAR RESPALDO ZIP
 ipcMain.handle("guardar-respaldo-zip", async (event, datos) => {
   try {
     const nombreArchivo = String(
@@ -147,10 +145,7 @@ async function createWindow() {
   });
 }
 
-// ------------------------------------------------------------------
-// INICIAR EL SERVIDOR DENTRO DE app.whenReady()
-// ------------------------------------------------------------------
-
+//INICIAR EL SERVIDOR DENTRO DE app.whenReady()
 app.whenReady().then(() => {
   if (!apiServer) {
     apiServer = require("./server");
@@ -165,7 +160,6 @@ app.whenReady().then(() => {
   });
 });
 
-// ------------------------------------------------------------------
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();

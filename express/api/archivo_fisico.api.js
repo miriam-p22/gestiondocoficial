@@ -1,29 +1,15 @@
 const express = require("express");
 const router = express.Router();
-
-const archivoFisicoController = require(
-  "../controllers/archivo_fisico.controller"
-);
-
-const {
-  autenticar,
-} = require(
-  "../middlewares/auth.middleware"
-);
+const archivoFisicoController = require("../controllers/archivo_fisico.controller");
+const { autenticar } = require("../middlewares/auth.middleware");
 
 const {
   requierePrivilegio,
   requiereCualquierPrivilegio,
-} = require(
-  "../middlewares/permisos.middleware"
-);
+} = require("../middlewares/permisos.middleware");
 
-const PRIVILEGIO_GESTIONAR =
-  "Gestionar Archivo Físico";
-
-const PRIVILEGIO_CONSULTAR_GLOBAL =
-  "Consultar Archivo Físico Global";
-
+const PRIVILEGIO_GESTIONAR = "Gestionar Archivo Físico";
+const PRIVILEGIO_CONSULTAR_GLOBAL = "Consultar Archivo Físico Global";
 const handleApiError = (res, error) => {
   console.error("[Error API Archivo Físico]:", {
     message: error.message,
@@ -32,12 +18,9 @@ const handleApiError = (res, error) => {
   });
 
   const errores400 = {
-    INVALID_ID:
-      "El identificador indicado no es válido.",
-    INVALID_STATE:
-      "El estado de archivo no es válido.",
-    TEXT_TOO_LONG:
-      "Uno de los textos supera la longitud permitida.",
+    INVALID_ID: "El identificador indicado no es válido.",
+    INVALID_STATE: "El estado de archivo no es válido.",
+    TEXT_TOO_LONG: "Uno de los textos supera la longitud permitida.",
     ARCHIVE_DATA_REQUIRED:
       "Para marcar el documento como resguardado debe seleccionar una clasificación y capturar la ubicación física.",
   };
@@ -50,8 +33,7 @@ const handleApiError = (res, error) => {
 
   if (error.message === "ACCESS_DENIED") {
     return res.status(403).json({
-      error:
-        "No tiene permisos para consultar este registro de archivo.",
+      error: "No tiene permisos para consultar este registro de archivo.",
     });
   }
 
@@ -78,55 +60,36 @@ const handleApiError = (res, error) => {
 
   if (error.message === "CLASSIFICATION_NOT_FOUND") {
     return res.status(404).json({
-      error:
-        "La clasificación seleccionada no existe.",
+      error: "La clasificación seleccionada no existe.",
     });
   }
 
-  if (
-    error.message === "NOT_FOUND" ||
-    error.code === "P2025"
-  ) {
+  if (error.message === "NOT_FOUND" || error.code === "P2025") {
     return res.status(404).json({
-      error:
-        "El documento solicitado no existe.",
+      error: "El documento solicitado no existe.",
     });
   }
 
-  if (
-    ["P1001", "P1002", "P1003"].includes(
-      error.code
-    )
-  ) {
+  if (["P1001", "P1002", "P1003"].includes(error.code)) {
     return res.status(503).json({
-      error:
-        "No fue posible conectarse con la base de datos.",
+      error: "No fue posible conectarse con la base de datos.",
     });
   }
 
   return res.status(500).json({
-    error:
-      error.message ||
-      "Ocurrió un error inesperado en Archivo Físico.",
+    error: error.message || "Ocurrió un error inesperado en Archivo Físico.",
   });
 };
 
-router.get(
-  "/permisos",
-  autenticar,
-  async (req, res) => {
-    try {
-      const permisos =
-        await archivoFisicoController.getPermisos(
-          req.usuario
-        );
+router.get("/permisos", autenticar, async (req, res) => {
+  try {
+    const permisos = await archivoFisicoController.getPermisos(req.usuario);
 
-      return res.status(200).json(permisos);
-    } catch (error) {
-      return handleApiError(res, error);
-    }
+    return res.status(200).json(permisos);
+  } catch (error) {
+    return handleApiError(res, error);
   }
-);
+});
 
 router.get(
   "/",
@@ -137,16 +100,13 @@ router.get(
   ]),
   async (req, res) => {
     try {
-      const lista =
-        await archivoFisicoController.getAll(
-          req.usuario
-        );
+      const lista = await archivoFisicoController.getAll(req.usuario);
 
       return res.status(200).json(lista);
     } catch (error) {
       return handleApiError(res, error);
     }
-  }
+  },
 );
 
 router.get(
@@ -158,39 +118,35 @@ router.get(
   ]),
   async (req, res) => {
     try {
-      const registro =
-        await archivoFisicoController.getByDestino(
-          req.params.idDestino,
-          req.usuario
-        );
+      const registro = await archivoFisicoController.getByDestino(
+        req.params.idDestino,
+        req.usuario,
+      );
 
       return res.status(200).json(registro);
     } catch (error) {
       return handleApiError(res, error);
     }
-  }
+  },
 );
 
 router.put(
   "/destino/:idDestino",
   autenticar,
-  requierePrivilegio(
-    PRIVILEGIO_GESTIONAR
-  ),
+  requierePrivilegio(PRIVILEGIO_GESTIONAR),
   async (req, res) => {
     try {
-      const registro =
-        await archivoFisicoController.guardarResguardo(
-          req.params.idDestino,
-          req.body,
-          req.usuario
-        );
+      const registro = await archivoFisicoController.guardarResguardo(
+        req.params.idDestino,
+        req.body,
+        req.usuario,
+      );
 
       return res.status(200).json(registro);
     } catch (error) {
       return handleApiError(res, error);
     }
-  }
+  },
 );
 
 module.exports = router;

@@ -48,10 +48,7 @@ const limpiarTexto = (valor) => {
     return undefined;
   }
 
-  if (
-    valor === null ||
-    String(valor).trim() === ""
-  ) {
+  if (valor === null || String(valor).trim() === "") {
     return null;
   }
 
@@ -67,10 +64,7 @@ const esIpv4Valida = (valor) => {
   }
 
   return partes.every((parte) => {
-    if (
-      parte === "" ||
-      !/^\d+$/.test(parte)
-    ) {
+    if (parte === "" || !/^\d+$/.test(parte)) {
       return false;
     }
 
@@ -84,21 +78,12 @@ const relacionesIp = {
   area: true,
 };
 
-// ======================================================
-// GET ALL
-// ======================================================
-
+//GET ALL
 const getAll = async (filtros = {}) => {
   const where = {};
 
-  if (
-    filtros.id_area !== undefined &&
-    filtros.id_area !== ""
-  ) {
-    where.id_area =
-      convertirId(
-        filtros.id_area
-      );
+  if (filtros.id_area !== undefined && filtros.id_area !== "") {
+    where.id_area = convertirId(filtros.id_area);
   }
 
   return prisma.ip.findMany({
@@ -117,20 +102,16 @@ const getAll = async (filtros = {}) => {
   });
 };
 
-// ======================================================
-// GET BY ID
-// ======================================================
-
+//GET BY ID
 const getById = async (id) => {
   const ipId = convertirId(id);
 
-  const registro =
-    await prisma.ip.findUnique({
-      where: {
-        id: ipId,
-      },
-      include: relacionesIp,
-    });
+  const registro = await prisma.ip.findUnique({
+    where: {
+      id: ipId,
+    },
+    include: relacionesIp,
+  });
 
   if (!registro) {
     throw new Error("NOT_FOUND");
@@ -139,273 +120,152 @@ const getById = async (id) => {
   return registro;
 };
 
-// ======================================================
-// VALIDAR ÁREA
-// ======================================================
+//VALIDAR ÁREA
+const validarArea = async (idArea) => {
+  const areaId = convertirId(idArea);
 
-const validarArea = async (
-  idArea
-) => {
-  const areaId =
-    convertirId(
-      idArea
-    );
-
-  const area =
-    await prisma.area.findUnique({
-      where: {
-        id: areaId,
-      },
-      select: {
-        id: true,
-      },
-    });
+  const area = await prisma.area.findUnique({
+    where: {
+      id: areaId,
+    },
+    select: {
+      id: true,
+    },
+  });
 
   if (!area) {
-    throw new Error(
-      "AREA_NOT_FOUND"
-    );
+    throw new Error("AREA_NOT_FOUND");
   }
 
   return areaId;
 };
 
-// ======================================================
-// VALIDAR IP DUPLICADA
-// ======================================================
+//VALIDAR IP DUPLICADA
+const validarIpDuplicada = async (ip, excluirId = null) => {
+  const existente = await prisma.ip.findFirst({
+    where: {
+      ip_areas: ip,
 
-const validarIpDuplicada =
-  async (
-    ip,
-    excluirId = null
-  ) => {
-    const existente =
-      await prisma.ip.findFirst({
-        where: {
-          ip_areas: ip,
+      ...(excluirId
+        ? {
+            NOT: {
+              id: excluirId,
+            },
+          }
+        : {}),
+    },
 
-          ...(excluirId
-            ? {
-                NOT: {
-                  id:
-                    excluirId,
-                },
-              }
-            : {}),
-        },
+    select: {
+      id: true,
+      id_area: true,
+    },
+  });
 
-        select: {
-          id: true,
-          id_area: true,
-        },
-      });
+  if (existente) {
+    throw new Error("DUPLICATE_IP");
+  }
+};
 
-    if (existente) {
-      throw new Error(
-        "DUPLICATE_IP"
-      );
-    }
-  };
-
-// ======================================================
-// CREATE
-// ======================================================
-
-const create = async (
-  data
-) => {
+//CREATE
+const create = async (data) => {
   if (!data?.id_area) {
-    throw new Error(
-      "INVALID_DATA"
-    );
+    throw new Error("INVALID_DATA");
   }
 
-  const areaId =
-    await validarArea(
-      data.id_area
-    );
+  const areaId = await validarArea(data.id_area);
+  const ipAreas = limpiarTexto(data.ip_areas);
 
-  const ipAreas =
-    limpiarTexto(
-      data.ip_areas
-    );
-
-  if (
-    !ipAreas ||
-    !esIpv4Valida(
-      ipAreas
-    )
-  ) {
-    throw new Error(
-      "INVALID_IP"
-    );
+  if (!ipAreas || !esIpv4Valida(ipAreas)) {
+    throw new Error("INVALID_IP");
   }
 
-  await validarIpDuplicada(
-    ipAreas
-  );
+  await validarIpDuplicada(ipAreas);
 
   return prisma.ip.create({
     data: {
-      id_area:
-        areaId,
-
-      ip_rh:
-        data.ip_rh !==
-        undefined
-          ? convertirBooleano(
-              data.ip_rh
-            )
-          : false,
-
-      ip_areas:
-        ipAreas,
-
-      grupo:
-        limpiarTexto(
-          data.grupo
-        ),
+      id_area: areaId,
+      ip_rh: data.ip_rh !== undefined ? convertirBooleano(data.ip_rh) : false,
+      ip_areas: ipAreas,
+      grupo: limpiarTexto(data.grupo),
     },
 
-    include:
-      relacionesIp,
+    include: relacionesIp,
   });
 };
 
-// ======================================================
-// UPDATE
-// ======================================================
+//UPDATE
+const update = async (id, data) => {
+  const ipId = convertirId(id);
 
-const update = async (
-  id,
-  data
-) => {
-  const ipId =
-    convertirId(id);
-
-  const actual =
-    await prisma.ip.findUnique({
-      where: {
-        id: ipId,
-      },
-    });
+  const actual = await prisma.ip.findUnique({
+    where: {
+      id: ipId,
+    },
+  });
 
   if (!actual) {
-    throw new Error(
-      "NOT_FOUND"
-    );
+    throw new Error("NOT_FOUND");
   }
 
   let areaId;
 
-  if (
-    data.id_area !==
-    undefined
-  ) {
-    areaId =
-      await validarArea(
-        data.id_area
-      );
+  if (data.id_area !== undefined) {
+    areaId = await validarArea(data.id_area);
   }
 
   let ipAreas;
 
-  if (
-    data.ip_areas !==
-    undefined
-  ) {
-    ipAreas =
-      limpiarTexto(
-        data.ip_areas
-      );
+  if (data.ip_areas !== undefined) {
+    ipAreas = limpiarTexto(data.ip_areas);
 
-    if (
-      !ipAreas ||
-      !esIpv4Valida(
-        ipAreas
-      )
-    ) {
-      throw new Error(
-        "INVALID_IP"
-      );
+    if (!ipAreas || !esIpv4Valida(ipAreas)) {
+      throw new Error("INVALID_IP");
     }
 
-    await validarIpDuplicada(
-      ipAreas,
-      ipId
-    );
+    await validarIpDuplicada(ipAreas, ipId);
   }
 
   try {
     return await prisma.ip.update({
       where: {
-        id:
-          ipId,
+        id: ipId,
       },
 
       data: {
-        id_area:
-          areaId,
+        id_area: areaId,
 
         ip_rh:
-          data.ip_rh !==
-          undefined
-            ? convertirBooleano(
-                data.ip_rh
-              )
-            : undefined,
+          data.ip_rh !== undefined ? convertirBooleano(data.ip_rh) : undefined,
 
-        ip_areas:
-          ipAreas,
+        ip_areas: ipAreas,
 
-        grupo:
-          limpiarTexto(
-            data.grupo
-          ),
+        grupo: limpiarTexto(data.grupo),
       },
 
-      include:
-        relacionesIp,
+      include: relacionesIp,
     });
   } catch (error) {
-    if (
-      error.code ===
-      "P2025"
-    ) {
-      throw new Error(
-        "NOT_FOUND"
-      );
+    if (error.code === "P2025") {
+      throw new Error("NOT_FOUND");
     }
 
     throw error;
   }
 };
 
-// ======================================================
-// DELETE
-// ======================================================
-
-const remove = async (
-  id
-) => {
-  const ipId =
-    convertirId(id);
+//DELETE
+const remove = async (id) => {
+  const ipId = convertirId(id);
 
   try {
     return await prisma.ip.delete({
       where: {
-        id:
-          ipId,
+        id: ipId,
       },
     });
   } catch (error) {
-    if (
-      error.code ===
-      "P2025"
-    ) {
-      throw new Error(
-        "NOT_FOUND"
-      );
+    if (error.code === "P2025") {
+      throw new Error("NOT_FOUND");
     }
 
     throw error;

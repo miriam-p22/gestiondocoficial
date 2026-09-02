@@ -1,13 +1,9 @@
-// ======================================================
-// Servidor principal de la API
-// ======================================================
-
-// 1. Dependencias
+//Dependencias
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
 
-// 2. Importación de las rutas de la API
+//Importación de las rutas de la API
 const pruebasApi = require("./express/api/prueba.api");
 const areasApi = require("./express/api/areas.api");
 const usuariosApi = require("./express/api/usuarios.api");
@@ -29,44 +25,23 @@ const archivoFisicoApi = require("./express/api/archivo_fisico.api");
 const permisosUsuarioApi = require("./express/api/permisos_usuario.api");
 const notificacionesApi = require("./express/api/notificaciones.api");
 
-// 3. Servicio de alertas automáticas
+//Servicio de alertas automáticas
 const {
   revisarAlertasDocumentos,
 } = require("./express/services/alertas_documentos.service");
 
-// 4. Inicialización de Express
+//Inicialización de Express
 const app = express();
 const port = process.env.PORT || 3001;
 
-// ======================================================
-// CONFIGURACIÓN DE ALERTAS (REVISION CADA 30 MINUTOS)
-// ======================================================
+//CONFIGURACIÓN DE ALERTAS (REVISION CADA 30 MINUTOS)
 const INTERVALO_ALERTAS_MS = 30 * 60 * 1000;
-
 const RETRASO_PRIMERA_REVISION_MS = 10 * 1000;
 
 let intervaloAlertas = null;
 let timeoutPrimeraRevision = null;
 
-// ======================================================
-// FUNCIÓN PARA OBTENER CORRECTAMENTE EL ROUTER
-// ======================================================
-
-/*
-  Esta función evita el error:
-
-  Router.use() requires a middleware function but got an Object
-
-  Reconoce las siguientes formas de exportación:
-
-  module.exports = router;
-
-  module.exports = { router };
-
-  exports.router = router;
-
-  export default router;
-*/
+//FUNCIÓN PARA OBTENER EL ROUTER
 const obtenerRouter = (api, nombreApi) => {
   if (typeof api === "function") {
     return api;
@@ -85,9 +60,7 @@ const obtenerRouter = (api, nombreApi) => {
   );
 };
 
-// ======================================================
-// EJECUTAR ALERTAS SIN DETENER EL SERVIDOR
-// ======================================================
+//EJECUTAR ALERTAS SIN DETENER EL SERVIDOR
 const ejecutarRevisionAlertas = async () => {
   try {
     await revisarAlertasDocumentos();
@@ -99,7 +72,7 @@ const ejecutarRevisionAlertas = async () => {
   }
 };
 
-// 5. Middlewares generales
+//Middlewares generales
 app.use(
   cors({
     origin: true,
@@ -109,7 +82,6 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use((req, res, next) => {
@@ -120,7 +92,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// 6. Ruta inicial para comprobar que el servidor funciona
 app.get("/", (req, res) => {
   res.status(200).json({
     ok: true,
@@ -130,64 +101,45 @@ app.get("/", (req, res) => {
 
 // 7. Rutas de la API
 app.use("/api/pruebas", obtenerRouter(pruebasApi, "pruebas"));
-
 app.use("/api/areas", obtenerRouter(areasApi, "areas"));
-
 app.use("/api/usuarios", obtenerRouter(usuariosApi, "usuarios"));
-
 app.use("/api/dispersion", obtenerRouter(dispersionApi, "dispersion"));
-
 app.use(
   "/api/clasificaciones",
   obtenerRouter(clasificacionesApi, "clasificaciones"),
 );
-
 app.use("/api/claverh", obtenerRouter(claverhApi, "claverh"));
-
 app.use(
   "/api/configuraciones",
   obtenerRouter(configuracionesApi, "configuraciones"),
 );
-
 app.use("/api/documentos", obtenerRouter(documentosApi, "documentos"));
-
 app.use("/api/estados", obtenerRouter(estadosApi, "estados"));
-
 app.use("/api/ips", obtenerRouter(ipsApi, "ips"));
-
 app.use("/api/niveles", obtenerRouter(nivelesApi, "niveles"));
-
 app.use("/api/organigramas", obtenerRouter(organigramasApi, "organigramas"));
-
 app.use("/api/privilegios", obtenerRouter(privilegiosApi, "privilegios"));
-
 app.use("/api/roles", obtenerRouter(rolesApi, "roles"));
-
 app.use("/api/rolespermiso", obtenerRouter(rolesPermisoApi, "rolespermiso"));
-
 app.use(
   "/api/documentos-eventos",
   obtenerRouter(documentosEventosApi, "documentos-eventos"),
 );
-
 app.use("/api/backups", obtenerRouter(backupsApi, "backups"));
-
 app.use(
   "/api/archivo-fisico",
   obtenerRouter(archivoFisicoApi, "archivofisico"),
 );
-
 app.use(
   "/api/permisos-usuario",
   obtenerRouter(permisosUsuarioApi, "permisos-usuario"),
 );
-
 app.use(
   "/api/notificaciones",
   obtenerRouter(notificacionesApi, "notificaciones"),
 );
 
-// 8. Ruta no encontrada
+//Ruta no encontrada
 app.use((req, res) => {
   res.status(404).json({
     ok: false,
@@ -195,32 +147,22 @@ app.use((req, res) => {
   });
 });
 
-// 9. Control general de errores
+// Control general de errores
 app.use((error, req, res, next) => {
-  console.error("=================================");
-
   console.error("ERROR EN LA API");
-
   console.error("Ruta:", req.method, req.originalUrl);
-
   console.error("Mensaje:", error.message);
-
   console.error("Código:", error.code || "N/A");
-
   console.error(error);
-
-  console.error("=================================");
 
   res.status(error.status || 500).json({
     ok: false,
-
     mensaje: error.message || "Ocurrió un error interno en el servidor.",
-
     codigo: error.code || null,
   });
 });
 
-// 10. Iniciar el servidor
+// Iniciar el servidor
 const servidor = app.listen(port, () => {
   console.log(`🚀 Express API interna corriendo en http://localhost:${port}`);
 
@@ -228,24 +170,14 @@ const servidor = app.listen(port, () => {
     "💡 Prisma se conectará automáticamente al recibir la primera petición.",
   );
 
-  // ================================================
-  // PRIMERA REVISIÓN
-  // ================================================
-
   timeoutPrimeraRevision = setTimeout(
     ejecutarRevisionAlertas,
     RETRASO_PRIMERA_REVISION_MS,
   );
 
-  // ================================================
-  // REVISIONES PERIÓDICAS
-  // ================================================
-
   intervaloAlertas = setInterval(ejecutarRevisionAlertas, INTERVALO_ALERTAS_MS);
 
-  console.log(
-    "🔔 Alertas automáticas de documentos activadas cada 30 minutos.",
-  );
+  console.log("Alertas automáticas de documentos activadas cada 30 minutos.");
 });
 
 // 11. Manejo de errores al iniciar el servidor
@@ -262,10 +194,6 @@ servidor.on("error", (error) => {
 
   console.error("No fue posible iniciar el servidor:", error);
 });
-
-// ======================================================
-// LIMPIAR TAREAS PROGRAMADAS
-// ======================================================
 
 const detenerAlertas = () => {
   if (timeoutPrimeraRevision) {
@@ -293,5 +221,4 @@ process.on("SIGINT", () => {
   });
 });
 
-// 12. Exportación para Electron o pruebas
 module.exports = app;

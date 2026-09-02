@@ -16,9 +16,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ======================================================
-// API SEGURA EXPUESTA A REACT
-// ====================================================
+//API SEGURA EXPUESTA A REACT
 contextBridge.exposeInMainWorld("electronAPI", {
   send: (channel, data) => {
     const validSendChannels = ["toMain"];

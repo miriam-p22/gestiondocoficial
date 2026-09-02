@@ -44,17 +44,12 @@ const relacionesEstado = {
   },
 };
 
-// Obtener estados con filtro opcional por documento
+// Obtener estados con filtrado por documento
 const getAll = async (filtros = {}) => {
   const where = {};
 
-  if (
-    filtros.id_documento !== undefined &&
-    filtros.id_documento !== ""
-  ) {
-    where.id_documento = convertirId(
-      filtros.id_documento
-    );
+  if (filtros.id_documento !== undefined && filtros.id_documento !== "") {
+    where.id_documento = convertirId(filtros.id_documento);
   }
 
   return prisma.estado.findMany({
@@ -91,9 +86,7 @@ const create = async (data) => {
   }
 
   const documentoId = convertirId(data.id_documento);
-  const nombreEstado = normalizarEstado(
-    data.nombre_estado
-  );
+  const nombreEstado = normalizarEstado(data.nombre_estado);
 
   const documento = await prisma.documento.findUnique({
     where: {
@@ -117,13 +110,10 @@ const create = async (data) => {
 // Actualizar estado
 const update = async (id, data) => {
   const estadoId = convertirId(id);
-
   const datosActualizacion = {};
 
   if (data.nombre_estado !== undefined) {
-    datosActualizacion.nombre_estado = normalizarEstado(
-      data.nombre_estado
-    );
+    datosActualizacion.nombre_estado = normalizarEstado(data.nombre_estado);
   }
 
   if (data.id_documento !== undefined) {

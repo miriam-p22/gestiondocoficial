@@ -17,7 +17,8 @@ const handleApiError = (res, error, customMessage) => {
 
   if (["P1001", "P1002", "P1003"].includes(error.code)) {
     return res.status(503).json({
-      error: "No se pudo conectar con la base de datos. Verifique que MySQL esté encendido.",
+      error:
+        "No se pudo conectar con la base de datos. Verifique que MySQL esté encendido.",
     });
   }
 
@@ -83,10 +84,10 @@ router.get(
       return handleApiError(
         res,
         error,
-        "No fue posible comprobar el estado del sistema."
+        "No fue posible comprobar el estado del sistema.",
       );
     }
-  }
+  },
 );
 
 router.get(
@@ -95,16 +96,18 @@ router.get(
   requierePrivilegio(PRIVILEGIO_NOTIFICACIONES),
   async (req, res) => {
     try {
-      const configuracion = await configuracionesController.getActual(req.usuario);
+      const configuracion = await configuracionesController.getActual(
+        req.usuario,
+      );
       return res.status(200).json(configuracion);
     } catch (error) {
       return handleApiError(
         res,
         error,
-        "No fue posible consultar la configuración SMTP."
+        "No fue posible consultar la configuración SMTP.",
       );
     }
-  }
+  },
 );
 
 router.put(
@@ -115,17 +118,17 @@ router.put(
     try {
       const configuracion = await configuracionesController.guardarActual(
         req.usuario,
-        req.body
+        req.body,
       );
       return res.status(200).json(configuracion);
     } catch (error) {
       return handleApiError(
         res,
         error,
-        "No fue posible guardar la configuración SMTP."
+        "No fue posible guardar la configuración SMTP.",
       );
     }
-  }
+  },
 );
 
 router.post(
@@ -135,17 +138,17 @@ router.post(
   async (req, res) => {
     try {
       const resultado = await configuracionesController.probarServidorSmtp(
-        req.usuario
+        req.usuario,
       );
       return res.status(200).json(resultado);
     } catch (error) {
       return handleApiError(
         res,
         error,
-        "No fue posible conectar con el servidor SMTP."
+        "No fue posible conectar con el servidor SMTP.",
       );
     }
-  }
+  },
 );
 
 module.exports = router;

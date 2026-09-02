@@ -15,25 +15,7 @@ const prisma = require("../db/client");
 
 const PRIVILEGIO_GESTIONAR_DISPERSION = "Gestionar Dispersión";
 
-// ======================================================
 // SEGURIDAD Y ALCANCE DE CONSULTA
-// ======================================================
-//
-// La API de Dispersión es compartida por:
-//
-// - Oficialía de Partes:
-//   administra la dispersión completa.
-//
-// - Documentos:
-//   los usuarios de cada área consultan y actualizan
-//   únicamente los documentos que les fueron turnados.
-//
-// - Presidencia / Administrador:
-//   conservan consulta global, pero NO reciben por ello
-//   facultades de gestión de Oficialía.
-//
-// ======================================================
-
 const tieneGestionDispersion = async (usuario) => {
   if (!usuario || !usuario.id_rol) {
     return false;
@@ -58,7 +40,6 @@ const tieneGestionDispersion = async (usuario) => {
 
 const tieneConsultaGlobal = async (usuario) => {
   const nombreRol = String(usuario?.rol?.nombre_rol || "").trim();
-
   const nombreArea = String(usuario?.area?.nombre_area || "").trim();
 
   if (nombreRol === "Administrador" || nombreArea === "Presidencia Municipal") {
@@ -84,10 +65,6 @@ const aplicarAlcanceConsulta = async (req, res, next) => {
       });
     }
 
-    /*
-        No confiamos en id_area recibido
-        desde query params para usuarios normales.
-      */
     req.query.id_area = String(idArea);
 
     return next();
@@ -109,7 +86,6 @@ const validarAccesoDispersion = async (req, res, next) => {
     }
 
     const idArea = Number(req.usuario?.id_area);
-
     const idDispersion = Number(req.params.id);
 
     if (
@@ -127,7 +103,6 @@ const validarAccesoDispersion = async (req, res, next) => {
       where: {
         id_dispersion_id_area: {
           id_dispersion: idDispersion,
-
           id_area: idArea,
         },
       },
@@ -153,10 +128,7 @@ const validarAccesoDispersion = async (req, res, next) => {
   }
 };
 
-// ======================================================
 // MULTER
-// ======================================================
-
 const carpetaDispersion = path.join(process.cwd(), "uploads", "dispersion");
 
 if (!fs.existsSync(carpetaDispersion)) {
@@ -172,13 +144,11 @@ const storage = multer.diskStorage({
 
   filename: (req, file, callback) => {
     const extension = path.extname(file.originalname);
-
     const nombreBase = path
       .basename(file.originalname, extension)
       .replace(/[^a-zA-Z0-9_-]/g, "_");
 
     const fecha = new Date().toISOString().replace(/[:.]/g, "-");
-
     callback(null, `${fecha}_${nombreBase}${extension}`);
   },
 });
@@ -207,16 +177,11 @@ const upload = multer({
   },
 });
 
-// ======================================================
 // ERRORES
-// ======================================================
-
 const handleApiError = (res, error) => {
   console.error("[Error API Dispersión]:", {
     message: error.message,
-
     code: error.code,
-
     meta: error.meta,
   });
 
@@ -228,44 +193,28 @@ const handleApiError = (res, error) => {
 
   const errores400 = {
     INVALID_ID: "El identificador no es válido.",
-
     INVALID_ORIGIN: "El origen debe ser web o app.",
-
     INVALID_SEND_STATE:
       "El estado de transferencia debe ser pendiente, enviado o error.",
-
     INVALID_DOCUMENT_STATE:
       "El estado del oficio debe ser turnado, recibido, en proceso, atendido o devuelto.",
-
     INVALID_RETURN_REASON: "El motivo de devolución no es válido.",
-
     RETURN_COMMENT_REQUIRED:
       "Debe escribir un comentario cuando seleccione el motivo Otro.",
-
     RESPONSE_REQUIRED:
       "Debe escribir una respuesta antes de marcar el oficio como Atendido.",
-
     INVALID_DATA: "Los datos proporcionados no son válidos.",
-
     INVALID_DATE: "La fecha proporcionada no es válida.",
-
     DEADLINE_REQUIRED: "Debe indicar la fecha límite de atención.",
-
     TEXT_TOO_LONG: "Uno de los campos supera la longitud permitida.",
-
     DESTINATIONS_REQUIRED: "Debe seleccionar al menos un área destino.",
-
     SEND_ERROR_REQUIRED: "Debe indicar el motivo del error de transferencia.",
-
     INVALID_FILE_TYPE:
       "El tipo de archivo no está permitido. Use PDF, JPG, PNG, DOC o DOCX.",
-
     STATE_NOT_EDITABLE:
       "El estado Turnado es asignado automáticamente por Oficialía.",
-
     RECEIVE_REQUIRED:
       "Primero debe confirmar que el documento fue recibido por el área.",
-
     FINAL_STATE:
       "El documento ya se encuentra en un estado final y no puede modificarse.",
   };
@@ -324,17 +273,12 @@ const handleApiError = (res, error) => {
   });
 };
 
-// ======================================================
 // SUBIR ARCHIVO REAL
-// ======================================================
-
 router.post(
   "/subir",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_DISPERSION),
-
   upload.single("archivo"),
 
   async (req, res) => {
@@ -379,19 +323,12 @@ router.post(
       try {
         const nueva = await dispersionController.create({
           nombre_archivo: req.file.originalname,
-
           archivo: rutaRelativa,
-
           tipo_archivo: req.file.mimetype,
-
           tamano_archivo: req.file.size,
-
           extension,
-
           origen: "web",
-
           fecha_limite: req.body.fecha_limite || null,
-
           destinos,
         });
 
@@ -409,15 +346,11 @@ router.post(
   },
 );
 
-// ======================================================
 // GET ALL
-// ======================================================
-
 router.get(
   "/",
 
   autenticar,
-
   aplicarAlcanceConsulta,
 
   async (req, res) => {
@@ -431,15 +364,11 @@ router.get(
   },
 );
 
-// ======================================================
 // GET BY ID
-// ======================================================
-
 router.get(
   "/:id",
 
   autenticar,
-
   validarAccesoDispersion,
 
   async (req, res) => {
@@ -453,15 +382,11 @@ router.get(
   },
 );
 
-// ======================================================
 // CREAR JSON
-// ======================================================
-
 router.post(
   "/",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_DISPERSION),
 
   async (req, res) => {
@@ -475,15 +400,11 @@ router.post(
   },
 );
 
-// ======================================================
 // UPDATE
-// ======================================================
-
 router.put(
   "/:id",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_DISPERSION),
 
   async (req, res) => {
@@ -500,15 +421,11 @@ router.put(
   },
 );
 
-// ======================================================
 // DESTINOS
-// ======================================================
-
 router.get(
   "/:id/destinos",
 
   autenticar,
-
   validarAccesoDispersion,
 
   async (req, res) => {
@@ -526,7 +443,6 @@ router.post(
   "/:id/destinos",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_DISPERSION),
 
   async (req, res) => {
@@ -550,7 +466,6 @@ router.delete(
   "/:id/destinos/:idArea",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_DISPERSION),
 
   async (req, res) => {
@@ -569,15 +484,11 @@ router.delete(
   },
 );
 
-// ======================================================
 // ESTADO DE TRANSFERENCIA
-// ======================================================
-
 router.put(
   "/:id/destinos/:idArea/estado",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_DISPERSION),
 
   async (req, res) => {
@@ -595,10 +506,7 @@ router.put(
   },
 );
 
-// ======================================================
 // ESTADO ADMINISTRATIVO
-// ======================================================
-
 router.put(
   "/:id/destinos/:idArea/documento",
 
@@ -620,15 +528,11 @@ router.put(
   },
 );
 
-// ======================================================
 // FECHA LÍMITE
-// ======================================================
-
 router.put(
   "/:id/destinos/:idArea/fecha-limite",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_DISPERSION),
 
   async (req, res) => {
@@ -646,15 +550,11 @@ router.put(
   },
 );
 
-// ======================================================
 // REINTENTAR
-// ======================================================
-
 router.put(
   "/:id/destinos/:idArea/reintentar",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_DISPERSION),
 
   async (req, res) => {
@@ -671,15 +571,11 @@ router.put(
   },
 );
 
-// ======================================================
 // DELETE DISPERSIÓN
-// ======================================================
-
 router.delete(
   "/:id",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_DISPERSION),
 
   async (req, res) => {

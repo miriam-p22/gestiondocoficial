@@ -1,6 +1,3 @@
-// ======================================================
-// COMPARAR DOS VERSIONES DE ORGANIGRAMA
-// ======================================================
 const obtenerNombreArea = (nivel) => {
   return nivel?.area?.nombre_area || "Área sin nombre";
 };
@@ -22,9 +19,7 @@ const obtenerSuperior = (nivel, mapaPorId) => {
   return superior ? obtenerNombreArea(superior) : null;
 };
 
-// ======================================================
-// FUNCIÓN PRINCIPAL
-// ======================================================
+//FUNCIÓN PRINCIPAL
 export const compararVersionesOrganigrama = (
   nivelesAnterior = [],
   nivelesActual = [],
@@ -34,34 +29,23 @@ export const compararVersionesOrganigrama = (
   const mapaAnteriorPorArea = new Map();
   const mapaActualPorArea = new Map();
 
-  // ======================================================
-  // PREPARAR VERSIÓN ANTERIOR
-  // ======================================================
   nivelesAnterior.forEach((nivel) => {
     mapaAnteriorPorId.set(Number(nivel.id), nivel);
     mapaAnteriorPorArea.set(obtenerIdArea(nivel), nivel);
   });
 
-  // ======================================================
-  // PREPARAR VERSIÓN ACTUAL
-  // ======================================================
   nivelesActual.forEach((nivel) => {
     mapaActualPorId.set(Number(nivel.id), nivel);
     mapaActualPorArea.set(obtenerIdArea(nivel), nivel);
   });
 
-  // ======================================================
-  // RESULTADOS
-  // ======================================================
   const agregadas = [];
   const eliminadas = [];
   const movidas = [];
   const nivelModificado = [];
   const sinCambios = [];
 
-  // ======================================================
-  // REVISAR VERSIÓN ACTUAL
-  // ======================================================
+  //REVISAR VERSIÓN ACTUAL
   mapaActualPorArea.forEach((nivelActual, idArea) => {
     const nivelAnterior = mapaAnteriorPorArea.get(idArea);
 
@@ -83,9 +67,7 @@ export const compararVersionesOrganigrama = (
     const cambioNivel =
       Number(nivelAnterior.nivel) !== Number(nivelActual.nivel);
 
-    // ================================================
-    // CAMBIÓ DE SUPERIOR
-    // ================================================
+    //CAMBIÓ DE SUPERIOR
     if (cambioSuperior) {
       movidas.push({
         id_area: idArea,
@@ -95,9 +77,7 @@ export const compararVersionesOrganigrama = (
       });
     }
 
-    // ================================================
-    // CAMBIÓ DE NIVEL
-    // ================================================
+    //CAMBIÓ DE NIVEL
     if (cambioNivel) {
       nivelModificado.push({
         id_area: idArea,
@@ -107,9 +87,7 @@ export const compararVersionesOrganigrama = (
       });
     }
 
-    // ================================================
-    // SIN CAMBIOS
-    // ================================================
+    //SIN CAMBIOS
     if (!cambioSuperior && !cambioNivel) {
       sinCambios.push({
         id_area: idArea,
@@ -118,9 +96,7 @@ export const compararVersionesOrganigrama = (
     }
   });
 
-  // ======================================================
-  // ÁREAS ELIMINADAS
-  // ======================================================
+  //ÁREAS ELIMINADAS
   mapaAnteriorPorArea.forEach((nivelAnterior, idArea) => {
     if (!mapaActualPorArea.has(idArea)) {
       eliminadas.push({
@@ -132,9 +108,6 @@ export const compararVersionesOrganigrama = (
     }
   });
 
-  // ======================================================
-  // RESUMEN DE CAMBIOS ENTRE VERSIONES SELECCIONADAS
-  // ======================================================
   const totalCambios =
     agregadas.length +
     eliminadas.length +

@@ -1,9 +1,4 @@
-const ESTADOS_PERMITIDOS = [
-  "pendiente",
-  "recibido",
-  "devuelto",
-  "atendido",
-];
+const ESTADOS_PERMITIDOS = ["pendiente", "recibido", "devuelto", "atendido"];
 
 const normalizarEstado = (valor) => {
   const estado = String(valor ?? "")

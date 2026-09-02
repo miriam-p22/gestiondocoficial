@@ -66,9 +66,7 @@ const getById = async (id) => {
 
 // Crear clasificación
 const create = async (data) => {
-  const areaAdministrativa = limpiarTexto(
-    data?.area_administrativa
-  );
+  const areaAdministrativa = limpiarTexto(data?.area_administrativa);
   const codigoAsignado = limpiarTexto(data?.codigo_asignado);
   const ubicacion = limpiarTexto(data?.ubicacion);
   const funcion = limpiarTexto(data?.funcion);
@@ -77,12 +75,11 @@ const create = async (data) => {
     throw new Error("INVALID_DATA");
   }
 
-  const clasificacionExistente =
-    await prisma.clasificacion.findFirst({
-      where: {
-        codigo_asignado: codigoAsignado,
-      },
-    });
+  const clasificacionExistente = await prisma.clasificacion.findFirst({
+    where: {
+      codigo_asignado: codigoAsignado,
+    },
+  });
 
   if (clasificacionExistente) {
     throw new Error("DUPLICATE");
@@ -119,15 +116,14 @@ const update = async (id, data) => {
   if (data.codigo_asignado !== undefined) {
     const codigoAsignado = limpiarTexto(data.codigo_asignado);
 
-    const clasificacionExistente =
-      await prisma.clasificacion.findFirst({
-        where: {
-          codigo_asignado: codigoAsignado,
-          NOT: {
-            id: clasificacionId,
-          },
+    const clasificacionExistente = await prisma.clasificacion.findFirst({
+      where: {
+        codigo_asignado: codigoAsignado,
+        NOT: {
+          id: clasificacionId,
         },
-      });
+      },
+    });
 
     if (clasificacionExistente) {
       throw new Error("DUPLICATE");
@@ -140,12 +136,8 @@ const update = async (id, data) => {
         id: clasificacionId,
       },
       data: {
-        area_administrativa: limpiarTexto(
-          data.area_administrativa
-        ),
-        codigo_asignado: limpiarTexto(
-          data.codigo_asignado
-        ),
+        area_administrativa: limpiarTexto(data.area_administrativa),
+        codigo_asignado: limpiarTexto(data.codigo_asignado),
         ubicacion: limpiarTexto(data.ubicacion),
         funcion: limpiarTexto(data.funcion),
       },

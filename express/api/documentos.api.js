@@ -1,9 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const documentosController = require(
-  "../controllers/documentos.controller"
-);
+const documentosController = require("../controllers/documentos.controller");
 
 const handleApiError = (res, error, customMessage) => {
   console.error("[Error API Documentos]:", error);
@@ -34,10 +32,7 @@ const handleApiError = (res, error, customMessage) => {
     });
   }
 
-  if (
-    error.message === "NOT_FOUND" ||
-    error.code === "P2025"
-  ) {
+  if (error.message === "NOT_FOUND" || error.code === "P2025") {
     return res.status(404).json({
       error: "El documento solicitado no existe.",
     });
@@ -45,15 +40,13 @@ const handleApiError = (res, error, customMessage) => {
 
   if (error.code === "P2003") {
     return res.status(400).json({
-      error:
-        "El área, la clasificación o el documento relacionado no existe.",
+      error: "El área, la clasificación o el documento relacionado no existe.",
     });
   }
 
   return res.status(500).json({
     error:
-      customMessage ||
-      "Ocurrió un error inesperado al procesar el documento.",
+      customMessage || "Ocurrió un error inesperado al procesar el documento.",
   });
 };
 
@@ -66,65 +59,47 @@ router.get("/", async (req, res) => {
 
     return res.status(200).json(documentos);
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al consultar los documentos."
-    );
+    return handleApiError(res, error, "Error al consultar los documentos.");
   }
 });
 
 router.get("/:id", async (req, res) => {
   try {
-    const documento = await documentosController.getById(
-      req.params.id
-    );
+    const documento = await documentosController.getById(req.params.id);
 
     return res.status(200).json(documento);
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al consultar el documento."
-    );
+    return handleApiError(res, error, "Error al consultar el documento.");
   }
 });
 
 router.post("/", async (req, res) => {
   try {
-    const documento = await documentosController.create(
-      req.body
-    );
+    const documento = await documentosController.create(req.body);
 
     return res.status(201).json(documento);
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al crear el documento."
-    );
+    return handleApiError(res, error, "Error al crear el documento.");
   }
 });
 
 router.post("/:id/estado", async (req, res) => {
   try {
-    const documento =
-      await documentosController.cambiarEstado(
-        req.params.id,
-        req.body.nombre_estado,
-        {
-          fecha_respuesta: req.body.fecha_respuesta,
-          respuesta_recibida:
-            req.body.respuesta_recibida,
-        }
-      );
+    const documento = await documentosController.cambiarEstado(
+      req.params.id,
+      req.body.nombre_estado,
+      {
+        fecha_respuesta: req.body.fecha_respuesta,
+        respuesta_recibida: req.body.respuesta_recibida,
+      },
+    );
 
     return res.status(201).json(documento);
   } catch (error) {
     return handleApiError(
       res,
       error,
-      "Error al cambiar el estado del documento."
+      "Error al cambiar el estado del documento.",
     );
   }
 });
@@ -133,16 +108,12 @@ router.put("/:id", async (req, res) => {
   try {
     const documento = await documentosController.update(
       req.params.id,
-      req.body
+      req.body,
     );
 
     return res.status(200).json(documento);
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al actualizar el documento."
-    );
+    return handleApiError(res, error, "Error al actualizar el documento.");
   }
 });
 
@@ -154,11 +125,7 @@ router.delete("/:id", async (req, res) => {
       message: "Documento eliminado correctamente.",
     });
   } catch (error) {
-    return handleApiError(
-      res,
-      error,
-      "Error al eliminar el documento."
-    );
+    return handleApiError(res, error, "Error al eliminar el documento.");
   }
 });
 

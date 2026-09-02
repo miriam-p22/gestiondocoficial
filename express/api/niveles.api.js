@@ -3,16 +3,11 @@ const router = express.Router();
 
 const nivelesController = require("../controllers/niveles.controller");
 
-// ======================================================
-// MANEJO DE ERRORES
-// ======================================================
-
+//MANEJO DE ERRORES
 const handleApiError = (res, error) => {
   console.error("[Error API Niveles]:", {
     message: error.message,
-
     code: error.code,
-
     meta: error.meta,
   });
 
@@ -134,10 +129,7 @@ const handleApiError = (res, error) => {
   });
 };
 
-// ======================================================
-// GET
-// ======================================================
-
+//GET
 router.get("/", async (req, res) => {
   try {
     const niveles = await nivelesController.getAll(req.query);
@@ -148,10 +140,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ======================================================
-// GET BY ID
-// ======================================================
-
+//GET BY ID
 router.get("/:id", async (req, res) => {
   try {
     const nivel = await nivelesController.getById(req.params.id);
@@ -162,10 +151,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ======================================================
-// POST
-// ======================================================
-
+//POST
 router.post("/", async (req, res) => {
   try {
     const nuevo = await nivelesController.create(req.body);
@@ -176,10 +162,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// ======================================================
-// PUT
-// ======================================================
-
+//PUT
 router.put("/:id", async (req, res) => {
   try {
     const actualizado = await nivelesController.update(req.params.id, req.body);
@@ -190,10 +173,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// ======================================================
-// DELETE
-// ======================================================
-
+//DELETE
 router.delete("/:id", async (req, res) => {
   try {
     await nivelesController.remove(req.params.id);

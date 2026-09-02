@@ -1,15 +1,10 @@
 const prisma = require("../db/client");
 
-// ======================================================
-// CONFIGURACIÓN
-// ======================================================
 const NOMBRE_AREA_PRESIDENCIA = "Presidencia Municipal";
 const DIAS_PROXIMO_A_VENCER = 2;
 const ESTADOS_FINALES = ["atendido", "devuelto"];
 
-// ======================================================
-// NORMALIZAR FECHA AL FINAL DEL DÍA
-// ======================================================
+//NORMALIZAR FECHA AL FINAL DEL DÍA
 const obtenerFinDelDia = (valor) => {
   const fecha = new Date(valor);
 
@@ -21,9 +16,7 @@ const obtenerFinDelDia = (valor) => {
   return fecha;
 };
 
-// ======================================================
-// CALCULAR DÍAS RESTANTES
-// ======================================================
+//CALCULAR DÍAS RESTANTES
 const calcularDiasRestantes = (fechaLimite, ahora = new Date()) => {
   const limite = obtenerFinDelDia(fechaLimite);
 
@@ -35,9 +28,7 @@ const calcularDiasRestantes = (fechaLimite, ahora = new Date()) => {
   return Math.ceil(diferencia / (1000 * 60 * 60 * 24));
 };
 
-// ======================================================
-// CREAR NOTIFICACIÓN SIN DUPLICAR
-// ======================================================
+//CREAR NOTIFICACIÓN SIN DUPLICAR
 const crearNotificacionSiNoExiste = async (idUsuario, datos) => {
   const usuarioId = Number(idUsuario);
 
@@ -92,10 +83,7 @@ const crearNotificacionSiNoExiste = async (idUsuario, datos) => {
   return true;
 };
 
-// ======================================================
-// CREAR PARA USUARIOS ACTIVOS DE UN ÁREA
-// ======================================================
-
+//CREAR PARA USUARIOS ACTIVOS DE UN ÁREA
 const crearParaAreaSinDuplicar = async (idArea, datos) => {
   const areaId = Number(idArea);
 
@@ -126,9 +114,7 @@ const crearParaAreaSinDuplicar = async (idArea, datos) => {
   return creadas;
 };
 
-// ======================================================
-// CREAR PARA PRESIDENCIA
-// ======================================================
+//CREAR PARA PRESIDENCIA
 const crearParaPresidenciaSinDuplicar = async (datos) => {
   const area = await prisma.area.findUnique({
     where: {
@@ -151,10 +137,7 @@ const crearParaPresidenciaSinDuplicar = async (datos) => {
   return crearParaAreaSinDuplicar(area.id, datos);
 };
 
-// ======================================================
-// FORMATEAR FECHA
-// ======================================================
-
+//FORMATEAR FECHA
 const formatearFecha = (valor) => {
   const fecha = new Date(valor);
 
@@ -169,10 +152,7 @@ const formatearFecha = (valor) => {
   });
 };
 
-// ======================================================
-// REVISAR ALERTAS
-// ======================================================
-
+//REVISAR ALERTAS
 const revisarAlertasDocumentos = async () => {
   const ahora = new Date();
 
@@ -223,10 +203,7 @@ const revisarAlertasDocumentos = async () => {
     const fechaTexto = formatearFecha(destino.fecha_limite);
     const referenciaId = destino.id_dispersion;
 
-    // ==================================================
-    // VENCIDO
-    // ==================================================
-
+    //VENCIDO
     if (ahora.getTime() > limite.getTime()) {
       const mensajeArea = `El documento "${nombreArchivo}" venció el ${fechaTexto} y continúa pendiente de atención.`;
 
@@ -252,9 +229,7 @@ const revisarAlertasDocumentos = async () => {
       continue;
     }
 
-    // ==================================================
-    // PRÓXIMO A VENCER
-    // ==================================================
+    //PRÓXIMO A VENCER
     const diasRestantes = calcularDiasRestantes(destino.fecha_limite, ahora);
 
     if (

@@ -1,9 +1,6 @@
 const prisma = require("../db/client");
 
-// ======================================================
-// CONVERTIR Y VALIDAR ID
-// ======================================================
-
+//CONVERTIR Y VALIDAR ID
 const convertirId = (valor) => {
   const id = Number(valor);
 
@@ -14,14 +11,9 @@ const convertirId = (valor) => {
   return id;
 };
 
-// ======================================================
-// NORMALIZAR NOMBRE DE ÁREA
-// ======================================================
-
+//NORMALIZAR NOMBRE DE ÁREA
 const obtenerNombreArea = (data) => {
-  const nombre = String(
-    data?.nombre_area ?? ""
-  ).trim();
+  const nombre = String(data?.nombre_area ?? "").trim();
 
   if (!nombre) {
     throw new Error("INVALID_DATA");
@@ -30,10 +22,6 @@ const obtenerNombreArea = (data) => {
   return nombre;
 };
 
-// ======================================================
-// OBTENER TODAS LAS ÁREAS
-// ======================================================
-
 const getAll = async () => {
   return prisma.area.findMany({
     orderBy: {
@@ -41,10 +29,6 @@ const getAll = async () => {
     },
   });
 };
-
-// ======================================================
-// OBTENER ÁREA POR ID
-// ======================================================
 
 const getById = async (id) => {
   const areaId = convertirId(id);
@@ -97,15 +81,10 @@ const getById = async (id) => {
   return area;
 };
 
-// ======================================================
-// CREAR ÁREA
-// ======================================================
-
+//CREAR ÁREA
 const create = async (data) => {
-  const nombreArea =
-    obtenerNombreArea(data);
+  const nombreArea = obtenerNombreArea(data);
 
-  // Evitar duplicados ignorando mayúsculas/minúsculas
   const areas = await prisma.area.findMany({
     select: {
       id: true,
@@ -115,12 +94,7 @@ const create = async (data) => {
 
   const duplicada = areas.find(
     (area) =>
-      area.nombre_area
-        .trim()
-        .toLowerCase() ===
-      nombreArea
-        .trim()
-        .toLowerCase()
+      area.nombre_area.trim().toLowerCase() === nombreArea.trim().toLowerCase(),
   );
 
   if (duplicada) {
@@ -134,26 +108,21 @@ const create = async (data) => {
   });
 };
 
-// ======================================================
-// ACTUALIZAR ÁREA
-// ======================================================
-
+//ACTUALIZAR ÁREA
 const update = async (id, data) => {
   const areaId = convertirId(id);
 
-  const areaActual =
-    await prisma.area.findUnique({
-      where: {
-        id: areaId,
-      },
-    });
+  const areaActual = await prisma.area.findUnique({
+    where: {
+      id: areaId,
+    },
+  });
 
   if (!areaActual) {
     throw new Error("NOT_FOUND");
   }
 
-  const nombreArea =
-    obtenerNombreArea(data);
+  const nombreArea = obtenerNombreArea(data);
 
   const areas = await prisma.area.findMany({
     where: {
@@ -170,12 +139,7 @@ const update = async (id, data) => {
 
   const duplicada = areas.find(
     (area) =>
-      area.nombre_area
-        .trim()
-        .toLowerCase() ===
-      nombreArea
-        .trim()
-        .toLowerCase()
+      area.nombre_area.trim().toLowerCase() === nombreArea.trim().toLowerCase(),
   );
 
   if (duplicada) {
@@ -193,33 +157,29 @@ const update = async (id, data) => {
   });
 };
 
-// ======================================================
-// OBTENER USO DEL ÁREA
-// ======================================================
-
+//OBTENER USO DEL ÁREA
 const getUso = async (id) => {
   const areaId = convertirId(id);
 
-  const area =
-    await prisma.area.findUnique({
-      where: {
-        id: areaId,
-      },
+  const area = await prisma.area.findUnique({
+    where: {
+      id: areaId,
+    },
 
-      select: {
-        id: true,
-        nombre_area: true,
+    select: {
+      id: true,
+      nombre_area: true,
 
-        _count: {
-          select: {
-            usuarios: true,
-            documentos: true,
-            niveles: true,
-            ips: true,
-          },
+      _count: {
+        select: {
+          usuarios: true,
+          documentos: true,
+          niveles: true,
+          ips: true,
         },
       },
-    });
+    },
+  });
 
   if (!area) {
     throw new Error("NOT_FOUND");
@@ -227,22 +187,11 @@ const getUso = async (id) => {
 
   return {
     id: area.id,
-
-    nombre_area:
-      area.nombre_area,
-
-    usuarios:
-      area._count.usuarios,
-
-    documentos:
-      area._count.documentos,
-
-    niveles:
-      area._count.niveles,
-
-    ips:
-      area._count.ips,
-
+    nombre_area: area.nombre_area,
+    usuarios: area._count.usuarios,
+    documentos: area._count.documentos,
+    niveles: area._count.niveles,
+    ips: area._count.ips,
     en_uso:
       area._count.usuarios > 0 ||
       area._count.documentos > 0 ||
@@ -251,45 +200,41 @@ const getUso = async (id) => {
   };
 };
 
-// ======================================================
-// ELIMINAR ÁREA
-// ======================================================
-
+//ELIMINAR ÁREA
 const remove = async (id) => {
   const areaId = convertirId(id);
 
-  const area =
-    await prisma.area.findUnique({
-      where: {
-        id: areaId,
-      },
+  const area = await prisma.area.findUnique({
+    where: {
+      id: areaId,
+    },
 
-      include: {
-        usuarios: {
-          select: {
-            id: true,
-          },
-        },
-
-        documentos: {
-          select: {
-            id: true,
-          },
-        },
-
-        niveles: {
-          select: {
-            id: true,
-          },
-        },
-
-        ips: {
-          select: {
-            id: true,
-          },
+    include: {
+      usuarios: {
+        select: {
+          id: true,
         },
       },
-    });
+
+      documentos: {
+        select: {
+          id: true,
+        },
+      },
+
+      niveles: {
+        select: {
+          id: true,
+        },
+      },
+
+      ips: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
 
   if (!area) {
     throw new Error("NOT_FOUND");

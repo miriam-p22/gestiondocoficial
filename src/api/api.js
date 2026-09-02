@@ -19,10 +19,7 @@ const leerRespuesta = async (response) => {
   }
 };
 
-// ======================================================
-// TOKEN
-// ======================================================
-
+//TOKEN
 const obtenerToken = () => {
   try {
     return localStorage.getItem("token");
@@ -31,10 +28,7 @@ const obtenerToken = () => {
   }
 };
 
-// ======================================================
-// API FETCH
-// ======================================================
-
+//API FETCH
 export const apiFetch = async (endpoint, options = {}) => {
   const tieneBody = options.body !== undefined && options.body !== null;
 
@@ -86,7 +80,6 @@ export const apiFetch = async (endpoint, options = {}) => {
     const error = new Error(mensaje);
 
     error.status = response.status;
-
     error.data = data;
 
     if (response.status === 401) {

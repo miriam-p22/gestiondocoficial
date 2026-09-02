@@ -1,26 +1,5 @@
 const prisma = require("../db/client");
-
-// ======================================================
-// TIPOS DE EVENTO QUE REGISTRA OFICIALÍA
-// ======================================================
-//
-// respuesta_area NO se crea aquí.
-//
-// Ese evento se crea desde dispersion.controller.js
-// cuando un área marca su documento como "atendido".
-//
-// Este controller registra:
-//
-// respuesta_recibida
-// respuesta_entregada
-//
-// ======================================================
-
 const TIPOS_EVENTO = ["respuesta_recibida", "respuesta_entregada"];
-
-// ======================================================
-// VALIDACIONES
-// ======================================================
 
 const convertirId = (valor) => {
   const id = Number(valor);
@@ -31,10 +10,6 @@ const convertirId = (valor) => {
 
   return id;
 };
-
-// ======================================================
-// TIPO DE EVENTO
-// ======================================================
 
 const convertirTipoEvento = (valor) => {
   const tipo = String(valor ?? "")
@@ -48,10 +23,7 @@ const convertirTipoEvento = (valor) => {
   return tipo;
 };
 
-// ======================================================
-// COMENTARIO
-// ======================================================
-
+//COMENTARIO
 const convertirComentario = (valor) => {
   if (valor === undefined || valor === null) {
     return null;
@@ -70,10 +42,7 @@ const convertirComentario = (valor) => {
   return comentario;
 };
 
-// ======================================================
-// VALIDAR DISPERSIÓN
-// ======================================================
-
+//VALIDAR DISPERSIÓN
 const validarDispersion = async (idDispersion) => {
   const dispersion = await prisma.dispersion.findUnique({
     where: {
@@ -92,10 +61,7 @@ const validarDispersion = async (idDispersion) => {
   return dispersion;
 };
 
-// ======================================================
-// VALIDAR DESTINO
-// ======================================================
-
+//VALIDAR DESTINO
 const validarDestino = async (idDispersion, idArea) => {
   const destino = await prisma.dispersionDestino.findUnique({
     where: {
@@ -118,10 +84,7 @@ const validarDestino = async (idDispersion, idArea) => {
   return destino;
 };
 
-// ======================================================
-// RELACIONES
-// ======================================================
-
+//RELACIONES
 const includeRelations = {
   area: {
     select: {
@@ -140,10 +103,7 @@ const includeRelations = {
   },
 };
 
-// ======================================================
-// GET HISTORIAL DE UNA DISPERSIÓN
-// ======================================================
-
+//GET HISTORIAL DE UNA DISPERSIÓN
 const getByDispersion = async (idDispersion) => {
   const dispersionId = convertirId(idDispersion);
 
@@ -168,32 +128,8 @@ const getByDispersion = async (idDispersion) => {
   });
 };
 
-// ======================================================
-// GET RESUMEN DE RESPUESTAS PARA OFICIALÍA
-// ======================================================
-//
-// Esta función alimentará:
-//
-// DISPERSIÓN
-// ↓
-// Respuestas y Entregas
-//
-// Busca primero:
-//
-// respuesta_area
-//
-// y después comprueba si Oficialía ya creó:
-//
-// respuesta_recibida
-// respuesta_entregada
-//
-// ======================================================
-
+//GET RESUMEN DE RESPUESTAS PARA OFICIALÍA
 const getResumenRespuestas = async () => {
-  // ====================================================
-  // RESPUESTAS QUE LAS ÁREAS ENVIARON
-  // ====================================================
-
   const respuestasArea = await prisma.documentoEvento.findMany({
     where: {
       tipo_evento: "respuesta_area",
@@ -205,28 +141,14 @@ const getResumenRespuestas = async () => {
       fecha: "desc",
     },
   });
-
-  /*
-    Si todavía ningún área ha enviado
-    respuesta simplemente regresamos [].
-  */
-
   if (respuestasArea.length === 0) {
     return [];
   }
-
-  // ====================================================
-  // IDS DE DISPERSIÓN INVOLUCRADOS
-  // ====================================================
-
   const idsDispersion = [
     ...new Set(respuestasArea.map((evento) => evento.id_dispersion)),
   ];
 
-  // ====================================================
-  // EVENTOS REGISTRADOS POR OFICIALÍA
-  // ====================================================
-
+  //EVENTOS REGISTRADOS POR OFICIALÍA
   const eventosOficialia = await prisma.documentoEvento.findMany({
     where: {
       id_dispersion: {
@@ -243,15 +165,7 @@ const getResumenRespuestas = async () => {
     },
   });
 
-  // ====================================================
-  // ARMAR INFORMACIÓN PARA LA TABLA
-  // ====================================================
-
   return respuestasArea.map((respuestaArea) => {
-    // ------------------------------------------------
-    // ¿OFICIALÍA YA RECIBIÓ ESTA RESPUESTA?
-    // ------------------------------------------------
-
     const respuestaRecibida = eventosOficialia.find(
       (evento) =>
         evento.tipo_evento === "respuesta_recibida" &&
@@ -259,78 +173,38 @@ const getResumenRespuestas = async () => {
         Number(evento.id_area) === Number(respuestaArea.id_area),
     );
 
-    // ------------------------------------------------
-    // ¿YA SE ENTREGÓ RESPUESTA AL CIUDADANO?
-    // ------------------------------------------------
-
     const respuestaEntregada = eventosOficialia.find(
       (evento) =>
         evento.tipo_evento === "respuesta_entregada" &&
         Number(evento.id_dispersion) === Number(respuestaArea.id_dispersion),
     );
 
-    // ------------------------------------------------
-    // RESULTADO
-    // ------------------------------------------------
-
     return {
       id_evento_respuesta: respuestaArea.id,
-
       id_dispersion: respuestaArea.id_dispersion,
-
       id_area: respuestaArea.id_area,
-
       documento: respuestaArea.dispersion?.nombre_archivo || "Documento",
-
       archivo_documento: respuestaArea.dispersion?.archivo || null,
-
       area: respuestaArea.area?.nombre_area || "Área",
-
       respuesta: respuestaArea.comentario || "",
-
       archivo_respuesta: respuestaArea.archivo || null,
-
       fecha_respuesta_area: respuestaArea.fecha,
 
-      // ----------------------------------------------
-      // OFICIALÍA
-      // ----------------------------------------------
-
       respuesta_recibida: Boolean(respuestaRecibida),
-
       fecha_recepcion_oficialia: respuestaRecibida?.fecha || null,
-
       comentario_recepcion: respuestaRecibida?.comentario || null,
 
-      // ----------------------------------------------
-      // ENTREGA AL CIUDADANO
-      // ----------------------------------------------
-
       respuesta_entregada: Boolean(respuestaEntregada),
-
       fecha_entrega_ciudadano: respuestaEntregada?.fecha || null,
-
       comentario_entrega: respuestaEntregada?.comentario || null,
     };
   });
 };
 
-// ======================================================
-// CREAR EVENTO
-// ======================================================
-//
-// Aquí únicamente Oficialía crea:
-//
-// respuesta_recibida
-// respuesta_entregada
-//
-// ======================================================
-
+//CREAR EVENTO
 const create = async (data) => {
   const idDispersion = convertirId(data?.id_dispersion);
-
   const tipoEvento = convertirTipoEvento(data?.tipo_evento);
-
   const comentario = convertirComentario(data?.comentario);
 
   await validarDispersion(idDispersion);
@@ -345,33 +219,18 @@ const create = async (data) => {
     idArea = convertirId(data.id_area);
   }
 
-  // ====================================================
-  // RESPUESTA RECIBIDA
-  // ====================================================
-
+  //RESPUESTA RECIBIDA
   if (tipoEvento === "respuesta_recibida") {
-    /*
-      Debemos saber qué área
-      entregó la respuesta.
-    */
-
     if (idArea === null) {
       throw new Error("AREA_REQUIRED");
     }
 
     await validarDestino(idDispersion, idArea);
 
-    /*
-      El área debe haber generado primero
-      una respuesta_area.
-    */
-
     const respuestaArea = await prisma.documentoEvento.findFirst({
       where: {
         id_dispersion: idDispersion,
-
         id_area: idArea,
-
         tipo_evento: "respuesta_area",
       },
 
@@ -384,17 +243,10 @@ const create = async (data) => {
       throw new Error("AREA_RESPONSE_REQUIRED");
     }
 
-    /*
-      Evitamos confirmar dos veces
-      la misma respuesta.
-    */
-
     const yaRecibida = await prisma.documentoEvento.findFirst({
       where: {
         id_dispersion: idDispersion,
-
         id_area: idArea,
-
         tipo_evento: "respuesta_recibida",
       },
     });
@@ -404,28 +256,13 @@ const create = async (data) => {
     }
   }
 
-  // ====================================================
-  // RESPUESTA ENTREGADA AL CIUDADANO
-  // ====================================================
-
+  //RESPUESTA ENTREGADA AL CIUDADANO
   if (tipoEvento === "respuesta_entregada") {
-    /*
-      La entrega final pertenece al
-      documento completo, por lo que
-      id_area queda NULL.
-    */
-
     idArea = null;
-
-    /*
-      Oficialía primero debe haber
-      confirmado una respuesta recibida.
-    */
 
     const respuestaRecibida = await prisma.documentoEvento.findFirst({
       where: {
         id_dispersion: idDispersion,
-
         tipo_evento: "respuesta_recibida",
       },
     });
@@ -434,15 +271,9 @@ const create = async (data) => {
       throw new Error("OFFICE_RESPONSE_REQUIRED");
     }
 
-    /*
-      Evitamos registrar dos veces
-      la entrega al ciudadano.
-    */
-
     const yaEntregada = await prisma.documentoEvento.findFirst({
       where: {
         id_dispersion: idDispersion,
-
         tipo_evento: "respuesta_entregada",
       },
     });
@@ -452,20 +283,13 @@ const create = async (data) => {
     }
   }
 
-  // ====================================================
-  // CREAR
-  // ====================================================
-
+  //CREAR
   return prisma.documentoEvento.create({
     data: {
       id_dispersion: idDispersion,
-
       id_area: idArea,
-
       tipo_evento: tipoEvento,
-
       comentario,
-
       archivo: null,
     },
 
@@ -473,10 +297,7 @@ const create = async (data) => {
   });
 };
 
-// ======================================================
-// DELETE
-// ======================================================
-
+//DELETE
 const remove = async (id) => {
   const eventoId = convertirId(id);
 
@@ -496,10 +317,6 @@ const remove = async (id) => {
     },
   });
 };
-
-// ======================================================
-// EXPORTS
-// ======================================================
 
 module.exports = {
   getByDispersion,

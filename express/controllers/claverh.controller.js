@@ -36,7 +36,6 @@ const getAll = async () => {
 // Obtener registro por ID
 const getById = async (id) => {
   const claveId = convertirId(id);
-
   const registro = await prisma.claveRh.findUnique({
     where: {
       id: claveId,
@@ -53,7 +52,6 @@ const getById = async (id) => {
 // Crear clave RH
 const create = async (data) => {
   const clave = limpiarClave(data?.clave);
-
   const claveExistente = await prisma.claveRh.findFirst({
     where: {
       clave,

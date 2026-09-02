@@ -7,12 +7,11 @@ const { autenticar } = require("../middlewares/auth.middleware");
 const { requierePrivilegio } = require("../middlewares/permisos.middleware");
 
 const PRIVILEGIO_REGISTRAR_USUARIOS = "Registrar usuarios";
-
 const JWT_SECRET = String(process.env.JWT_SECRET || "").trim();
 
 if (!JWT_SECRET) {
   throw new Error(
-    "JWT_SECRET_NOT_CONFIGURED: Defina JWT_SECRET en el archivo .env antes de iniciar el servidor."
+    "JWT_SECRET_NOT_CONFIGURED: Defina JWT_SECRET en el archivo .env antes de iniciar el servidor.",
   );
 }
 
@@ -112,8 +111,7 @@ const handleApiError = (res, error, customMessage = null) => {
 
   if (error.message === "RH_ALREADY_REGISTERED") {
     return res.status(409).json({
-      error:
-        "Recursos Humanos ya cuenta con un usuario inicial registrado.",
+      error: "Recursos Humanos ya cuenta con un usuario inicial registrado.",
     });
   }
 
@@ -150,24 +148,11 @@ const handleApiError = (res, error, customMessage = null) => {
 router.post("/login", async (req, res) => {
   try {
     const usuario = await usuariosController.login(req.body);
-
-    const mantenerSesion =
-      req.body?.mantener_sesion === true;
-
-    /*
-      La duración siempre la decide el backend.
-      El cliente solamente expresa si desea mantener la sesión.
-    */
-    const duracionToken =
-      mantenerSesion
-        ? "7d"
-        : "8h";
-
-    const token = jwt.sign(
-      { id_usuario: usuario.id },
-      JWT_SECRET,
-      { expiresIn: duracionToken }
-    );
+    const mantenerSesion = req.body?.mantener_sesion === true;
+    const duracionToken = mantenerSesion ? "7d" : "8h";
+    const token = jwt.sign({ id_usuario: usuario.id }, JWT_SECRET, {
+      expiresIn: duracionToken,
+    });
 
     return res.status(200).json({
       ok: true,
@@ -181,8 +166,7 @@ router.post("/login", async (req, res) => {
 
 router.post("/validar-clave-rh", async (req, res) => {
   try {
-    const resultado =
-      await usuariosController.validarClaveRegistroRh(req.body);
+    const resultado = await usuariosController.validarClaveRegistroRh(req.body);
 
     return res.status(200).json(resultado);
   } catch (error) {
@@ -192,13 +176,11 @@ router.post("/validar-clave-rh", async (req, res) => {
 
 router.post("/registro-inicial-rh", async (req, res) => {
   try {
-    const usuario =
-      await usuariosController.registroInicialRh(req.body);
+    const usuario = await usuariosController.registroInicialRh(req.body);
 
     return res.status(201).json({
       ok: true,
-      mensaje:
-        "Usuario inicial de Recursos Humanos registrado correctamente.",
+      mensaje: "Usuario inicial de Recursos Humanos registrado correctamente.",
       usuario,
     });
   } catch (error) {
@@ -215,24 +197,16 @@ router.get(
       const usuarios = await usuariosController.getAll();
       return res.status(200).json(usuarios);
     } catch (error) {
-      return handleApiError(
-        res,
-        error,
-        "Error al consultar los usuarios."
-      );
+      return handleApiError(res, error, "Error al consultar los usuarios.");
     }
-  }
+  },
 );
 
-router.get(
-  "/me",
-  autenticar,
-  async (req, res) => {
-    return res.status(200).json({
-      usuario: req.usuario,
-    });
-  }
-);
+router.get("/me", autenticar, async (req, res) => {
+  return res.status(200).json({
+    usuario: req.usuario,
+  });
+});
 
 router.get(
   "/:id",
@@ -240,18 +214,13 @@ router.get(
   requierePrivilegio(PRIVILEGIO_REGISTRAR_USUARIOS),
   async (req, res) => {
     try {
-      const usuario =
-        await usuariosController.getById(req.params.id);
+      const usuario = await usuariosController.getById(req.params.id);
 
       return res.status(200).json(usuario);
     } catch (error) {
-      return handleApiError(
-        res,
-        error,
-        "Error al consultar el usuario."
-      );
+      return handleApiError(res, error, "Error al consultar el usuario.");
     }
-  }
+  },
 );
 
 router.post(
@@ -260,14 +229,13 @@ router.post(
   requierePrivilegio(PRIVILEGIO_REGISTRAR_USUARIOS),
   async (req, res) => {
     try {
-      const usuario =
-        await usuariosController.create(req.body);
+      const usuario = await usuariosController.create(req.body);
 
       return res.status(201).json(usuario);
     } catch (error) {
       return handleApiError(res, error);
     }
-  }
+  },
 );
 
 router.put(
@@ -276,17 +244,13 @@ router.put(
   requierePrivilegio(PRIVILEGIO_REGISTRAR_USUARIOS),
   async (req, res) => {
     try {
-      const usuario =
-        await usuariosController.update(
-          req.params.id,
-          req.body
-        );
+      const usuario = await usuariosController.update(req.params.id, req.body);
 
       return res.status(200).json(usuario);
     } catch (error) {
       return handleApiError(res, error);
     }
-  }
+  },
 );
 
 router.delete(
@@ -303,7 +267,7 @@ router.delete(
     } catch (error) {
       return handleApiError(res, error);
     }
-  }
+  },
 );
 
 module.exports = router;

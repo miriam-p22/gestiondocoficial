@@ -2,20 +2,11 @@ const express = require("express");
 const router = express.Router();
 
 const organigramasController = require("../controllers/organigramas.controller");
-
 const { autenticar } = require("../middlewares/auth.middleware");
-
 const { requierePrivilegio } = require("../middlewares/permisos.middleware");
-
 const prisma = require("../db/client");
-
 const PRIVILEGIO_GESTIONAR_ORGANIGRAMA = "Gestionar Organigrama";
-
 const PRIVILEGIO_REVISAR_ORGANIGRAMA = "Revisar Organigrama";
-
-// ======================================================
-// SEGURIDAD Y ALCANCE
-// ======================================================
 
 const tienePrivilegio = async (usuario, tituloPrivilegio) => {
   if (!usuario || !usuario.id_rol) {
@@ -39,19 +30,8 @@ const tienePrivilegio = async (usuario, tituloPrivilegio) => {
   return Boolean(permiso);
 };
 
-// ------------------------------------------------------
-// GET /api/organigramas
-// ------------------------------------------------------
-//
-// Gestionar Organigrama:
-//   todas las versiones.
-//
-// Revisar Organigrama:
-//   versiones solicitadas.
-//
-// Resto:
-//   únicamente autorizadas.
-//
+//GET
+
 const aplicarAlcanceListado = async (req, res, next) => {
   try {
     if (await tienePrivilegio(req.usuario, PRIVILEGIO_GESTIONAR_ORGANIGRAMA)) {
@@ -81,9 +61,6 @@ const aplicarAlcanceListado = async (req, res, next) => {
   }
 };
 
-// ------------------------------------------------------
-// GET /api/organigramas/:id
-// ------------------------------------------------------
 const validarAccesoOrganigrama = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
@@ -150,9 +127,6 @@ const validarAccesoOrganigrama = async (req, res, next) => {
   }
 };
 
-// ------------------------------------------------------
-// El autor se toma de la sesión autenticada.
-// ------------------------------------------------------
 const prepararCreacion = (req, res, next) => {
   req.body = {
     ...(req.body || {}),
@@ -174,22 +148,13 @@ const protegerAutor = (req, res, next) => {
   return next();
 };
 
-// ======================================================
-// MANEJO GENERAL DE ERRORES
-// ======================================================
-
+//MANEJO GENERAL DE ERRORES
 const handleApiError = (res, error) => {
   console.error("[Error API Organigramas]:", {
     message: error.message,
-
     code: error.code,
-
     meta: error.meta,
   });
-
-  // ====================================================
-  // ERRORES DE CONEXIÓN PRISMA
-  // ====================================================
 
   if (["P1001", "P1002", "P1003"].includes(error.code)) {
     return res.status(503).json({
@@ -197,81 +162,53 @@ const handleApiError = (res, error) => {
     });
   }
 
-  // ====================================================
-  // ID INVÁLIDO
-  // ====================================================
-
+  //ID INVÁLIDO
   if (error.message === "INVALID_ID") {
     return res.status(400).json({
       error: "El identificador no es válido.",
     });
   }
 
-  // ====================================================
-  // VERSIÓN INVÁLIDA
-  // ====================================================
-
+  //VERSIÓN INVÁLIDA
   if (error.message === "INVALID_VERSION") {
     return res.status(400).json({
       error: "La versión debe ser un número entero mayor a cero.",
     });
   }
 
-  // ====================================================
-  // ESTADO INVÁLIDO
-  // ====================================================
-
+  //ESTADO INVÁLIDO
   if (error.message === "INVALID_STATE") {
     return res.status(400).json({
       error: "El estado del organigrama no es válido.",
     });
   }
 
-  // ====================================================
-  // DATOS INVÁLIDOS
-  // ====================================================
-
+  //DATOS INVÁLIDOS
   if (error.message === "INVALID_DATA") {
     return res.status(400).json({
       error: "Los datos proporcionados no son válidos.",
     });
   }
 
-  // ====================================================
-  // USUARIO NO ENCONTRADO
-  // ====================================================
-
+  //USUARIO NO ENCONTRADO
   if (error.message === "USER_NOT_FOUND") {
     return res.status(404).json({
       error: "El usuario indicado no existe.",
     });
   }
 
-  // ====================================================
-  // ESTRUCTURA VACÍA
-  // ====================================================
-
   if (error.message === "EMPTY_STRUCTURE") {
     return res.status(409).json({
-      error:
-        "No se puede solicitar autorización porque el organigrama todavía no tiene áreas.",
+      error: "No se puede solicitar autorización porque el organigrama todavía no tiene áreas.",
     });
   }
 
-  // ====================================================
-  // ESTRUCTURA INVÁLIDA
-  // ====================================================
-
+  //ESTRUCTURA INVÁLIDA
   if (error.message === "INVALID_STRUCTURE") {
     return res.status(409).json({
-      error:
-        "La estructura del organigrama no es válida. Debe existir exactamente una raíz y todas las relaciones deben ser correctas.",
+      error: "La estructura del organigrama no es válida. Debe existir exactamente una raíz y todas las relaciones deben ser correctas.",
     });
   }
-
-  // ====================================================
-  // RELACIÓN CIRCULAR
-  // ====================================================
 
   if (error.message === "CIRCULAR_RELATION") {
     return res.status(409).json({
@@ -279,82 +216,54 @@ const handleApiError = (res, error) => {
     });
   }
 
-  // ====================================================
-  // ÁREA DUPLICADA
-  // ====================================================
-
+  //ÁREA DUPLICADA
   if (error.message === "DUPLICATED_AREA") {
     return res.status(409).json({
-      error:
-        "Una misma área no puede aparecer más de una vez dentro del organigrama.",
+      error: "Una misma área no puede aparecer más de una vez dentro del organigrama.",
     });
   }
 
-  // ====================================================
-  // YA FUE SOLICITADO
-  // ====================================================
-
+  //YA FUE SOLICITADO
   if (error.message === "ALREADY_REQUESTED") {
     return res.status(409).json({
-      error:
-        "Este organigrama ya fue enviado para autorización y se encuentra pendiente de revisión.",
+      error: "Este organigrama ya fue enviado para autorización y se encuentra pendiente de revisión.",
     });
   }
 
-  // ====================================================
-  // SOLICITUD PENDIENTE
-  // ====================================================
-
+  //SOLICITUD PENDIENTE
   if (error.message === "REQUEST_PENDING") {
     return res.status(409).json({
-      error:
-        "El organigrama se encuentra pendiente de autorización y no puede modificarse ni eliminarse.",
+      error: "El organigrama se encuentra pendiente de autorización y no puede modificarse ni eliminarse.",
     });
   }
 
-  // ====================================================
-  // NO FUE SOLICITADO
-  // ====================================================
-
+  //NO FUE SOLICITADO
   if (error.message === "NOT_REQUESTED") {
     return res.status(409).json({
       error: "El organigrama no se encuentra pendiente de autorización.",
     });
   }
 
-  // ====================================================
-  // YA AUTORIZADO
-  // ====================================================
-
+  //YA AUTORIZADO
   if (error.message === "ALREADY_AUTHORIZED") {
     return res.status(409).json({
       error: "El organigrama ya fue autorizado y no puede modificarse.",
     });
   }
 
-  // ====================================================
-  // AUTORIZADO NO SE PUEDE ELIMINAR
-  // ====================================================
-
+  //AUTORIZADO NO SE PUEDE ELIMINAR
   if (error.message === "AUTHORIZED_CANNOT_DELETE") {
     return res.status(409).json({
       error: "No se puede eliminar un organigrama autorizado.",
     });
   }
 
-  // ====================================================
-  // OBSERVACIONES OBLIGATORIAS
-  // ====================================================
-
+  //OBSERVACIONES
   if (error.message === "OBSERVATIONS_REQUIRED") {
     return res.status(400).json({
       error: "Debe indicar el motivo por el cual se rechaza el organigrama.",
     });
   }
-
-  // ====================================================
-  // OBSERVACIONES DEMASIADO LARGAS
-  // ====================================================
 
   if (error.message === "OBSERVATIONS_TOO_LONG") {
     return res.status(400).json({
@@ -362,29 +271,18 @@ const handleApiError = (res, error) => {
     });
   }
 
-  // ====================================================
-  // NO ESTÁ RECHAZADO
-  // ====================================================
-
   if (error.message === "NOT_REJECTED") {
     return res.status(409).json({
       error: "El organigrama no se encuentra en estado rechazado.",
     });
   }
 
-  // ====================================================
-  // NO EXISTE ORGANIGRAMA VIGENTE
-  // ====================================================
-
+  //NO EXISTE ORGANIGRAMA VIGENTE
   if (error.message === "NO_CURRENT_ORGANIZATION") {
     return res.status(404).json({
       error: "Todavía no existe un organigrama autorizado.",
     });
   }
-
-  // ====================================================
-  // NO ENCONTRADO
-  // ====================================================
 
   if (error.message === "NOT_FOUND" || error.code === "P2025") {
     return res.status(404).json({
@@ -392,19 +290,11 @@ const handleApiError = (res, error) => {
     });
   }
 
-  // ====================================================
-  // FOREIGN KEY
-  // ====================================================
-
   if (error.code === "P2003") {
     return res.status(400).json({
       error: "Existe una relación inválida con la base de datos.",
     });
   }
-
-  // ====================================================
-  // ERROR GENERAL
-  // ====================================================
 
   return res.status(500).json({
     error:
@@ -413,27 +303,11 @@ const handleApiError = (res, error) => {
   });
 };
 
-// ======================================================
-// GET ALL
-// ======================================================
-//
-// Ejemplos:
-//
-// GET /api/organigramas
-//
-// GET /api/organigramas?id_usuario=1
-//
-// GET /api/organigramas?estado=solicitado
-//
-// GET /api/organigramas?autorizado=true
-//
-// ======================================================
-
+//GET ALL
 router.get(
   "/",
 
   autenticar,
-
   aplicarAlcanceListado,
 
   async (req, res) => {
@@ -447,17 +321,7 @@ router.get(
   },
 );
 
-// ======================================================
-// GET ORGANIGRAMA VIGENTE
-// ======================================================
-//
-// GET /api/organigramas/vigente
-//
-// Devuelve únicamente el último organigrama
-// autorizado por Presidencia.
-//
-// ======================================================
-
+//GET ORGANIGRAMA VIGENTE
 router.get(
   "/vigente",
 
@@ -474,16 +338,7 @@ router.get(
   },
 );
 
-// ======================================================
-// GET PENDIENTES DE REVISIÓN
-// ======================================================
-//
-// GET /api/organigramas/revision
-//
-// Sólo Presidencia.
-//
-// ======================================================
-
+//GET PENDIENTES DE REVISIÓN
 router.get(
   "/revision",
 
@@ -502,19 +357,11 @@ router.get(
   },
 );
 
-// ======================================================
-// GET BY ID
-// ======================================================
-//
-// GET /api/organigramas/14
-//
-// ======================================================
-
+//GET BY ID
 router.get(
   "/:id",
 
   autenticar,
-
   validarAccesoOrganigrama,
 
   async (req, res) => {
@@ -528,31 +375,12 @@ router.get(
   },
 );
 
-// ======================================================
-// POST
-// ======================================================
-//
-// POST /api/organigramas
-//
-// Body:
-// {
-//   "id_usuario": 1,
-//   "titulo": "Organigrama 2028",
-//   "version": 1
-// }
-//
-// Estado inicial:
-// edicion
-//
-// ======================================================
-
+//POST
 router.post(
   "/",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_ORGANIGRAMA),
-
   prepararCreacion,
 
   async (req, res) => {
@@ -566,24 +394,12 @@ router.post(
   },
 );
 
-// ======================================================
-// PUT GENERAL
-// ======================================================
-//
-// PUT /api/organigramas/14
-//
-// Solo modifica datos generales.
-// NO autoriza, rechaza o solicita.
-//
-// ======================================================
-
+//PUT GENERAL
 router.put(
   "/:id",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_ORGANIGRAMA),
-
   protegerAutor,
 
   async (req, res) => {
@@ -600,27 +416,11 @@ router.put(
   },
 );
 
-// ======================================================
-// SOLICITAR AUTORIZACIÓN
-// ======================================================
-//
-// PUT /api/organigramas/14/solicitar
-//
-// edicion
-//    ↓
-// solicitado
-//
-// rechazado
-//    ↓
-// solicitado
-//
-// ======================================================
-
+//SOLICITAR AUTORIZACIÓN
 router.put(
   "/:id/solicitar",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_ORGANIGRAMA),
 
   async (req, res) => {
@@ -636,23 +436,11 @@ router.put(
   },
 );
 
-// ======================================================
-// CANCELAR SOLICITUD
-// ======================================================
-//
-// PUT /api/organigramas/14/cancelar-solicitud
-//
-// solicitado
-//    ↓
-// edicion
-//
-// ======================================================
-
+//CANCELAR SOLICITUD
 router.put(
   "/:id/cancelar-solicitud",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_ORGANIGRAMA),
 
   async (req, res) => {
@@ -668,25 +456,11 @@ router.put(
   },
 );
 
-// ======================================================
-// AUTORIZAR
-// ======================================================
-//
-// PUT /api/organigramas/14/autorizar
-//
-// solicitado
-//    ↓
-// autorizado
-//
-// Esta acción corresponde a Presidencia.
-//
-// ======================================================
-
+//AUTORIZAR
 router.put(
   "/:id/autorizar",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_REVISAR_ORGANIGRAMA),
 
   async (req, res) => {
@@ -700,31 +474,11 @@ router.put(
   },
 );
 
-// ======================================================
-// RECHAZAR
-// ======================================================
-//
-// PUT /api/organigramas/14/rechazar
-//
-// Body:
-// {
-//   "observaciones":
-//     "Corregir la dependencia de Tesorería."
-// }
-//
-// solicitado
-//    ↓
-// rechazado
-//
-// Esta acción corresponde a Presidencia.
-//
-// ======================================================
-
+//RECHAZAR
 router.put(
   "/:id/rechazar",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_REVISAR_ORGANIGRAMA),
 
   async (req, res) => {
@@ -741,25 +495,11 @@ router.put(
   },
 );
 
-// ======================================================
-// REABRIR PARA EDICIÓN
-// ======================================================
-//
-// PUT /api/organigramas/14/reabrir-edicion
-//
-// rechazado
-//    ↓
-// edicion
-//
-// El usuario puede corregirlo.
-//
-// ======================================================
-
+//REABRIR PARA EDICIÓN
 router.put(
   "/:id/reabrir-edicion",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_ORGANIGRAMA),
 
   async (req, res) => {
@@ -775,27 +515,11 @@ router.put(
   },
 );
 
-// ======================================================
-// DELETE
-// ======================================================
-//
-// DELETE /api/organigramas/14
-//
-// Solo:
-// edicion
-// rechazado
-//
-// No:
-// solicitado
-// autorizado
-//
-// ======================================================
-
+//DELETE
 router.delete(
   "/:id",
 
   autenticar,
-
   requierePrivilegio(PRIVILEGIO_GESTIONAR_ORGANIGRAMA),
 
   async (req, res) => {

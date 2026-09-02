@@ -1,9 +1,5 @@
 const prisma = require("../db/client");
 
-// ======================================================
-// CONVERTIR Y VALIDAR ID
-// ======================================================
-
 const convertirId = (valor) => {
   const id = Number(valor);
 
@@ -14,10 +10,7 @@ const convertirId = (valor) => {
   return id;
 };
 
-// ======================================================
-// OBTENER NOTIFICACIONES DEL USUARIO
-// ======================================================
-
+//OBTENER NOTIFICACIONES DEL USUARIO
 const getByUsuario = async (idUsuario) => {
   const usuarioId = convertirId(idUsuario);
 
@@ -32,10 +25,7 @@ const getByUsuario = async (idUsuario) => {
   });
 };
 
-// ======================================================
-// OBTENER SOLO NO LEÍDAS
-// ======================================================
-
+//OBTENER SOLO NO LEÍDAS
 const getNoLeidas = async (idUsuario) => {
   const usuarioId = convertirId(idUsuario);
 
@@ -51,10 +41,7 @@ const getNoLeidas = async (idUsuario) => {
   });
 };
 
-// ======================================================
-// MARCAR UNA COMO LEÍDA
-// ======================================================
-
+//MARCAR UNA COMO LEÍDA
 const marcarComoLeida = async (id, idUsuario) => {
   const notificacionId = convertirId(id);
   const usuarioId = convertirId(idUsuario);
@@ -86,10 +73,7 @@ const marcarComoLeida = async (id, idUsuario) => {
   });
 };
 
-// ======================================================
-// MARCAR TODAS COMO LEÍDAS
-// ======================================================
-
+//MARCAR TODAS COMO LEÍDAS
 const marcarTodasComoLeidas = async (idUsuario) => {
   const usuarioId = convertirId(idUsuario);
   const fechaLectura = new Date();
@@ -111,10 +95,7 @@ const marcarTodasComoLeidas = async (idUsuario) => {
   };
 };
 
-// ======================================================
-// ELIMINAR UNA NOTIFICACIÓN
-// ======================================================
-
+//ELIMINAR UNA NOTIFICACIÓN
 const remove = async (id, idUsuario) => {
   const notificacionId = convertirId(id);
   const usuarioId = convertirId(idUsuario);
@@ -137,10 +118,7 @@ const remove = async (id, idUsuario) => {
   });
 };
 
-// ======================================================
-// CREAR NOTIFICACIÓN PARA UN USUARIO
-// ======================================================
-
+//CREAR NOTIFICACIÓN
 const crearParaUsuario = async (idUsuario, datos = {}) => {
   const usuarioId = convertirId(idUsuario);
 
@@ -154,41 +132,27 @@ const crearParaUsuario = async (idUsuario, datos = {}) => {
   const nueva = await prisma.notificacion.create({
     data: {
       id_usuario: usuarioId,
-
       tipo: String(datos.tipo || "sistema").trim(),
-
       titulo,
       mensaje,
-
-      modulo: datos.modulo
-        ? String(datos.modulo).trim()
-        : null,
-
+      modulo: datos.modulo ? String(datos.modulo).trim() : null,
       referencia_id:
-        datos.referencia_id !== undefined &&
-        datos.referencia_id !== null
+        datos.referencia_id !== undefined && datos.referencia_id !== null
           ? Number(datos.referencia_id)
           : null,
-
-      ruta: datos.ruta
-        ? String(datos.ruta).trim()
-        : null,
-
+      ruta: datos.ruta ? String(datos.ruta).trim() : null,
       leida: false,
     },
   });
 
   console.log(
-    `[NOTIFICACIONES] Notificación creada para usuario ${usuarioId}: "${titulo}".`
+    `[NOTIFICACIONES] Notificación creada para usuario ${usuarioId}: "${titulo}".`,
   );
 
   return nueva;
 };
 
-// ======================================================
-// CREAR NOTIFICACIÓN PARA USUARIOS DE UN ÁREA
-// ======================================================
-
+//CREAR NOTIFICACIÓN PARA USUARIOS DE UN ÁREA
 const crearParaArea = async (idArea, datos = {}) => {
   const areaId = convertirId(idArea);
 
@@ -200,13 +164,10 @@ const crearParaArea = async (idArea, datos = {}) => {
   }
 
   console.log(
-    `[NOTIFICACIONES] Buscando usuarios activos del área ${areaId}...`
+    `[NOTIFICACIONES] Buscando usuarios activos del área ${areaId}...`,
   );
 
-  // ====================================================
-  // 1. VALIDAR QUE EL ÁREA EXISTA
-  // ====================================================
-
+  //VALIDAR QUE EL ÁREA EXISTA
   const area = await prisma.area.findUnique({
     where: {
       id: areaId,
@@ -222,10 +183,7 @@ const crearParaArea = async (idArea, datos = {}) => {
     throw new Error("AREA_NOT_FOUND");
   }
 
-  // ====================================================
-  // 2. BUSCAR USUARIOS ACTIVOS DEL ÁREA
-  // ====================================================
-
+  //BUSCAR USUARIOS ACTIVOS DEL ÁREA
   const usuarios = await prisma.usuario.findMany({
     where: {
       id_area: areaId,
@@ -243,12 +201,12 @@ const crearParaArea = async (idArea, datos = {}) => {
 
   console.log(
     `[NOTIFICACIONES] Usuarios encontrados en el área "${area.nombre_area}":`,
-    usuarios
+    usuarios,
   );
 
   if (usuarios.length === 0) {
     console.warn(
-      `[NOTIFICACIONES] El área "${area.nombre_area}" no tiene usuarios activos.`
+      `[NOTIFICACIONES] El área "${area.nombre_area}" no tiene usuarios activos.`,
     );
 
     return {
@@ -256,50 +214,32 @@ const crearParaArea = async (idArea, datos = {}) => {
     };
   }
 
-  // ====================================================
-  // 3. PREPARAR NOTIFICACIONES
-  // ====================================================
-
+  // NOTIFICACIONES
   const data = usuarios.map((usuario) => ({
     id_usuario: usuario.id,
-
     tipo: String(datos.tipo || "sistema").trim(),
-
     titulo,
     mensaje,
-
-    modulo: datos.modulo
-      ? String(datos.modulo).trim()
-      : null,
+    modulo: datos.modulo ? String(datos.modulo).trim() : null,
 
     referencia_id:
-      datos.referencia_id !== undefined &&
-      datos.referencia_id !== null
+      datos.referencia_id !== undefined && datos.referencia_id !== null
         ? Number(datos.referencia_id)
         : null,
 
-    ruta: datos.ruta
-      ? String(datos.ruta).trim()
-      : null,
+    ruta: datos.ruta ? String(datos.ruta).trim() : null,
 
     leida: false,
   }));
 
-  console.log(
-    "[NOTIFICACIONES] Datos que se insertarán para el área:",
-    data
-  );
-
-  // ====================================================
-  // 4. CREAR UNA NOTIFICACIÓN POR USUARIO
-  // ====================================================
+  console.log("[NOTIFICACIONES] Datos que se insertarán para el área:", data);
 
   const resultado = await prisma.notificacion.createMany({
     data,
   });
 
   console.log(
-    `[NOTIFICACIONES] Se crearon ${resultado.count} notificación(es) para el área "${area.nombre_area}".`
+    `[NOTIFICACIONES] Se crearon ${resultado.count} notificación(es) para el área "${area.nombre_area}".`,
   );
 
   return {
@@ -307,17 +247,8 @@ const crearParaArea = async (idArea, datos = {}) => {
   };
 };
 
-// ======================================================
-// CREAR NOTIFICACIÓN PARA USUARIOS CON UN PRIVILEGIO
-// ======================================================
-
-const crearParaPrivilegio = async (
-  tituloPrivilegio,
-  datos = {}
-) => {
-  const privilegio = String(
-    tituloPrivilegio || ""
-  ).trim();
+const crearParaPrivilegio = async (tituloPrivilegio, datos = {}) => {
+  const privilegio = String(tituloPrivilegio || "").trim();
 
   if (!privilegio) {
     throw new Error("INVALID_DATA");
@@ -331,13 +262,10 @@ const crearParaPrivilegio = async (
   }
 
   console.log(
-    `[NOTIFICACIONES] Buscando destinatarios para el privilegio "${privilegio}"...`
+    `[NOTIFICACIONES] Buscando destinatarios para el privilegio "${privilegio}"...`,
   );
 
-  // ====================================================
-  // 1. BUSCAR EL PRIVILEGIO
-  // ====================================================
-
+  //BUSCAR EL PRIVILEGIO
   const privilegioBD = await prisma.privilegio.findUnique({
     where: {
       titulo_privilegio: privilegio,
@@ -349,21 +277,13 @@ const crearParaPrivilegio = async (
     },
   });
 
-  console.log(
-    "[NOTIFICACIONES] Privilegio encontrado:",
-    privilegioBD
-  );
+  console.log("[NOTIFICACIONES] Privilegio encontrado:", privilegioBD);
 
   if (!privilegioBD) {
-    throw new Error(
-      `PRIVILEGE_NOT_FOUND: ${privilegio}`
-    );
+    throw new Error(`PRIVILEGE_NOT_FOUND: ${privilegio}`);
   }
 
-  // ====================================================
-  // 2. BUSCAR ROLES QUE TIENEN EL PRIVILEGIO
-  // ====================================================
-
+  //BUSCAR ROLES QUE TIENEN EL PRIVILEGIO
   const permisos = await prisma.rolPermiso.findMany({
     where: {
       id_privilegio: privilegioBD.id,
@@ -374,39 +294,23 @@ const crearParaPrivilegio = async (
     },
   });
 
-  console.log(
-    "[NOTIFICACIONES] Permisos encontrados:",
-    permisos
-  );
+  console.log("[NOTIFICACIONES] Permisos encontrados:", permisos);
 
   const idsRoles = [
-    ...new Set(
-      permisos.map((permiso) =>
-        Number(permiso.id_rol)
-      )
-    ),
-  ].filter(
-    (id) => Number.isInteger(id) && id > 0
-  );
+    ...new Set(permisos.map((permiso) => Number(permiso.id_rol))),
+  ].filter((id) => Number.isInteger(id) && id > 0);
 
-  console.log(
-    "[NOTIFICACIONES] IDs de roles:",
-    idsRoles
-  );
+  console.log("[NOTIFICACIONES] IDs de roles:", idsRoles);
 
   if (idsRoles.length === 0) {
     console.warn(
-      `[NOTIFICACIONES] El privilegio "${privilegio}" no está asignado a ningún rol.`
+      `[NOTIFICACIONES] El privilegio "${privilegio}" no está asignado a ningún rol.`,
     );
 
     return {
       creadas: 0,
     };
   }
-
-  // ====================================================
-  // 3. BUSCAR USUARIOS ACTIVOS DE ESOS ROLES
-  // ====================================================
 
   const usuarios = await prisma.usuario.findMany({
     where: {
@@ -426,14 +330,11 @@ const crearParaPrivilegio = async (
     },
   });
 
-  console.log(
-    "[NOTIFICACIONES] Usuarios encontrados:",
-    usuarios
-  );
+  console.log("[NOTIFICACIONES] Usuarios encontrados:", usuarios);
 
   if (usuarios.length === 0) {
     console.warn(
-      `[NOTIFICACIONES] No existen usuarios activos con el privilegio "${privilegio}".`
+      `[NOTIFICACIONES] No existen usuarios activos con el privilegio "${privilegio}".`,
     );
 
     return {
@@ -441,46 +342,31 @@ const crearParaPrivilegio = async (
     };
   }
 
-  // ====================================================
-  // 4. CREAR UNA NOTIFICACIÓN POR USUARIO
-  // ====================================================
-
+  //CREAR UNA NOTIFICACIÓN POR USUARIO
   const data = usuarios.map((usuario) => ({
     id_usuario: usuario.id,
-
     tipo: String(datos.tipo || "sistema").trim(),
-
     titulo,
     mensaje,
-
-    modulo: datos.modulo
-      ? String(datos.modulo).trim()
-      : null,
-
+    modulo: datos.modulo ? String(datos.modulo).trim() : null,
     referencia_id:
-      datos.referencia_id !== undefined &&
-      datos.referencia_id !== null
+      datos.referencia_id !== undefined && datos.referencia_id !== null
         ? Number(datos.referencia_id)
         : null,
 
-    ruta: datos.ruta
-      ? String(datos.ruta).trim()
-      : null,
+    ruta: datos.ruta ? String(datos.ruta).trim() : null,
 
     leida: false,
   }));
 
-  console.log(
-    "[NOTIFICACIONES] Datos que se insertarán:",
-    data
-  );
+  console.log("[NOTIFICACIONES] Datos que se insertarán:", data);
 
   const resultado = await prisma.notificacion.createMany({
     data,
   });
 
   console.log(
-    `[NOTIFICACIONES] Se crearon ${resultado.count} notificación(es) para el privilegio "${privilegio}".`
+    `[NOTIFICACIONES] Se crearon ${resultado.count} notificación(es) para el privilegio "${privilegio}".`,
   );
 
   return {

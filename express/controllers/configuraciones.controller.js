@@ -2,10 +2,6 @@ const prisma = require("../db/client");
 const net = require("net");
 const tls = require("tls");
 
-// ======================================================
-// UTILIDADES
-// ======================================================
-
 const convertirId = (valor) => {
   const id = Number(valor);
 
@@ -27,11 +23,7 @@ const convertirPuerto = (valor) => {
 
   const puerto = Number(valor);
 
-  if (
-    !Number.isInteger(puerto) ||
-    puerto <= 0 ||
-    puerto > 65535
-  ) {
+  if (!Number.isInteger(puerto) || puerto <= 0 || puerto > 65535) {
     throw new Error("INVALID_PORT");
   }
 
@@ -43,41 +35,28 @@ const limpiarTexto = (valor) => {
     return undefined;
   }
 
-  if (
-    valor === null ||
-    String(valor).trim() === ""
-  ) {
+  if (valor === null || String(valor).trim() === "") {
     return null;
   }
 
   return String(valor).trim();
 };
 
-// ======================================================
-// NO EXPONER LA CONTRASEÑA SMTP
-// ======================================================
-
 const sanitizarConfiguracion = (configuracion) => {
   if (!configuracion) {
     return null;
   }
 
-  const {
-    contrasenia,
-    ...segura
-  } = configuracion;
+  const { contrasenia, ...segura } = configuracion;
 
   return {
     ...segura,
-    tiene_contrasenia:
-      Boolean(contrasenia),
+    tiene_contrasenia: Boolean(contrasenia),
   };
 };
 
 const sanitizarLista = (lista = []) => {
-  return lista.map(
-    sanitizarConfiguracion
-  );
+  return lista.map(sanitizarConfiguracion);
 };
 
 const relacionesConfiguracion = {
@@ -89,296 +68,154 @@ const relacionesConfiguracion = {
   },
 };
 
-// ======================================================
-// OBTENER TODAS LAS CONFIGURACIONES
-// ======================================================
-
+//OBTENER TODAS LAS CONFIGURACIONES
 const getAll = async (filtros = {}) => {
   const where = {};
 
-  if (
-    filtros.id_usuario !== undefined &&
-    filtros.id_usuario !== ""
-  ) {
-    where.id_usuario =
-      convertirId(
-        filtros.id_usuario
-      );
+  if (filtros.id_usuario !== undefined && filtros.id_usuario !== "") {
+    where.id_usuario = convertirId(filtros.id_usuario);
   }
 
-  const configuraciones =
-    await prisma.configuracion.findMany({
-      where,
-      include:
-        relacionesConfiguracion,
-      orderBy: {
-        id: "asc",
-      },
-    });
+  const configuraciones = await prisma.configuracion.findMany({
+    where,
+    include: relacionesConfiguracion,
+    orderBy: {
+      id: "asc",
+    },
+  });
 
-  return sanitizarLista(
-    configuraciones
-  );
+  return sanitizarLista(configuraciones);
 };
 
-// ======================================================
-// OBTENER CONFIGURACIÓN POR ID
-// ======================================================
-
+//OBTENER CONFIGURACIÓN POR ID
 const getById = async (id) => {
-  const configuracionId =
-    convertirId(id);
+  const configuracionId = convertirId(id);
 
-  const configuracion =
-    await prisma.configuracion.findUnique({
-      where: {
-        id:
-          configuracionId,
-      },
-      include:
-        relacionesConfiguracion,
-    });
+  const configuracion = await prisma.configuracion.findUnique({
+    where: {
+      id: configuracionId,
+    },
+    include: relacionesConfiguracion,
+  });
 
   if (!configuracion) {
-    throw new Error(
-      "NOT_FOUND"
-    );
+    throw new Error("NOT_FOUND");
   }
 
-  return sanitizarConfiguracion(
-    configuracion
-  );
+  return sanitizarConfiguracion(configuracion);
 };
 
-// ======================================================
-// OBTENER CONFIGURACIONES DE UN USUARIO
-// ======================================================
-
+//OBTENER CONFIGURACIONES DE UN USUARIO
 const getByUsuario = async (idUsuario) => {
-  const usuarioId =
-    convertirId(
-      idUsuario
-    );
+  const usuarioId = convertirId(idUsuario);
 
-  const configuraciones =
-    await prisma.configuracion.findMany({
-      where: {
-        id_usuario:
-          usuarioId,
-      },
-      include:
-        relacionesConfiguracion,
-      orderBy: {
-        id: "desc",
-      },
-    });
+  const configuraciones = await prisma.configuracion.findMany({
+    where: {
+      id_usuario: usuarioId,
+    },
+    include: relacionesConfiguracion,
+    orderBy: {
+      id: "desc",
+    },
+  });
 
-  return sanitizarLista(
-    configuraciones
-  );
+  return sanitizarLista(configuraciones);
 };
 
-// ======================================================
-// CONFIGURACIÓN SMTP DEL USUARIO AUTENTICADO
-// ======================================================
-//
-// No recibe id_usuario del navegador.
-// Se utiliza el usuario validado por auth.middleware.js.
-// ======================================================
+//CONFIGURACIÓN SMTP DEL USUARIO AUTENTICADO
 
 const getActual = async (usuario) => {
   if (!usuario?.id) {
-    throw new Error(
-      "INVALID_USER"
-    );
+    throw new Error("INVALID_USER");
   }
 
-  const configuracion =
-    await prisma.configuracion.findFirst({
-      where: {
-        id_usuario:
-          Number(
-            usuario.id
-          ),
-      },
-      include:
-        relacionesConfiguracion,
-      orderBy: {
-        id: "desc",
-      },
-    });
+  const configuracion = await prisma.configuracion.findFirst({
+    where: {
+      id_usuario: Number(usuario.id),
+    },
+    include: relacionesConfiguracion,
+    orderBy: {
+      id: "desc",
+    },
+  });
 
-  return sanitizarConfiguracion(
-    configuracion
-  );
+  return sanitizarConfiguracion(configuracion);
 };
 
-// ======================================================
-// GUARDAR CONFIGURACIÓN SMTP ACTUAL
-// ======================================================
-//
-// Si ya existe una configuración:
-// - se actualiza la más reciente.
-// - si contraseña viene vacía, se conserva la anterior.
-//
-// Si no existe:
-// - contraseña es obligatoria.
-// ======================================================
-
-const guardarActual = async (
-  usuario,
-  data
-) => {
+//GUARDAR CONFIGURACIÓN SMTP ACTUAL
+const guardarActual = async (usuario, data) => {
   if (!usuario?.id) {
-    throw new Error(
-      "INVALID_USER"
-    );
+    throw new Error("INVALID_USER");
   }
 
-  const usuarioId =
-    convertirId(
-      usuario.id
-    );
+  const usuarioId = convertirId(usuario.id);
+  const correoRemitente = limpiarTexto(data?.correo_remitente);
+  const smtp = limpiarTexto(data?.smtp);
+  const puerto = convertirPuerto(data?.puerto);
+  const contraseniaNueva = limpiarTexto(data?.contrasenia);
 
-  const correoRemitente =
-    limpiarTexto(
-      data?.correo_remitente
-    );
-
-  const smtp =
-    limpiarTexto(
-      data?.smtp
-    );
-
-  const puerto =
-    convertirPuerto(
-      data?.puerto
-    );
-
-  const contraseniaNueva =
-    limpiarTexto(
-      data?.contrasenia
-    );
-
-  if (
-    !correoRemitente ||
-    !smtp ||
-    puerto === null ||
-    puerto === undefined
-  ) {
-    throw new Error(
-      "INVALID_DATA"
-    );
+  if (!correoRemitente || !smtp || puerto === null || puerto === undefined) {
+    throw new Error("INVALID_DATA");
   }
 
-  const actual =
-    await prisma.configuracion.findFirst({
-      where: {
-        id_usuario:
-          usuarioId,
-      },
-      orderBy: {
-        id: "desc",
-      },
-    });
+  const actual = await prisma.configuracion.findFirst({
+    where: {
+      id_usuario: usuarioId,
+    },
+    orderBy: {
+      id: "desc",
+    },
+  });
 
   if (!actual) {
     if (!contraseniaNueva) {
-      throw new Error(
-        "PASSWORD_REQUIRED"
-      );
+      throw new Error("PASSWORD_REQUIRED");
     }
 
-    const creada =
-      await prisma.configuracion.create({
-        data: {
-          id_usuario:
-            usuarioId,
-
-          correo_remitente:
-            correoRemitente,
-
-          contrasenia:
-            contraseniaNueva,
-
-          smtp,
-
-          puerto,
-        },
-
-        include:
-          relacionesConfiguracion,
-      });
-
-    return sanitizarConfiguracion(
-      creada
-    );
-  }
-
-  const actualizada =
-    await prisma.configuracion.update({
-      where: {
-        id:
-          actual.id,
-      },
-
+    const creada = await prisma.configuracion.create({
       data: {
-        correo_remitente:
-          correoRemitente,
-
+        id_usuario: usuarioId,
+        correo_remitente: correoRemitente,
+        contrasenia: contraseniaNueva,
         smtp,
-
         puerto,
-
-        contrasenia:
-          contraseniaNueva ||
-          undefined,
       },
 
-      include:
-        relacionesConfiguracion,
+      include: relacionesConfiguracion,
     });
 
-  return sanitizarConfiguracion(
-    actualizada
-  );
-};
-
-// ======================================================
-// CREAR CONFIGURACIÓN (COMPATIBILIDAD)
-// ======================================================
-
-const create = async (data) => {
-  if (!data?.id_usuario) {
-    throw new Error(
-      "INVALID_DATA"
-    );
+    return sanitizarConfiguracion(creada);
   }
 
-  const usuarioId =
-    convertirId(
-      data.id_usuario
-    );
+  const actualizada = await prisma.configuracion.update({
+    where: {
+      id: actual.id,
+    },
 
-  const correoRemitente =
-    limpiarTexto(
-      data.correo_remitente
-    );
+    data: {
+      correo_remitente: correoRemitente,
+      smtp,
+      puerto,
+      contrasenia: contraseniaNueva || undefined,
+    },
 
-  const contrasenia =
-    limpiarTexto(
-      data.contrasenia
-    );
+    include: relacionesConfiguracion,
+  });
 
-  const smtp =
-    limpiarTexto(
-      data.smtp
-    );
+  return sanitizarConfiguracion(actualizada);
+};
 
-  const puerto =
-    convertirPuerto(
-      data.puerto
-    );
+//CREAR CONFIGURACIÓN (COMPATIBILIDAD)
+const create = async (data) => {
+  if (!data?.id_usuario) {
+    throw new Error("INVALID_DATA");
+  }
+
+  const usuarioId = convertirId(data.id_usuario);
+  const correoRemitente = limpiarTexto(data.correo_remitente);
+  const contrasenia = limpiarTexto(data.contrasenia);
+  const smtp = limpiarTexto(data.smtp);
+  const puerto = convertirPuerto(data.puerto);
 
   if (
     !correoRemitente ||
@@ -387,473 +224,245 @@ const create = async (data) => {
     puerto === null ||
     puerto === undefined
   ) {
-    throw new Error(
-      "INVALID_DATA"
-    );
+    throw new Error("INVALID_DATA");
   }
 
-  const usuario =
-    await prisma.usuario.findUnique({
-      where: {
-        id:
-          usuarioId,
-      },
-    });
+  const usuario = await prisma.usuario.findUnique({
+    where: {
+      id: usuarioId,
+    },
+  });
 
   if (!usuario) {
-    throw new Error(
-      "USER_NOT_FOUND"
-    );
+    throw new Error("USER_NOT_FOUND");
   }
 
-  const configuracion =
-    await prisma.configuracion.create({
-      data: {
-        id_usuario:
-          usuarioId,
+  const configuracion = await prisma.configuracion.create({
+    data: {
+      id_usuario: usuarioId,
+      correo_remitente: correoRemitente,
+      contrasenia,
+      smtp,
+      puerto,
+    },
 
-        correo_remitente:
-          correoRemitente,
+    include: relacionesConfiguracion,
+  });
 
-        contrasenia,
-
-        smtp,
-
-        puerto,
-      },
-
-      include:
-        relacionesConfiguracion,
-    });
-
-  return sanitizarConfiguracion(
-    configuracion
-  );
+  return sanitizarConfiguracion(configuracion);
 };
 
-// ======================================================
-// ACTUALIZAR CONFIGURACIÓN (COMPATIBILIDAD)
-// ======================================================
+//ACTUALIZAR CONFIGURACIÓN (COMPATIBILIDAD)
+const update = async (id, data) => {
+  const configuracionId = convertirId(id);
 
-const update = async (
-  id,
-  data
-) => {
-  const configuracionId =
-    convertirId(id);
+  if (data.id_usuario !== undefined) {
+    const usuarioId = convertirId(data.id_usuario);
 
-  if (
-    data.id_usuario !==
-    undefined
-  ) {
-    const usuarioId =
-      convertirId(
-        data.id_usuario
-      );
-
-    const usuario =
-      await prisma.usuario.findUnique({
-        where: {
-          id:
-            usuarioId,
-        },
-      });
+    const usuario = await prisma.usuario.findUnique({
+      where: {
+        id: usuarioId,
+      },
+    });
 
     if (!usuario) {
-      throw new Error(
-        "USER_NOT_FOUND"
-      );
+      throw new Error("USER_NOT_FOUND");
     }
   }
 
   try {
-    const configuracion =
-      await prisma.configuracion.update({
-        where: {
-          id:
-            configuracionId,
-        },
+    const configuracion = await prisma.configuracion.update({
+      where: {
+        id: configuracionId,
+      },
 
-        data: {
-          id_usuario:
-            data.id_usuario !==
-            undefined
-              ? convertirId(
-                  data.id_usuario
-                )
-              : undefined,
+      data: {
+        id_usuario:
+          data.id_usuario !== undefined
+            ? convertirId(data.id_usuario)
+            : undefined,
 
-          correo_remitente:
-            limpiarTexto(
-              data.correo_remitente
-            ),
+        correo_remitente: limpiarTexto(data.correo_remitente),
+        contrasenia: limpiarTexto(data.contrasenia) || undefined,
+        smtp: limpiarTexto(data.smtp),
+        puerto: convertirPuerto(data.puerto),
+      },
 
-          contrasenia:
-            limpiarTexto(
-              data.contrasenia
-            ) ||
-            undefined,
+      include: relacionesConfiguracion,
+    });
 
-          smtp:
-            limpiarTexto(
-              data.smtp
-            ),
-
-          puerto:
-            convertirPuerto(
-              data.puerto
-            ),
-        },
-
-        include:
-          relacionesConfiguracion,
-      });
-
-    return sanitizarConfiguracion(
-      configuracion
-    );
+    return sanitizarConfiguracion(configuracion);
   } catch (error) {
-    if (
-      error.code ===
-      "P2025"
-    ) {
-      throw new Error(
-        "NOT_FOUND"
-      );
+    if (error.code === "P2025") {
+      throw new Error("NOT_FOUND");
     }
 
     throw error;
   }
 };
 
-// ======================================================
-// ELIMINAR CONFIGURACIÓN
-// ======================================================
-
+//ELIMINAR CONFIGURACIÓN
 const remove = async (id) => {
-  const configuracionId =
-    convertirId(id);
+  const configuracionId = convertirId(id);
 
   try {
     return await prisma.configuracion.delete({
       where: {
-        id:
-          configuracionId,
+        id: configuracionId,
       },
     });
   } catch (error) {
-    if (
-      error.code ===
-      "P2025"
-    ) {
-      throw new Error(
-        "NOT_FOUND"
-      );
+    if (error.code === "P2025") {
+      throw new Error("NOT_FOUND");
     }
 
     throw error;
   }
 };
 
-// ======================================================
-// ESTADO REAL DE LA BASE DE DATOS
-// ======================================================
-//
-// Solo devuelve datos técnicos seguros.
-// NO devuelve:
-// - usuario de MySQL
-// - contraseña
-// - DATABASE_URL completa
-// ======================================================
-
+//ESTADO REAL DE LA BASE DE DATOS
 const obtenerEstadoSistema = async () => {
-  const inicio =
-    Date.now();
+  const inicio = Date.now();
 
   let databaseUrl = null;
 
   try {
-    if (
-      process.env.DATABASE_URL
-    ) {
-      databaseUrl =
-        new URL(
-          process.env.DATABASE_URL
-        );
+    if (process.env.DATABASE_URL) {
+      databaseUrl = new URL(process.env.DATABASE_URL);
     }
   } catch {
-    databaseUrl =
-      null;
+    databaseUrl = null;
   }
 
-  let version =
-    null;
+  let version = null;
 
   try {
-    const resultado =
-      await prisma.$queryRaw`
+    const resultado = await prisma.$queryRaw`
         SELECT VERSION() AS version
       `;
 
-    if (
-      Array.isArray(
-        resultado
-      ) &&
-      resultado[0]
-    ) {
-      version =
-        String(
-          resultado[0]
-            .version ||
-          ""
-        );
+    if (Array.isArray(resultado) && resultado[0]) {
+      version = String(resultado[0].version || "");
     }
 
-    const tiempoMs =
-      Date.now() -
-      inicio;
+    const tiempoMs = Date.now() - inicio;
 
     return {
       api: {
-        estado:
-          "conectada",
+        estado: "conectada",
 
-        fecha_verificacion:
-          new Date()
-            .toISOString(),
+        fecha_verificacion: new Date().toISOString(),
       },
 
       base_datos: {
-        estado:
-          "conectada",
-
-        motor:
-          "MySQL",
-
-        version:
-          version ||
-          "No disponible",
-
-        host:
-          databaseUrl
-            ?.hostname ||
-          "Configurado en el servidor",
-
-        puerto:
-          databaseUrl
-            ?.port ||
-          "3306",
-
-        nombre:
-          databaseUrl
-            ?.pathname
-            ?.replace(
-              /^\//,
-              ""
-            ) ||
-          "Configurada",
-
-        tiempo_respuesta_ms:
-          tiempoMs,
+        estado: "conectada",
+        motor: "MySQL",
+        version: version || "No disponible",
+        host: databaseUrl?.hostname || "Configurado en el servidor",
+        puerto: databaseUrl?.port || "3306",
+        nombre: databaseUrl?.pathname?.replace(/^\//, "") || "Configurada",
+        tiempo_respuesta_ms: tiempoMs,
       },
     };
   } catch (error) {
-    console.error(
-      "[ESTADO BD]",
-      error
-    );
+    console.error("[ESTADO BD]", error);
 
     return {
       api: {
-        estado:
-          "conectada",
-
-        fecha_verificacion:
-          new Date()
-            .toISOString(),
+        estado: "conectada",
+        fecha_verificacion: new Date().toISOString(),
       },
 
       base_datos: {
-        estado:
-          "sin_conexion",
-
-        motor:
-          "MySQL",
-
-        version:
-          null,
-
-        host:
-          databaseUrl
-            ?.hostname ||
-          "Configurado en el servidor",
-
-        puerto:
-          databaseUrl
-            ?.port ||
-          "3306",
-
-        nombre:
-          databaseUrl
-            ?.pathname
-            ?.replace(
-              /^\//,
-              ""
-            ) ||
-          "Configurada",
-
-        tiempo_respuesta_ms:
-          null,
+        estado: "sin_conexion",
+        motor: "MySQL",
+        version: null,
+        host: databaseUrl?.hostname || "Configurado en el servidor",
+        puerto: databaseUrl?.port || "3306",
+        nombre: databaseUrl?.pathname?.replace(/^\//, "") || "Configurada",
+        tiempo_respuesta_ms: null,
       },
     };
   }
 };
 
-// ======================================================
-// PROBAR DISPONIBILIDAD DEL SERVIDOR SMTP
-// ======================================================
-//
-// Esta prueba verifica conectividad TCP/TLS.
-// NO envía correo y NO valida las credenciales.
-// ======================================================
-
-const probarServidorSmtp = async (
-  usuario
-) => {
-  const configuracion =
-    await prisma.configuracion.findFirst({
-      where: {
-        id_usuario:
-          Number(
-            usuario.id
-          ),
-      },
-      orderBy: {
-        id: "desc",
-      },
-    });
+//PROBAR DISPONIBILIDAD DEL SERVIDOR SMTP
+const probarServidorSmtp = async (usuario) => {
+  const configuracion = await prisma.configuracion.findFirst({
+    where: {
+      id_usuario: Number(usuario.id),
+    },
+    orderBy: {
+      id: "desc",
+    },
+  });
 
   if (!configuracion) {
-    throw new Error(
-      "SMTP_NOT_CONFIGURED"
-    );
+    throw new Error("SMTP_NOT_CONFIGURED");
   }
 
-  const host =
-    configuracion.smtp;
+  const host = configuracion.smtp;
+  const puerto = Number(configuracion.puerto);
 
-  const puerto =
-    Number(
-      configuracion.puerto
-    );
-
-  if (
-    !host ||
-    !Number.isInteger(
-      puerto
-    )
-  ) {
-    throw new Error(
-      "SMTP_NOT_CONFIGURED"
-    );
+  if (!host || !Number.isInteger(puerto)) {
+    throw new Error("SMTP_NOT_CONFIGURED");
   }
 
-  const inicio =
-    Date.now();
+  const inicio = Date.now();
 
-  await new Promise(
-    (
-      resolve,
-      reject
-    ) => {
-      const timeoutMs =
-        7000;
+  await new Promise((resolve, reject) => {
+    const timeoutMs = 7000;
 
-      let socket;
+    let socket;
 
-      const terminarError =
-        (error) => {
-          try {
-            socket?.destroy();
-          } catch {}
+    const terminarError = (error) => {
+      try {
+        socket?.destroy();
+      } catch {}
 
-          reject(
-            error
-          );
-        };
+      reject(error);
+    };
 
-      if (
-        puerto ===
-        465
-      ) {
-        socket =
-          tls.connect(
-            {
-              host,
-              port:
-                puerto,
-
-              servername:
-                host,
-
-              rejectUnauthorized:
-                true,
-            },
-            () => {
-              resolve();
-              socket.end();
-            }
-          );
-      } else {
-        socket =
-          net.createConnection(
-            {
-              host,
-              port:
-                puerto,
-            },
-            () => {
-              resolve();
-              socket.end();
-            }
-          );
-      }
-
-      socket.setTimeout(
-        timeoutMs
-      );
-
-      socket.on(
-        "timeout",
+    if (puerto === 465) {
+      socket = tls.connect(
+        {
+          host,
+          port: puerto,
+          servername: host,
+          rejectUnauthorized: true,
+        },
         () => {
-          terminarError(
-            new Error(
-              "SMTP_TIMEOUT"
-            )
-          );
-        }
+          resolve();
+          socket.end();
+        },
       );
-
-      socket.on(
-        "error",
-        terminarError
+    } else {
+      socket = net.createConnection(
+        {
+          host,
+          port: puerto,
+        },
+        () => {
+          resolve();
+          socket.end();
+        },
       );
     }
-  );
+
+    socket.setTimeout(timeoutMs);
+
+    socket.on("timeout", () => {
+      terminarError(new Error("SMTP_TIMEOUT"));
+    });
+
+    socket.on("error", terminarError);
+  });
 
   return {
-    ok:
-      true,
-
-    servidor:
-      host,
-
+    ok: true,
+    servidor: host,
     puerto,
-
-    tiempo_respuesta_ms:
-      Date.now() -
-      inicio,
-
+    tiempo_respuesta_ms: Date.now() - inicio,
     mensaje:
       "El servidor SMTP respondió correctamente. Esta prueba verifica conectividad, no autenticación ni envío de correo.",
   };
