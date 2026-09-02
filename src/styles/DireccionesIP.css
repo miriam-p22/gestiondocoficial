@@ -1,17 +1,10 @@
-/* ======================================================
-   DIRECCIONES IP
-====================================================== */
-
 .direcciones-ip-page {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* ======================================================
-   ENCABEZADO
-====================================================== */
-
+/* ENCABEZADO*/
 .direcciones-ip-header {
   display: flex;
   align-items: flex-start;
@@ -31,10 +24,7 @@
   line-height: 1.5;
 }
 
-/* ======================================================
-   BOTONES SUPERIORES
-====================================================== */
-
+/* BOTONES SUPERIORES*/
 .direcciones-ip-header-actions {
   display: flex;
   align-items: center;
@@ -59,14 +49,7 @@
   border: 1px solid #d9e3e6;
 }
 
-/* ======================================================
-   BUSCADOR
-====================================================== */
-
-/*
-  Separamos visualmente el buscador de los botones
-  y de la tabla.
-*/
+/* BUSCADOR*/
 
 .direcciones-ip-page .search-container,
 .direcciones-ip-page .filter-container,
@@ -75,10 +58,7 @@
   margin-bottom: 4px;
 }
 
-/* ======================================================
-   CARD / TABLA
-====================================================== */
-
+/* CARD */
 .card-direcciones-ip {
   min-height: 300px;
   overflow-x: auto;
@@ -92,10 +72,7 @@
   font-size: 12px;
 }
 
-/* ======================================================
-   CELDA ÁREA
-====================================================== */
-
+/* CELDA ÁREA*/
 .ip-area-cell {
   padding: 4px 0;
 }
@@ -106,10 +83,7 @@
   line-height: 1.4;
 }
 
-/* ======================================================
-   DIRECCIÓN IP
-====================================================== */
-
+/* DIRECCIÓN IP*/
 .ip-address-cell {
   display: inline-flex;
   align-items: center;
@@ -124,10 +98,7 @@
   flex-shrink: 0;
 }
 
-/* ======================================================
-   ETIQUETAS
-====================================================== */
-
+/* ETIQUETAS*/
 .ip-badge {
   display: inline-flex;
   align-items: center;
@@ -149,21 +120,11 @@
   color: #66747a;
 }
 
-/* ======================================================
-   ACCIONES DE LA TABLA
-====================================================== */
-
 .direcciones-ip-page .actions-cell {
   display: flex;
   align-items: center;
   justify-content: center;
-
-  /*
-    Este gap evita que editar y eliminar
-    aparezcan amontonados.
-  */
   gap: 10px;
-
   min-width: 105px;
 }
 
@@ -185,10 +146,6 @@
   width: 16px;
   height: 16px;
 }
-
-/* ======================================================
-   FORMULARIO DEL MODAL
-====================================================== */
 
 .registro-ip-form {
   display: flex;
@@ -239,10 +196,7 @@
   line-height: 1.5;
 }
 
-/* ======================================================
-   MODAL ELIMINAR
-====================================================== */
-
+/* MODAL ELIMINAR*/
 .ip-delete-content {
   display: flex;
   flex-direction: column;
@@ -259,10 +213,7 @@
   line-height: 1.5;
 }
 
-/* ======================================================
-   RESPONSIVE
-====================================================== */
-
+/* RESPONSIVE*/
 @media (max-width: 900px) {
   .direcciones-ip-header {
     flex-direction: column;

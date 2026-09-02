@@ -16,24 +16,23 @@
 .filtro-grupo {
   display: block;
   width: 200px;
-  /*align-items: center;*/
   gap: 0;
 }
 
 .filtro-grupo label {
   display: none;
-  
 }
 
-/* === SELECT PRINCIPAL === */
 .filtro-grupo select {
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
-  background-color: #f7f7f7; 
+  background-color: #f7f7f7;
   cursor: pointer;
-  transition: border-color 0.2s, background-color 0.2s;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
   min-width: auto;
   outline: none;
   width: 220px;
@@ -43,14 +42,13 @@
 /* Hover */
 .filtro-grupo select:hover {
   border-color: #888;
-  background-color: #eaeaea; /* un gris más notorio al pasar el mouse */
+  background-color: #eaeaea; /* aumento de color al pasar el mouse */
 }
-
 
 .filtro-grupo select:focus {
   border-color: #999;
-  background-color: #dcdcdc; 
-  box-shadow: none; 
+  background-color: #dcdcdc;
+  box-shadow: none;
 }
 
 /* Opciones dentro del desplegable */
@@ -60,13 +58,11 @@
   color: #333;
 }
 
-/* Opción seleccionada dentro de la lista */
 .filtro-grupo select option:checked {
   background-color: #bdbdbd;
   color: white;
 }
 
-/* Estado activo cuando el usuario abre la lista */
 .filtro-grupo select:active {
   background-color: #d3d3d3;
 }

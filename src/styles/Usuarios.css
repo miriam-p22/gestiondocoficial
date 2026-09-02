@@ -1,7 +1,3 @@
-/* =========================================
-   TABLA DE USUARIOS
-========================================= */
-
 .usuarios-tabla-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -13,7 +9,6 @@
   table-layout: fixed;
 }
 
-/* Usuario: nombre + username + correo */
 .usuarios-tabla-wrapper th:nth-child(1),
 .usuarios-tabla-wrapper td:nth-child(1) {
   width: 27%;
@@ -110,10 +105,7 @@
   overflow-wrap: break-word;
 }
 
-/* =========================================
-   ACCIONES COMPACTAS
-========================================= */
-
+/* ACCIONES  */
 .usuarios-actions-cell {
   display: inline-flex;
   align-items: center;
@@ -184,10 +176,6 @@
   box-shadow: 0 0 0 3px rgba(52, 139, 173, 0.16);
 }
 
-/* =========================================
-   CONTENEDOR
-========================================= */
-
 .table-card {
   flex: 1;
   min-height: 450px;
@@ -206,9 +194,7 @@
   line-height: 1.4;
 }
 
-/* =========================================
-   FORMULARIO DE USUARIO
-========================================= */
+/* FORMULARIO DE USUARIO*/
 
 .usuario-form-grid {
   display: grid;
@@ -258,11 +244,7 @@
 .usuario-form-grid select {
   cursor: pointer;
 }
-
-/* =========================================
-   FILA SELECCIONADA
-========================================= */
-
+ /*Fila seleccionada*/
 .selected-row {
   background-color: #eef7fb;
 }
@@ -275,9 +257,7 @@
   background-color: #e3f2f8;
 }
 
-/* =========================================
-   INFORMACIÓN DE PRIVILEGIOS
-========================================= */
+/* INFORMACIÓN DE PRIVILEGIOS */
 
 .privilegios-info {
   display: grid;
@@ -302,10 +282,6 @@
   font-size: 14px;
   line-height: 1.45;
 }
-
-/* =========================================
-   LISTA DE PRIVILEGIOS
-========================================= */
 
 .privilegios-lista {
   display: grid;
@@ -362,9 +338,7 @@
   background-color: #f8f9fa;
 }
 
-/* =========================================
-   RESPONSIVE
-========================================= */
+/* RESPONSIVE */
 
 @media (max-width: 900px) {
   .usuarios-tabla-wrapper table {
@@ -392,17 +366,7 @@
     grid-column: auto;
   }
 }
-
-
-/* =========================================
-   ACCIONES SIEMPRE VISIBLES
-========================================= */
-
-/*
-  La última columna queda fija a la derecha.
-  Así las acciones siguen visibles aunque la
-  ventana sea más angosta y exista scroll horizontal.
-*/
+ /*Acciones*/
 .usuarios-tabla-wrapper th:nth-child(6),
 .usuarios-tabla-wrapper td:nth-child(6) {
   position: sticky;
@@ -430,10 +394,6 @@
 .usuarios-tabla-wrapper .selected-row:hover td:nth-child(6) {
   background: #e3f2f8;
 }
-
-/* =========================================
-   MENÚ COMPACTO PARA CAMBIAR ESTADO
-========================================= */
 
 .usuario-status-overlay {
   position: fixed;
@@ -511,11 +471,6 @@
   background: #c95c55;
 }
 
-/*
-  En pantallas más angostas reducimos un poco
-  el ancho mínimo de la tabla, pero conservamos
-  las acciones fijas.
-*/
 @media (max-width: 1000px) {
   .usuarios-tabla-wrapper table {
     min-width: 760px;

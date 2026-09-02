@@ -1,7 +1,3 @@
-/* ======================================================
-   ESTADOS DEL ORGANIGRAMA
-====================================================== */
-
 .estado-organigrama {
   display: inline-flex;
   align-items: center;
@@ -31,10 +27,7 @@
   color: #a12a2a;
 }
 
-/* ======================================================
-   OBSERVACIONES
-====================================================== */
-
+/*OBSERVACIONES*/
 .organigrama-observaciones-aviso {
   margin: 16px 0;
   padding: 14px;
@@ -64,10 +57,7 @@
   white-space: pre-wrap;
 }
 
-/* ======================================================
-   BOTONES DE ACCIONES CON ICONOS
-====================================================== */
-
+/* BOTONES CON ICONOS*/
 .organigrama-actions {
   display: flex;
   justify-content: center;
@@ -104,15 +94,9 @@
   cursor: not-allowed;
 }
 
-/* ======================================================
-   CONSULTA DEL ORGANIGRAMA VIGENTE
-====================================================== */
-
+/* CONSULTA DEL ORGANIGRAMA VIGENTE*/
 .organigrama-view-description {
-  margin:
-    -5px
-    0
-    18px;
+  margin: -5px 0 18px;
 
   color: #748087;
   font-size: 13px;

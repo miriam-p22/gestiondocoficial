@@ -1,7 +1,3 @@
-/* ======================================================
-   DOCUMENTOS
-====================================================== */
-
 .documentos-header {
   display: flex;
   align-items: flex-start;
@@ -20,10 +16,7 @@
   color: #737f85;
 }
 
-/* ======================================================
-   MENSAJES
-====================================================== */
-
+/*MENSAJES*/
 .documentos-mensaje,
 .documentos-error {
   margin-bottom: 15px;
@@ -49,10 +42,6 @@
   text-align: center;
   color: #748087;
 }
-
-/* ======================================================
-   TABLA
-====================================================== */
 
 .tabla-documentos {
   width: 100%;
@@ -85,10 +74,7 @@
   width: 18%;
 }
 
-/* ======================================================
-   ARCHIVO
-====================================================== */
-
+/* ARCHIVO*/
 .documento-archivo-cell {
   display: flex;
   flex-direction: column;
@@ -112,10 +98,7 @@
   white-space: normal;
 }
 
-/* ======================================================
-   TIEMPO DE RESPUESTA
-====================================================== */
-
+/* TIEMPO DE RESPUESTA*/
 .tiempo-respuesta-cell {
   display: inline-flex;
   align-items: center;
@@ -148,10 +131,7 @@
   background-color: #9aa4a9;
 }
 
-/* ======================================================
-   ACCIONES
-====================================================== */
-
+/* ACCIONES*/
 .tabla-documentos .actions-cell {
   display: flex;
   justify-content: center;
@@ -173,19 +153,10 @@
   cursor: not-allowed;
 }
 
-/* ======================================================
-   INFORMACIÓN DEL MODAL VER
-====================================================== */
-
+/*INFORMACIÓN DEL MODAL VER*/
 .documento-modal-info {
   display: grid;
-  grid-template-columns: repeat(
-    2,
-    minmax(
-      0,
-      1fr
-    )
-  );
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 10px;
   margin-bottom: 15px;
@@ -214,10 +185,7 @@
   color: #30393e;
 }
 
-/* ======================================================
-   GESTIONAR DOCUMENTO
-====================================================== */
-
+/* GESTIONAR DOCUMENTO*/
 .documento-gestion {
   display: flex;
   flex-direction: column;
@@ -248,10 +216,7 @@
   color: #748187;
 }
 
-/* ======================================================
-   RESPUESTA A OFICIALÍA
-====================================================== */
-
+/* RESPUESTA A OFICIALÍA*/
 .respuesta-oficialia-box {
   margin-bottom: 12px;
   padding: 11px 13px;
@@ -278,10 +243,7 @@
   color: #657b84;
 }
 
-/* ======================================================
-   TRAZABILIDAD
-====================================================== */
-
+/* TRAZABILIDAD*/
 .documento-trazabilidad {
   margin-top: 10px;
   padding-top: 13px;
@@ -290,10 +252,7 @@
 }
 
 .documento-trazabilidad h4 {
-  margin:
-    0
-    0
-    10px;
+  margin: 0 0 10px;
 
   font-size: 13px;
   color: #354147;
@@ -319,26 +278,17 @@
   font-size: 11px;
 }
 
-/* ======================================================
-   RESPONSIVE
-====================================================== */
-
-@media (
-  max-width: 850px
-) {
+/* RESPONSIVE*/
+@media (max-width: 850px) {
   .documentos-header {
     flex-direction: column;
   }
 
   .documento-modal-info {
-    grid-template-columns:
-      1fr;
+    grid-template-columns: 1fr;
   }
 }
-/* ======================================================
-   ACCIONES CON ICONOS
-====================================================== */
-
+/* ACCIONES CON ICONOS*/
 .tabla-documentos .actions-cell {
   display: flex;
   align-items: center;
@@ -366,10 +316,7 @@
   pointer-events: none;
 }
 
-/* ======================================================
-   AVISO DE FLUJO
-====================================================== */
-
+/* AVISO DE FLUJO*/
 .documento-flujo-aviso {
   display: flex;
   flex-direction: column;
@@ -401,10 +348,7 @@
   color: #748087;
 }
 
-/* ======================================================
-   INFORMACIÓN AMPLIA DEL MODAL
-====================================================== */
-
+/* INFORMACIÓN AMPLIA DEL MODAL*/
 .documento-modal-info-wide {
   grid-column: 1 / -1;
 
@@ -429,10 +373,7 @@
 .documento-modal-info-wide small {
   color: #6f7b81;
 }
-/* ======================================================
-   CUMPLIMIENTO DE ATENCIÓN
-====================================================== */
-
+/* CUMPLIMIENTO DE ATENCIÓN*/
 .documento-resultado-atencion {
   grid-column: 1 / -1;
 
@@ -466,10 +407,6 @@
 .documento-resultado-atencion span {
   font-weight: 600;
 }
-/* ======================================================
-   FILTRO RECIBIDO DESDE DASHBOARD
-   Agregar al final de Documentos.css
-====================================================== */
 
 .documentos-dashboard-filter {
   display: flex;
@@ -496,10 +433,7 @@
   font-weight: 700;
   cursor: pointer;
 }
-/* =====================================================
-   RESPALDO DOCUMENTAL POR RANGO
-   ===================================================== */
-
+/* RESPALDO DOCUMENTAL POR RANGO*/
 .documentos-respaldo-form {
   display: flex;
   flex-direction: column;

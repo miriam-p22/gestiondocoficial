@@ -1,7 +1,3 @@
-/* ======================================================
-   CABECERA
-====================================================== */
-
 .dispersion-header {
   display: flex;
   align-items: flex-start;
@@ -17,10 +13,6 @@
   font-size: 14px;
   line-height: 1.5;
 }
-
-/* ======================================================
-   CELDA DE ARCHIVO
-====================================================== */
 
 .dispersion-file-cell {
   display: flex;
@@ -40,10 +32,6 @@
   font-weight: 700;
 }
 
-/* ======================================================
-   ORIGEN
-====================================================== */
-
 .dispersion-origin {
   display: inline-flex;
   padding: 4px 8px;
@@ -54,19 +42,11 @@
   font-weight: 600;
 }
 
-/* ======================================================
-   DESTINOS
-====================================================== */
-
 .dispersion-destination-count {
   color: #59666d;
   font-size: 12px;
   font-weight: 600;
 }
-
-/* ======================================================
-   ESTADOS DE ENVÍO
-====================================================== */
 
 .dispersion-send-state {
   display: inline-flex;
@@ -99,10 +79,6 @@
   color: #68747a;
 }
 
-/* ======================================================
-   VACÍO
-====================================================== */
-
 .dispersion-empty {
   display: flex;
   flex-direction: column;
@@ -121,10 +97,6 @@
 .dispersion-empty span {
   font-size: 13px;
 }
-
-/* ======================================================
-   MODAL DE CARGA
-====================================================== */
 
 .modal-dispersion-upload {
   width: min(720px, 94vw);
@@ -153,10 +125,6 @@
   color: #879197;
   font-size: 11px;
 }
-
-/* ======================================================
-   SELECTOR DE ARCHIVO
-====================================================== */
 
 .dispersion-file-picker {
   display: flex;
@@ -189,10 +157,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-/* ======================================================
-   ARCHIVO SELECCIONADO
-====================================================== */
 
 .dispersion-selected-file {
   display: flex;
@@ -232,10 +196,6 @@
   cursor: pointer;
 }
 
-/* ======================================================
-   CABECERA DESTINOS
-====================================================== */
-
 .dispersion-destinations-header {
   display: flex;
   align-items: flex-end;
@@ -268,10 +228,6 @@
   cursor: pointer;
 }
 
-/* ======================================================
-   BUSCADOR DE ÁREA
-====================================================== */
-
 .dispersion-area-search {
   width: 100%;
   padding: 9px 11px;
@@ -288,10 +244,6 @@
 .dispersion-area-search:focus {
   border-color: #348bad;
 }
-
-/* ======================================================
-   LISTA DE ÁREAS
-====================================================== */
 
 .dispersion-area-list {
   max-height: 270px;
@@ -365,10 +317,6 @@
   text-align: center;
 }
 
-/* ======================================================
-   MODAL DETALLE
-====================================================== */
-
 .modal-dispersion-detail {
   width: min(1200px, 96vw);
   max-width: 1200px;
@@ -406,19 +354,11 @@
   overflow-wrap: anywhere;
 }
 
-/* ======================================================
-   GRID DETALLE
-====================================================== */
-
 .dispersion-detail-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.8fr);
   gap: 15px;
 }
-
-/* ======================================================
-   VISOR
-====================================================== */
 
 .dispersion-preview,
 .dispersion-destinations-panel {
@@ -492,10 +432,6 @@
   color: #404b50;
 }
 
-/* ======================================================
-   PANEL DE DESTINOS
-====================================================== */
-
 .dispersion-panel-title {
   padding: 11px 12px;
   border-bottom: 1px solid #e2e7e9;
@@ -559,10 +495,6 @@
   color: #a22d2d !important;
 }
 
-/* ======================================================
-   NOTA P2P
-====================================================== */
-
 .dispersion-p2p-note {
   margin: 10px;
   padding: 11px;
@@ -582,10 +514,6 @@
   font-size: 10px;
   line-height: 1.45;
 }
-
-/* ======================================================
-   RESPONSIVE
-====================================================== */
 
 @media (max-width: 900px) {
   .dispersion-header {
@@ -616,11 +544,6 @@
     flex-direction: column;
   }
 }
-
-
-/* ======================================================
-   ACCIONES CON ICONOS
-====================================================== */
 
 .dispersion-actions {
   display: flex;
@@ -663,20 +586,12 @@
   height: 16px;
 }
 
-/* ======================================================
-   ESTADO ATENDIDO
-====================================================== */
-
 .dispersion-document-state.atendido,
 .dispersion-time-state.atendido {
   color: #246439;
   background: #e0f2e4;
   border-color: #c7e3cd;
 }
-
-/* ======================================================
-   RESPUESTAS Y ENTREGAS
-====================================================== */
 
 .dispersion-respuestas-card {
   margin-top: 24px;
@@ -754,10 +669,6 @@
   border: 1px solid #f0dfaa;
 }
 
-/* ======================================================
-   RESPUESTA DEL ÁREA EN DETALLE DE DISPERSIÓN
-====================================================== */
-
 .dispersion-area-response-box,
 .dispersion-return-box,
 .dispersion-response-confirm-box {
@@ -815,17 +726,16 @@
   overflow-wrap: anywhere;
 }
 
-/* ======================================================
-   MODAL DETALLE DE RESPUESTA
-====================================================== */
-
 .dispersion-response-detail {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.dispersion-response-detail > div:not(.dispersion-response-detail-comment):not(.dispersion-response-history) {
+.dispersion-response-detail
+  > div:not(.dispersion-response-detail-comment):not(
+    .dispersion-response-history
+  ) {
   display: flex;
   flex-direction: column;
   gap: 3px;

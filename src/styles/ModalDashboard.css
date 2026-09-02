@@ -1,6 +1,6 @@
 .filters {
-  display: flex; /*coloca los filtros uno al lado del otro*/
-  gap: 20px; /*agrega separación entre ellos*/
+  display: flex; 
+  gap: 20px; /*agrega separación */
   margin-bottom: 15px; /*agrega espacio debajo*/
 }
 .modal-dashboard-ancho {

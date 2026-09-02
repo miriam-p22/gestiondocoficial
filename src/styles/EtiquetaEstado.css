@@ -1,7 +1,3 @@
-/* ======================================================
-   BASE
-====================================================== */
-
 .status-badge {
   display: inline-flex;
   justify-content: center;
@@ -26,10 +22,7 @@
   white-space: nowrap;
 }
 
-/* ======================================================
-   USUARIOS
-====================================================== */
-
+/*USUARIOS*/
 .status-badge-activo {
   color: #1e7e34;
   background-color: #d4edda;
@@ -42,52 +35,42 @@
   border: 1px solid #f5c6cb;
 }
 
-/* ======================================================
-   DOCUMENTOS
-====================================================== */
-
-/* Turnado */
-
+/* Documento turnado */
 .status-badge-turnado {
   color: #315f78;
   background-color: #dcecf4;
   border: 1px solid #c4dce8;
 }
 
-/* Recibido */
-
+/* Documento recibido */
 .status-badge-recibido {
   color: #246439;
   background-color: #e0f2e4;
   border: 1px solid #c7e3cd;
 }
 
-/* En proceso */
-
+/* Documento en proceso */
 .status-badge-en-proceso {
   color: #82621a;
   background-color: #fff3cd;
   border: 1px solid #f1dfa8;
 }
 
-/* Atendido */
-
+/* Documento atendido */
 .status-badge-atendido {
   color: #176332;
   background-color: #cfeeda;
   border: 1px solid #b5dec3;
 }
 
-/* Devuelto */
-
+/* Documento devuelto */
 .status-badge-devuelto {
   color: #95591d;
   background-color: #fff0df;
   border: 1px solid #edd3b8;
 }
 
-/* Vencido */
-
+/* Documento vencido */
 .status-badge-vencido {
   color: #721c24;
   background-color: #f8d7da;

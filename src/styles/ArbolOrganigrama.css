@@ -1,47 +1,30 @@
-/* ======================================================
-   CONTENEDOR PRINCIPAL
-====================================================== */
-
 .org-tree-wrapper {
   width: 100%;
   min-width: 0;
-
   box-sizing: border-box;
 }
-
-/* ======================================================
-   BARRA DE HERRAMIENTAS
-====================================================== */
 
 .org-tree-toolbar {
   display: flex;
   align-items: center;
-
   gap: 12px;
-
   width: 100%;
-
   padding: 10px 14px;
-
   box-sizing: border-box;
-
   border: 1px solid #dce4e8;
   border-radius: 10px;
-
   background: #f7f9fa;
 }
 
 .org-tree-toolbar-group {
   display: flex;
   align-items: center;
-
   gap: 7px;
 }
 
 .org-tree-toolbar-separator {
   width: 1px;
   height: 25px;
-
   background: #d4dde1;
 }
 
@@ -77,12 +60,8 @@
 
 .org-tree-control:hover:not(:disabled) {
   border-color: #348bad;
-
   background: #f4fafc;
-
-  box-shadow:
-    0 2px 5px
-    rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
 }
 
 .org-tree-control:active:not(:disabled) {
@@ -91,13 +70,11 @@
 
 .org-tree-control:disabled {
   opacity: 0.45;
-
   cursor: not-allowed;
 }
 
 .org-tree-control-text {
   min-width: auto;
-
   font-size: 13px;
   font-weight: 600;
 }
@@ -116,35 +93,18 @@
   font-weight: 600;
 }
 
-/* ======================================================
-   VISOR
-====================================================== */
+/* VISOR */
 
 .org-tree-viewport {
   position: relative;
 
   width: 100%;
   max-width: 100%;
-
-  /*
-    Altura fija del visor.
-
-    El zoom hace crecer el árbol dentro,
-    pero la barra horizontal permanece
-    siempre en la parte inferior.
-  */
   height: 500px;
   min-height: 500px;
-
   margin-top: 12px;
-
-  padding:
-    30px
-    24px
-    24px;
-
+  padding: 30px 24px 24px;
   box-sizing: border-box;
-
   overflow-x: auto;
   overflow-y: auto;
 
@@ -155,18 +115,12 @@
   border: 1px solid #edf0f2;
   border-radius: 8px;
 
-  background:
-    linear-gradient(
-      #ffffff,
-      #ffffff
-    );
+  background: linear-gradient(#ffffff, #ffffff);
 
   scroll-behavior: smooth;
 }
 
-/* ======================================================
-   SCROLL
-====================================================== */
+/* SCROLL */
 
 .org-tree-viewport::-webkit-scrollbar {
   width: 11px;
@@ -190,9 +144,7 @@
   background: #82969f;
 }
 
-/* ======================================================
-   ÁREA DEL ÁRBOL
-====================================================== */
+/* ÁREA DEL ÁRBOL */
 
 .org-tree-export-area {
   display: block;
@@ -200,10 +152,7 @@
   width: max-content;
   min-width: 100%;
 
-  padding:
-    12px
-    34px
-    40px;
+  padding: 12px 34px 40px;
 
   box-sizing: border-box;
 
@@ -216,8 +165,7 @@
   width: max-content;
   min-width: 100%;
 
-  transform-origin:
-    top center;
+  transform-origin: top center;
 }
 
 .org-tree-content {
@@ -230,9 +178,7 @@
   box-sizing: border-box;
 }
 
-/* ======================================================
-   NODO GENERAL
-====================================================== */
+/* NODO GENERAL */
 
 .org-node {
   position: relative;
@@ -244,10 +190,7 @@
   width: 220px;
   min-height: 76px;
 
-  padding:
-    13px
-    15px
-    10px;
+  padding: 13px 15px 10px;
 
   box-sizing: border-box;
 
@@ -256,9 +199,7 @@
 
   background: #ffffff;
 
-  box-shadow:
-    0 3px 8px
-    rgba(35, 53, 61, 0.08);
+  box-shadow: 0 3px 8px rgba(35, 53, 61, 0.08);
 
   color: #303a3f;
 
@@ -275,14 +216,10 @@
 
   border-color: #348bad;
 
-  box-shadow:
-    0 6px 14px
-    rgba(35, 53, 61, 0.12);
+  box-shadow: 0 6px 14px rgba(35, 53, 61, 0.12);
 }
 
-/* ======================================================
-   ENCABEZADO DEL NODO
-====================================================== */
+/* ENCABEZADO DEL NODO */
 
 .org-node-header {
   display: flex;
@@ -321,9 +258,7 @@
   overflow-wrap: break-word;
 }
 
-/* ======================================================
-   PIE DEL NODO
-====================================================== */
+/* PIE DEL NODO */
 
 .org-node-footer {
   display: flex;
@@ -338,9 +273,7 @@
   display: inline-flex;
   align-items: center;
 
-  padding:
-    2px
-    7px;
+  padding: 2px 7px;
 
   border-radius: 20px;
 
@@ -353,41 +286,23 @@
   line-height: 1.4;
 }
 
-/* ======================================================
-   RAÍZ
-====================================================== */
+/* RAÍZ*/
 
 .org-node-root {
   width: 250px;
   min-height: 86px;
 
-  padding:
-    17px
-    18px
-    12px;
-
+  padding: 17px 18px 12px;
   border: none;
-
   border-radius: 11px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #348bad,
-      #277895
-    );
-
-  box-shadow:
-    0 5px 14px
-    rgba(39, 120, 149, 0.24);
+  background: linear-gradient(135deg, #348bad, #277895);
+  box-shadow: 0 5px 14px rgba(39, 120, 149, 0.24);
 }
 
 .org-node-root:hover {
   transform: translateY(-2px);
 
-  box-shadow:
-    0 7px 18px
-    rgba(39, 120, 149, 0.3);
+  box-shadow: 0 7px 18px rgba(39, 120, 149, 0.3);
 }
 
 .org-node-root .org-node-name {
@@ -404,20 +319,10 @@
 }
 
 .org-node-root .org-node-level {
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.16
-    );
+  background: rgba(255, 255, 255, 0.16);
 
   color: #ffffff;
 }
-
-/* ======================================================
-   TABLA GENERADA POR LA LIBRERÍA
-====================================================== */
 
 .org-tree-content table {
   margin-left: auto;
@@ -430,36 +335,24 @@
   vertical-align: top;
 }
 
-/* ======================================================
-   ESTADO VACÍO
-====================================================== */
-
 .org-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
 
   gap: 5px;
-
   width: 100%;
-
   padding: 28px;
-
   box-sizing: border-box;
-
   border: 1px dashed #c7d1d6;
   border-radius: 9px;
-
   background: #f8fafb;
-
   color: #68767c;
-
   text-align: center;
 }
 
 .org-empty strong {
   color: #3e494e;
-
   font-size: 15px;
 }
 
@@ -467,51 +360,26 @@
   font-size: 13px;
 }
 
-/* ======================================================
-   ERROR
-====================================================== */
-
 .org-tree-error {
   width: 100%;
-
   padding: 18px;
-
   box-sizing: border-box;
-
   border: 1px solid #efb5b5;
   border-radius: 8px;
-
   background: #fff3f3;
-
   color: #9f2525;
-
   font-size: 14px;
-
   text-align: center;
 }
-
-/* ======================================================
-   GESTIÓN
-====================================================== */
 
 .organigrama-selected-info {
   display: flex;
   align-items: center;
-
   gap: 13px;
-
   margin-bottom: 16px;
-
-  padding:
-    11px
-    15px;
-
-  border:
-    1px solid
-    #dce5e9;
-
+  padding: 11px 15px;
+  border: 1px solid #dce5e9;
   border-radius: 8px;
-
   background: #f8fafb;
 }
 
@@ -522,23 +390,15 @@
 }
 
 .organigrama-selected-info span {
-  padding:
-    3px
-    8px;
-
+  padding: 3px 8px;
   border-radius: 20px;
-
   background: #eaf2f5;
-
   color: #56707a;
-
   font-size: 12px;
   font-weight: 600;
 }
 
-/* ======================================================
-   PREVISUALIZACIÓN
-====================================================== */
+/* PREVISUALIZACIÓN */
 
 .organigrama-preview-section {
   margin-top: 30px;
@@ -555,10 +415,7 @@
 }
 
 .organigrama-preview-header h3 {
-  margin:
-    0
-    0
-    4px;
+  margin: 0 0 4px;
 
   color: #303a3f;
 
@@ -581,19 +438,12 @@
   overflow: visible;
 }
 
-/* ======================================================
-   MODAL
-====================================================== */
+/* MODAL */
 
 .modal-organigrama {
-  width:
-    min(
-      1350px,
-      96vw
-    );
+  width: min(1350px, 96vw);
 
-  max-width:
-    1350px;
+  max-width: 1350px;
 }
 
 .modal-organigrama .modal-body {
@@ -616,9 +466,7 @@
   overflow: hidden;
 }
 
-/* ======================================================
-   EXPORTAR PDF
-====================================================== */
+/* EXPORTAR PDF */
 
 .organigrama-modal-actions {
   display: flex;
@@ -627,21 +475,12 @@
   margin-bottom: 12px;
 }
 
-/* ======================================================
-   RESPONSIVE
-====================================================== */
-
-@media (
-  max-width: 900px
-) {
+@media (max-width: 900px) {
   .org-tree-viewport {
     height: 430px;
     min-height: 430px;
 
-    padding:
-      24px
-      16px
-      20px;
+    padding: 24px 16px 20px;
   }
 
   .org-tree-toolbar {
@@ -677,9 +516,7 @@
   }
 }
 
-@media (
-  max-width: 600px
-) {
+@media (max-width: 600px) {
   .org-tree-viewport {
     height: 390px;
     min-height: 390px;
@@ -700,8 +537,7 @@
     font-size: 12px;
   }
 
-  .org-node-root
-    .org-node-name {
+  .org-node-root .org-node-name {
     max-width: 160px;
 
     font-size: 14px;
@@ -711,14 +547,9 @@
     min-width: 32px;
     height: 32px;
 
-    padding:
-      0
-      8px;
+    padding: 0 8px;
   }
 }
-/* ======================================================
-   SCROLL DEL MODAL VER ORGANIGRAMA
-====================================================== */
 
 .organigrama-modal-scroll {
   width: 100%;
@@ -742,9 +573,7 @@
   overflow-x: auto;
   overflow-y: auto;
 }
-/* ======================================================
-   COMPARACIÓN DE VERSIONES
-====================================================== */
+/* COMPARACIÓN DE VERSIONES */
 
 .comparacion-organigrama-info {
   margin-bottom: 16px;
@@ -771,11 +600,7 @@
 .comparacion-resumen {
   display: grid;
 
-  grid-template-columns:
-    repeat(
-      4,
-      minmax(110px, 1fr)
-    );
+  grid-template-columns: repeat(4, minmax(110px, 1fr));
 
   gap: 10px;
 
@@ -871,10 +696,6 @@
 
 @media (max-width: 800px) {
   .comparacion-resumen {
-    grid-template-columns:
-      repeat(
-        2,
-        minmax(110px, 1fr)
-      );
+    grid-template-columns: repeat(2, minmax(110px, 1fr));
   }
 }

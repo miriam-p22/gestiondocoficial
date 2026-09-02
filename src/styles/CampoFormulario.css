@@ -1,73 +1,68 @@
-/* ------------------------------------------------------------------- */
-/* Estilos para CampoFormulario.jsx (Clases: .field, .label-text, .input)*/
-/* ------------------------------------------------------------------- */
-
 .field {
-    display: block; /* Cada campo ocupa su propia línea */
-    margin-bottom: 15px;
-    font-size: 1rem;
-    color: var(--text-color);
+  display: block; /* Cada campo ocupa su propia línea */
+  margin-bottom: 15px;
+  font-size: 1rem;
+  color: var(--text-color);
 }
 
 .label-text {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 5px;
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
 }
 
 .input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
-    font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box; 
+  font-size: 1rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .input:focus {
-    border-color: var(--shadow-color);
-    outline: none;
-    box-shadow: 0 0 0 0.2rem rgba(10, 10, 10, 0.25);
+  border-color: var(--shadow-color);
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(10, 10, 10, 0.25);
 }
 
-/* Estilo específico para el elemento select */
+/* Elemento select */
 select.input {
-    appearance: none; /* Oculta el estilo nativo del select */
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15 10l-4.293-4.293-.707.707L13.586 10z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 15px;
-    padding-right: 30px; /* Espacio para el icono de flecha */
+  appearance: none; /* Oculta el estilo nativo del select */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15 10l-4.293-4.293-.707.707L13.586 10z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 15px;
+  padding-right: 30px; 
 }
 
-/*ESTILO PARA EL ICONO DEL OJITO PARA CONTRASENIAS*/
+/*ICONO VISUALIZACION*/
 .field {
-position: relative;
-display: block;
+  position: relative;
+  display: block;
 }
 
 .input {
-width: 100%;
-padding: 12px 45px 12px 12px;
-border-radius: 8px;
-border: 1px solid #ccc;
-font-size: 15px;
+  width: 100%;
+  padding: 12px 45px 12px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
 }
 
 .password-icon-formulario {
-position: absolute;
-right: 10px;        /* Ajusta aquí */
-top: 75%;
-transform: translateY(-75%);
-cursor: pointer;
-font-size: 1.2em;
-color: #555;
+  position: absolute;
+  right: 10px; /* Ajusta aquí */
+  top: 75%;
+  transform: translateY(-75%);
+  cursor: pointer;
+  font-size: 1.2em;
+  color: #555;
 }
-/* ======================================================
-   TEXTAREA
-====================================================== */
-
+/* TEXT AREA*/
 textarea.input {
   min-height: 110px;
   resize: vertical;

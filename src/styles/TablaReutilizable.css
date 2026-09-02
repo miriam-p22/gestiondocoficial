@@ -1,8 +1,8 @@
 .tabla-wrapper {
-    max-height: 350px;
-    overflow-y: auto;        /* SOLO scroll vertical */
-    overflow-x: hidden;      /* NO scroll horizontal */
-    width: 100%;
+  max-height: 350px;
+  overflow-y: auto; /* SOLO scroll vertical */
+  overflow-x: hidden; /* NO scroll horizontal */
+  width: 100%;
 }
 .tabla-respuestas-wrapper {
   height: 180px; /* Altura fija más pequeña */
@@ -12,54 +12,54 @@
 }
 /* Tabla */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: Arial, sans-serif;
-    table-layout: fixed;     /* evita desbordes horizontales */
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+  table-layout: fixed; /* evita desbordes horizontales */
 }
 
 /* Encabezados */
 thead th {
-    text-align: center !important;
-    white-space: normal !important;
-    word-break: break-word;
-    background-color: #f1f1f1;
-    
+  text-align: center !important;
+  white-space: normal !important;
+  word-break: break-word;
+  background-color: #f1f1f1;
 }
 
 /* Encabezado fijo */
 thead {
-    position: sticky;
-    top: 0;
-    z-index: 5;
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 tbody {
-    display: table-row-group !important;
+  display: table-row-group !important;
 }
 
 /* Celdas */
-th, td {
-    padding: 6px 10px;
-    border-bottom: 1px solid #ddd;
-    font-size: 12px;  
-    text-align: center;
+th,
+td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #ddd;
+  font-size: 12px;
+  text-align: center;
 }
 
 /* Hover */
 tbody tr:hover {
-    background-color: #f8f8f8;
+  background-color: #f8f8f8;
 }
 
 /* Fila seleccionada */
 table tr.selected-user,
 table tr.selected-row {
-    background-color: #e3d6c0 !important;
-    border-left: 5px solid #a17a4a;
-    cursor: default;
+  background-color: #e3d6c0 !important;
+  border-left: 5px solid #a17a4a;
+  cursor: default;
 }
 .toolbar-container {
-  margin-bottom: 20px;   /* separa el buscador de la tabla */
+  margin-bottom: 20px; /* separa el buscador de la tabla */
 }
 
 /* Estilos para colores del semaforo*/
@@ -73,8 +73,8 @@ table tr.selected-row {
   height: 10px;
   border-radius: 50%;
   display: inline-block;
-  margin-left: 6px;        
-  border: 1px solid #999;  
+  margin-left: 6px;
+  border: 1px solid #999;
 }
 
 /* Colores del semáforo */
@@ -96,20 +96,20 @@ table tr.selected-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;               
+  gap: 6px;
   flex-wrap: nowrap;
 }
 
 th:last-child,
 td:last-child {
-  width: 135px;          
+  width: 135px;
   white-space: nowrap;
 }
 
 .btn-action {
-  padding: 4px 8px;       
-  font-size: 12px;       
-  border-radius: 6px;     
-  min-width: auto;        
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+  min-width: auto;
   line-height: 1.2;
 }

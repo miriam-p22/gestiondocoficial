@@ -76,9 +76,18 @@
 }
 
 /* Colores */
-.segmento.green, .leyenda-color.green { background-color: #4CAF50; }
-.segmento.yellow, .leyenda-color.yellow { background-color: #FFC107; }
-.segmento.red, .leyenda-color.red { background-color: #F44336; }
+.segmento.green,
+.leyenda-color.green {
+  background-color: #4caf50;
+}
+.segmento.yellow,
+.leyenda-color.yellow {
+  background-color: #ffc107;
+}
+.segmento.red,
+.leyenda-color.red {
+  background-color: #f44336;
+}
 
 #graficoPrincipal {
   cursor: pointer;
