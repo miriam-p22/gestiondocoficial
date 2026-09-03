@@ -1,7 +1,9 @@
 const { PrismaClient } = require("@prisma/client");
+
 const prisma = new PrismaClient();
 
 const AREAS_BASE = ["Dirección de Recursos Humanos"];
+
 const ROLES_BASE = [
   "Administrador",
   "Recursos Humanos",
@@ -37,91 +39,69 @@ const PERMISOS_BASE = {
     "Gestionar Roles y Privilegios",
     "Consultar Archivo Físico Global",
   ],
-
   "Recursos Humanos": [
     "Registrar usuarios",
     "Gestionar Áreas",
     "Gestionar Direcciones IP",
     "Gestionar Organigrama",
+    "Gestionar Roles y Privilegios",
   ],
-
   "Oficialía de Partes": ["Gestionar Dispersión"],
-
   Presidencia: ["Revisar Organigrama"],
-  
   "Responsable de Archivo": [
     "Gestionar Archivo Físico",
     "Consultar Archivo Físico Global",
   ],
-
   Capturista: [],
   Usuario: [],
   "Jefe de Area": [],
   Ninguno: [],
 };
 
+const CLAVE_RH_INICIAL_HASH =
+  "$2y$12$OWXmUOZE9QxtelE587cnhufVmFRn2oZMGcNxRkJIxHBkz3QTcws8C";
+
 const crearAreasBase = async () => {
   console.log("Verificando áreas base...");
-
   for (const nombreArea of AREAS_BASE) {
     await prisma.area.upsert({
-      where: {
-        nombre_area: nombreArea,
-      },
+      where: { nombre_area: nombreArea },
       update: {},
-      create: {
-        nombre_area: nombreArea,
-      },
+      create: { nombre_area: nombreArea },
     });
   }
-
   console.log("Áreas base verificadas.");
 };
 
 const crearRolesBase = async () => {
   console.log("Verificando roles base...");
-
   for (const nombreRol of ROLES_BASE) {
     await prisma.rol.upsert({
-      where: {
-        nombre_rol: nombreRol,
-      },
+      where: { nombre_rol: nombreRol },
       update: {},
-      create: {
-        nombre_rol: nombreRol,
-      },
+      create: { nombre_rol: nombreRol },
     });
   }
-
-  console.log(" Roles base verificados.");
+  console.log("Roles base verificados.");
 };
 
 const crearPrivilegiosBase = async () => {
   console.log("Verificando privilegios base...");
-
   for (const tituloPrivilegio of PRIVILEGIOS_BASE) {
     await prisma.privilegio.upsert({
-      where: {
-        titulo_privilegio: tituloPrivilegio,
-      },
+      where: { titulo_privilegio: tituloPrivilegio },
       update: {},
-      create: {
-        titulo_privilegio: tituloPrivilegio,
-      },
+      create: { titulo_privilegio: tituloPrivilegio },
     });
   }
-
-  console.log(" Privilegios base verificados.");
+  console.log("Privilegios base verificados.");
 };
 
 const asignarPermisosBase = async () => {
   console.log("Verificando permisos base...");
-
   for (const [nombreRol, privilegios] of Object.entries(PERMISOS_BASE)) {
     const rol = await prisma.rol.findUnique({
-      where: {
-        nombre_rol: nombreRol,
-      },
+      where: { nombre_rol: nombreRol },
     });
 
     if (!rol) {
@@ -130,9 +110,7 @@ const asignarPermisosBase = async () => {
 
     for (const tituloPrivilegio of privilegios) {
       const privilegio = await prisma.privilegio.findUnique({
-        where: {
-          titulo_privilegio: tituloPrivilegio,
-        },
+        where: { titulo_privilegio: tituloPrivilegio },
       });
 
       if (!privilegio) {
@@ -156,33 +134,41 @@ const asignarPermisosBase = async () => {
       });
     }
   }
+  console.log("Permisos base verificados.");
+};
 
-  console.log(" Permisos base verificados.");
+const crearClaveRhInicial = async () => {
+  console.log("Verificando clave inicial de RH...");
+  const clavesExistentes = await prisma.claveRh.count();
+
+  if (clavesExistentes === 0) {
+    await prisma.claveRh.create({
+      data: { clave: CLAVE_RH_INICIAL_HASH },
+    });
+    console.log("Clave inicial de RH creada.");
+    return;
+  }
+
+  console.log(
+    "La tabla claverh ya contiene al menos una clave; no se agregó otra.",
+  );
 };
 
 const mostrarResumen = async () => {
   const roles = await prisma.rol.findMany({
-    where: {
-      nombre_rol: {
-        in: ROLES_BASE,
-      },
-    },
+    where: { nombre_rol: { in: ROLES_BASE } },
     include: {
       permisos: {
-        include: {
-          privilegio: true,
-        },
+        include: { privilegio: true },
       },
     },
-    orderBy: {
-      nombre_rol: "asc",
-    },
+    orderBy: { nombre_rol: "asc" },
   });
 
+  const totalClavesRh = await prisma.claveRh.count();
+
   console.log("");
-  console.log("======================================");
-  console.log(" RESUMEN DE SEGURIDAD BASE");
-  console.log("======================================");
+  console.log(" RESUMEN DE CONFIGURACIÓN BASE");
 
   for (const rol of roles) {
     console.log("");
@@ -199,6 +185,8 @@ const mostrarResumen = async () => {
   }
 
   console.log("");
+  console.log(`Claves RH registradas: ${totalClavesRh}`);
+  console.log("");
 };
 
 async function main() {
@@ -210,6 +198,7 @@ async function main() {
   await crearRolesBase();
   await crearPrivilegiosBase();
   await asignarPermisosBase();
+  await crearClaveRhInicial();
   await mostrarResumen();
 
   console.log("Seed ejecutado correctamente.");
@@ -219,7 +208,7 @@ async function main() {
 main()
   .catch((error) => {
     console.error("");
-    console.error(" Error inesperado en el seed:");
+    console.error("Error inesperado en el seed:");
     console.error(error);
     process.exit(1);
   })

@@ -1,16 +1,13 @@
-// src/components/RegistroUsuario.jsx
 import React from "react";
 import ModalReutilizable from "./ModalReutilizable";
 import CampoFormulario from "./CampoFormulario";
 
-const roles = ["Administrador", "Coordinador", "Supervisor", "Usuario"];
-
-const FormularioRegistro = ({ formData, onInputChange }) => {
+const FormularioRegistro = ({ formData, onInputChange, errorMessage }) => {
   return (
     <>
       <CampoFormulario
         label="Nombre"
-        placeholder="Nombre"
+        placeholder="Nombre completo"
         name="nombre"
         value={formData.nombre || ""}
         onChange={onInputChange}
@@ -55,36 +52,34 @@ const FormularioRegistro = ({ formData, onInputChange }) => {
         required
       />
 
-      <CampoFormulario
-        label="Rol"
-        isSelect
-        name="rol"
-        value={formData.rol || ""}
-        onChange={onInputChange}
-        required
-      >
-        <option value="" disabled>
-          Rol
-        </option>
-        {roles.map((r) => (
-          <option key={r} value={r}>
-            {r}
-          </option>
-        ))}
-      </CampoFormulario>
+      {errorMessage ? (
+        <div
+          style={{
+            marginTop: "12px",
+            color: "#b42318",
+            fontSize: "14px",
+          }}
+        >
+          {errorMessage}
+        </div>
+      ) : null}
     </>
   );
 };
 
-/* COMPONENTE CONTROLADO*/
-const RegistroUsuario = ({ isOpen, onClose, onRegister }) => {
+const RegistroUsuario = ({
+  isOpen,
+  onClose,
+  onRegister,
+  loading = false,
+  errorMessage = "",
+}) => {
   const [formData, setFormData] = React.useState({
     nombre: "",
     usuario: "",
     numTrabajador: "",
     correo: "",
     password: "",
-    rol: "",
   });
 
   const handleInputChange = (e) => {
@@ -96,45 +91,71 @@ const RegistroUsuario = ({ isOpen, onClose, onRegister }) => {
     }));
   };
 
-  const handleAccept = () => {
-    if (
-      !formData.nombre ||
-      !formData.usuario ||
-      !formData.numTrabajador ||
-      !formData.correo ||
-      !formData.password ||
-      !formData.rol
-    ) {
-      alert("Por favor completa todos los campos.");
-      return;
-    }
-
-    onRegister(formData);
-    // limpiar
+  const limpiarFormulario = () => {
     setFormData({
       nombre: "",
       usuario: "",
       numTrabajador: "",
       correo: "",
       password: "",
-      rol: "",
     });
+  };
 
-    onClose(); // cierra modal
+  const handleClose = () => {
+    if (loading) return;
+    limpiarFormulario();
+    onClose();
+  };
+
+  const handleAccept = async () => {
+    if (loading) return;
+
+    const nombre = String(formData.nombre || "").trim();
+    const usuario = String(formData.usuario || "").trim();
+    const numeroTrabajador = String(formData.numTrabajador || "").trim();
+    const correo = String(formData.correo || "").trim();
+    const password = String(formData.password || "");
+
+    if (!nombre || !usuario || !numeroTrabajador || !correo || !password.trim()) {
+      return;
+    }
+
+    const numeroTrab = Number(numeroTrabajador);
+
+    if (!Number.isInteger(numeroTrab)) {
+      return;
+    }
+
+    try {
+      await onRegister({
+        nombre_completo: nombre,
+        nombre_usuario: usuario,
+        numero_trab: numeroTrab,
+        correo_electronico: correo,
+        contrasenia: password,
+      });
+
+      limpiarFormulario();
+      onClose();
+    } catch (error) {
+      // LoginPrincipal ya guarda el mensaje de error del backend.
+      // Aquí evitamos que la promesa rechazada llegue al overlay de React.
+    }
   };
 
   return (
     <ModalReutilizable
-      title="Registro"
+      title="Registro inicial de Recursos Humanos"
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       onAccept={handleAccept}
-      acceptButtonText="Aceptar"
+      acceptButtonText={loading ? "Registrando..." : "Aceptar"}
       cancelButtonText="Cancelar"
     >
       <FormularioRegistro
         formData={formData}
         onInputChange={handleInputChange}
+        errorMessage={errorMessage}
       />
     </ModalReutilizable>
   );
