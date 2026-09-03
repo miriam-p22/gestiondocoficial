@@ -138,8 +138,7 @@ const RegistroUsuario = ({
       limpiarFormulario();
       onClose();
     } catch (error) {
-      // LoginPrincipal ya guarda el mensaje de error del backend.
-      // Aquí evitamos que la promesa rechazada llegue al overlay de React.
+      
     }
   };
 
