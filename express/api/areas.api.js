@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const areasController = require("../controllers/areas.controller");
 const { autenticar } = require("../middlewares/auth.middleware");
+const { autenticarAppMovil } = require("../middlewares/app_movil.middleware");
 const { requierePrivilegio } = require("../middlewares/permisos.middleware");
 const PRIVILEGIO_GESTIONAR_AREAS = "Gestionar Áreas";
 
@@ -64,6 +65,16 @@ const handleApiError = (res, error, mensajePersonalizado = null) => {
       "Ocurrió un error inesperado al procesar el área.",
   });
 };
+
+router.get("/app/listado", autenticarAppMovil, async (req, res) => {
+  try {
+    const areas = await areasController.getAll();
+
+    return res.status(200).json(areas);
+  } catch (error) {
+    return handleApiError(res, error, "Error al consultar las áreas.");
+  }
+});
 
 router.get("/", autenticar, async (req, res) => {
   try {

@@ -48,9 +48,9 @@ const diasHastaLimite = (fechaLimite) => {
 };
 
 export const useDashboardData = ({
-  esAdministrador,
-  esPresidencia,
-  esRecursosHumanos,
+  puedeConsultarDocumentosGlobal,
+  puedeRegistrarUsuarios,
+  puedeRevisarOrganigrama,
   idArea,
 }) => {
   const [dispersiones, setDispersiones] = useState([]);
@@ -67,7 +67,7 @@ export const useDashboardData = ({
     try {
       const promesas = [apiFetch("/dispersion")];
 
-      if (esRecursosHumanos) {
+      if (puedeRegistrarUsuarios) {
         promesas.push(apiFetch("/usuarios"));
       } else {
         promesas.push(Promise.resolve([]));
@@ -75,7 +75,7 @@ export const useDashboardData = ({
 
       promesas.push(apiFetch("/organigramas/vigente").catch(() => null));
 
-      if (esPresidencia) {
+      if (puedeRevisarOrganigrama) {
         promesas.push(apiFetch("/organigramas/revision").catch(() => []));
       } else {
         promesas.push(Promise.resolve([]));
@@ -103,13 +103,13 @@ export const useDashboardData = ({
     } finally {
       setLoading(false);
     }
-  }, [esAdministrador, esPresidencia, esRecursosHumanos]);
+  }, [puedeRegistrarUsuarios, puedeRevisarOrganigrama]);
 
   useEffect(() => {
     cargarDashboard();
   }, [cargarDashboard]);
 
-  //DOCUMENTOS 
+  //DOCUMENTOS
   const documentos = useMemo(() => {
     const filas = [];
 
@@ -135,12 +135,12 @@ export const useDashboardData = ({
       });
     });
 
-    if (esAdministrador || esPresidencia) {
+    if (puedeConsultarDocumentosGlobal) {
       return filas;
     }
 
     return filas.filter((item) => Number(item.id_area) === Number(idArea));
-  }, [dispersiones, esAdministrador, esPresidencia, idArea]);
+  }, [dispersiones, puedeConsultarDocumentosGlobal, idArea]);
 
   //MÉTRICAS
   const metricas = useMemo(() => {

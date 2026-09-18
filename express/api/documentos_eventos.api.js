@@ -11,9 +11,10 @@ const { requierePrivilegio } = require("../middlewares/permisos.middleware");
 const prisma = require("../db/client");
 
 const PRIVILEGIO_GESTIONAR_DISPERSION = "Gestionar Dispersión";
+const PRIVILEGIO_CONSULTAR_DOCUMENTOS_GLOBAL = "Consultar Documentos Global";
 
 //SEGURIDAD DE CONSULTA
-const tieneGestionDispersion = async (usuario) => {
+const tienePrivilegio = async (usuario, tituloPrivilegio) => {
   if (!usuario || !usuario.id_rol) {
     return false;
   }
@@ -21,12 +22,10 @@ const tieneGestionDispersion = async (usuario) => {
   const permiso = await prisma.rolPermiso.findFirst({
     where: {
       id_rol: Number(usuario.id_rol),
-
       privilegio: {
-        titulo_privilegio: PRIVILEGIO_GESTIONAR_DISPERSION,
+        titulo_privilegio: tituloPrivilegio,
       },
     },
-
     select: {
       id_rol: true,
     },
@@ -36,14 +35,7 @@ const tieneGestionDispersion = async (usuario) => {
 };
 
 const tieneConsultaGlobal = async (usuario) => {
-  const nombreRol = String(usuario?.rol?.nombre_rol || "").trim();
-  const nombreArea = String(usuario?.area?.nombre_area || "").trim();
-
-  if (nombreRol === "Administrador" || nombreArea === "Presidencia Municipal") {
-    return true;
-  }
-
-  return tieneGestionDispersion(usuario);
+  return tienePrivilegio(usuario, PRIVILEGIO_CONSULTAR_DOCUMENTOS_GLOBAL);
 };
 
 const validarAccesoHistorial = async (req, res, next) => {
@@ -113,7 +105,8 @@ const handleApiError = (res, error) => {
     INVALID_EVENT_TYPE: "El tipo de evento no es válido.",
     COMMENT_TOO_LONG: "El comentario no puede superar los 1000 caracteres.",
     AREA_REQUIRED: "Debe seleccionar el área correspondiente.",
-    AREA_RESPONSE_REQUIRED: "El área todavía no ha enviado una respuesta para este documento.",
+    AREA_RESPONSE_REQUIRED:
+      "El área todavía no ha enviado una respuesta para este documento.",
     OFFICE_RESPONSE_REQUIRED:
       "Oficialía debe confirmar primero que recibió una respuesta.",
   };

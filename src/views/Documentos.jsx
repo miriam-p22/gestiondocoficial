@@ -13,21 +13,15 @@ import CampoFormulario from "../components/CampoFormulario";
 
 import useDispersion from "../hooks/useDispersion";
 import { useAreas } from "../hooks/useAreas";
+import usePermisosUsuario from "../hooks/usePermisosUsuario";
 
 import { FiEye, FiEdit3 } from "react-icons/fi";
 
 import "../styles/Documentos.css";
 
-// ======================================================
-// CONFIGURACIÓN
-// ======================================================
-
 const SERVER_URL = "http://localhost:3001";
 
-// ======================================================
-// RESPALDOS POR RANGO
-// ======================================================
-
+//RESPALDOS POR RANGO
 const fechaInput = (fecha) => {
   const anio = fecha.getFullYear();
   const mes = String(fecha.getMonth() + 1).padStart(2, "0");
@@ -350,31 +344,26 @@ const obtenerResultadoAtencion = (documento) => {
 const motivosDevolucion = [
   {
     value: "no_corresponde_area",
-
     label: "No corresponde a mi área",
   },
 
   {
     value: "informacion_incompleta",
-
     label: "Información incompleta",
   },
 
   {
     value: "documento_ilegible",
-
     label: "Documento ilegible",
   },
 
   {
     value: "documento_duplicado",
-
     label: "Documento duplicado",
   },
 
   {
     value: "otro",
-
     label: "Otro",
   },
 ];
@@ -387,19 +376,19 @@ const Documentos = () => {
     .trim()
     .toLowerCase();
 
-  const nombreRolSesion = String(
-    localStorage.getItem("nombre_rol") || "",
-  ).trim();
-
   const nombreAreaSesion = String(
     localStorage.getItem("nombre_area") || "",
   ).trim();
 
-  const esAdministrador = nombreRolSesion === "Administrador";
+  const { loading: loadingPermisos, tienePrivilegio } = usePermisosUsuario();
 
-  const esPresidencia = nombreAreaSesion === "Presidencia Municipal";
+  const puedeConsultarDocumentosGlobal =
+    !loadingPermisos && tienePrivilegio("Consultar Documentos Global");
 
-  const esConsultaGlobal = esAdministrador || esPresidencia;
+  const puedeGenerarRespaldos =
+    !loadingPermisos && tienePrivilegio("Generar Respaldos");
+
+  const esConsultaGlobal = puedeConsultarDocumentosGlobal;
 
   const {
     dispersiones,
@@ -438,7 +427,7 @@ const Documentos = () => {
   const [errorRespaldo, setErrorRespaldo] = useState("");
   const [generandoRespaldo, setGenerandoRespaldo] = useState(false);
   const [alcanceRespaldo, setAlcanceRespaldo] = useState(
-    esAdministrador ? "general" : "area",
+    puedeGenerarRespaldos ? "general" : "area",
   );
   const [idAreaRespaldo, setIdAreaRespaldo] = useState(
     String(localStorage.getItem("id_area") || ""),
@@ -678,7 +667,7 @@ const Documentos = () => {
     setTipoRangoRespaldo("mes_actual");
     setDesdeRespaldo(rango.desde);
     setHastaRespaldo(rango.hasta);
-    setAlcanceRespaldo(esAdministrador ? "general" : "area");
+    setAlcanceRespaldo(puedeGenerarRespaldos ? "general" : "area");
     setIdAreaRespaldo(String(localStorage.getItem("id_area") || ""));
     setErrorRespaldo("");
     setGenerandoRespaldo(false);
@@ -714,15 +703,13 @@ const Documentos = () => {
     }
 
     if (response.status === 404 && esPorArea) {
-      if (esPresidencia) {
-        return "No hay documentos correspondientes a su área dentro del periodo seleccionado.";
-      }
-
-      if (esAdministrador) {
+      if (puedeGenerarRespaldos) {
         return nombreArea
           ? `No hay documentos correspondientes al área ${nombreArea} dentro del periodo seleccionado.`
           : "No hay documentos correspondientes al área seleccionada dentro del periodo indicado.";
       }
+
+      return "No hay documentos correspondientes a su área dentro del periodo seleccionado.";
     }
 
     return (
@@ -732,7 +719,6 @@ const Documentos = () => {
   };
 
   const guardarBlobConSelector = async (blob, nombreArchivo) => {
-
     if (
       !window.electronAPI ||
       typeof window.electronAPI.guardarRespaldoZip !== "function"
@@ -794,17 +780,19 @@ const Documentos = () => {
     let esPorArea = true;
     let areaSeleccionada = null;
 
-    if (esAdministrador && alcanceRespaldo === "general") {
+    if (puedeGenerarRespaldos && alcanceRespaldo === "general") {
       esPorArea = false;
       url = `${SERVER_URL}/api/backups/general?${parametros.toString()}`;
     } else {
       const idArea = Number(
-        esAdministrador ? idAreaRespaldo : localStorage.getItem("id_area"),
+        puedeGenerarRespaldos
+          ? idAreaRespaldo
+          : localStorage.getItem("id_area"),
       );
 
       if (!Number.isInteger(idArea) || idArea <= 0) {
         setErrorRespaldo(
-          esAdministrador
+          puedeGenerarRespaldos
             ? "Seleccione el área que desea respaldar."
             : "Para generar el respaldo debe existir un área activa en la sesión.",
         );
@@ -870,7 +858,7 @@ const Documentos = () => {
       setIsModalRespaldoOpen(false);
 
       setMensaje(
-        esAdministrador && !esPorArea
+        puedeGenerarRespaldos && !esPorArea
           ? "El respaldo general se guardó correctamente."
           : "El respaldo del área se guardó correctamente.",
       );
@@ -972,16 +960,14 @@ const Documentos = () => {
             <h2 className="card-title">Gestión Documental</h2>
 
             <p className="documentos-subtitle">
-              {esPresidencia
-                ? "Supervisión global de los documentos asignados a las áreas municipales."
-                : esAdministrador
-                  ? "Consulta global de la gestión documental del sistema."
-                  : "Documentos asignados al área responsable."}
+              {esConsultaGlobal
+                ? "Consulta global de la gestión documental de las áreas municipales."
+                : "Documentos asignados al área responsable."}
             </p>
           </div>
 
           <BotonReutilizable onClick={abrirModalRespaldo}>
-            {esAdministrador ? "Generar respaldo" : "Exportar documentos"}
+            {puedeGenerarRespaldos ? "Generar respaldo" : "Exportar documentos"}
           </BotonReutilizable>
         </div>
 
@@ -1307,7 +1293,7 @@ const Documentos = () => {
       <ModalReutilizable
         id="modal-respaldo-documentos"
         title={
-          esAdministrador
+          puedeGenerarRespaldos
             ? "Generar respaldo documental"
             : "Exportar documentos del área"
         }
@@ -1331,7 +1317,7 @@ const Documentos = () => {
             </div>
           )}
 
-          {esAdministrador && (
+          {puedeGenerarRespaldos && (
             <CampoFormulario
               label="Alcance del respaldo"
               isSelect
@@ -1346,7 +1332,7 @@ const Documentos = () => {
             </CampoFormulario>
           )}
 
-          {esAdministrador && alcanceRespaldo === "area" && (
+          {puedeGenerarRespaldos && alcanceRespaldo === "area" && (
             <CampoFormulario
               label="Área"
               isSelect
@@ -1376,7 +1362,7 @@ const Documentos = () => {
             </CampoFormulario>
           )}
 
-          {!esAdministrador && (
+          {!puedeGenerarRespaldos && (
             <div className="documentos-respaldo-area-actual">
               <span>Área del respaldo</span>
               <strong>{nombreAreaSesion || "Área de la sesión"}</strong>
@@ -1421,7 +1407,7 @@ const Documentos = () => {
           <div className="documentos-respaldo-nota">
             <strong>Contenido del respaldo</strong>
             <span>
-              {esAdministrador && alcanceRespaldo === "general"
+              {puedeGenerarRespaldos && alcanceRespaldo === "general"
                 ? "Incluye los documentos recibidos por todas las áreas dentro del periodo seleccionado, su información de dispersión y los archivos de respuesta relacionados."
                 : "Incluye únicamente los documentos correspondientes al área seleccionada dentro del periodo indicado, su información de dispersión y los archivos de respuesta relacionados."}
             </span>

@@ -1,28 +1,30 @@
 .tabla-wrapper {
   max-height: 350px;
-  overflow-y: auto; /* SOLO scroll vertical */
-  overflow-x: hidden; /* NO scroll horizontal */
   width: 100%;
+  overflow: auto;
 }
 .tabla-respuestas-wrapper {
-  height: 180px; /* Altura fija más pequeña */
-  overflow-y: auto;
-  overflow-x: hidden;
+  height: 180px;
   width: 100%;
+  overflow: auto;
 }
 /* Tabla */
-table {
+.tabla-wrapper table,
+.tabla-respuestas-wrapper table {
   width: 100%;
+  min-width: 750px;
   border-collapse: collapse;
   font-family: Arial, sans-serif;
-  table-layout: fixed; /* evita desbordes horizontales */
+  table-layout: auto;
 }
 
 /* Encabezados */
-thead th {
+.tabla-wrapper thead th,
+.tabla-respuestas-wrapper thead th {
   text-align: center !important;
-  white-space: normal !important;
-  word-break: break-word;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
   background-color: #f1f1f1;
 }
 
@@ -38,12 +40,19 @@ tbody {
 }
 
 /* Celdas */
-th,
-td {
+.tabla-wrapper th,
+.tabla-wrapper td,
+.tabla-respuestas-wrapper th,
+.tabla-respuestas-wrapper td {
   padding: 6px 10px;
   border-bottom: 1px solid #ddd;
   font-size: 12px;
   text-align: center;
+}
+.tabla-wrapper td,
+.tabla-respuestas-wrapper td {
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 /* Hover */
@@ -100,9 +109,11 @@ table tr.selected-row {
   flex-wrap: nowrap;
 }
 
-th:last-child,
-td:last-child {
-  width: 135px;
+.tabla-wrapper th:last-child,
+.tabla-wrapper td:last-child,
+.tabla-respuestas-wrapper th:last-child,
+.tabla-respuestas-wrapper td:last-child {
+  min-width: 135px;
   white-space: nowrap;
 }
 

@@ -6,17 +6,17 @@ const fs = require("fs");
 const multer = require("multer");
 
 const dispersionController = require("../controllers/dispersion.controller");
-
+const { generarPdfDesdeImagenes } = require("../services/pdf.service");
 const { autenticar } = require("../middlewares/auth.middleware");
-
+const { autenticarAppMovil } = require("../middlewares/app_movil.middleware");
 const { requierePrivilegio } = require("../middlewares/permisos.middleware");
 
 const prisma = require("../db/client");
-
 const PRIVILEGIO_GESTIONAR_DISPERSION = "Gestionar Dispersión";
+const PRIVILEGIO_CONSULTAR_DOCUMENTOS_GLOBAL = "Consultar Documentos Global";
 
 // SEGURIDAD Y ALCANCE DE CONSULTA
-const tieneGestionDispersion = async (usuario) => {
+const tienePrivilegio = async (usuario, tituloPrivilegio) => {
   if (!usuario || !usuario.id_rol) {
     return false;
   }
@@ -26,7 +26,7 @@ const tieneGestionDispersion = async (usuario) => {
       id_rol: Number(usuario.id_rol),
 
       privilegio: {
-        titulo_privilegio: PRIVILEGIO_GESTIONAR_DISPERSION,
+        titulo_privilegio: tituloPrivilegio,
       },
     },
 
@@ -39,21 +39,19 @@ const tieneGestionDispersion = async (usuario) => {
 };
 
 const tieneConsultaGlobal = async (usuario) => {
-  const nombreRol = String(usuario?.rol?.nombre_rol || "").trim();
-  const nombreArea = String(usuario?.area?.nombre_area || "").trim();
-
-  if (nombreRol === "Administrador" || nombreArea === "Presidencia Municipal") {
-    return true;
-  }
-
-  return tieneGestionDispersion(usuario);
+  return tienePrivilegio(usuario, PRIVILEGIO_CONSULTAR_DOCUMENTOS_GLOBAL);
 };
 
 const aplicarAlcanceConsulta = async (req, res, next) => {
   try {
     const global = await tieneConsultaGlobal(req.usuario);
 
-    if (global) {
+    const gestionaDispersion = await tienePrivilegio(
+      req.usuario,
+      PRIVILEGIO_GESTIONAR_DISPERSION,
+    );
+
+    if (global || gestionaDispersion) {
       return next();
     }
 
@@ -81,11 +79,17 @@ const validarAccesoDispersion = async (req, res, next) => {
   try {
     const global = await tieneConsultaGlobal(req.usuario);
 
-    if (global) {
+    const gestionaDispersion = await tienePrivilegio(
+      req.usuario,
+      PRIVILEGIO_GESTIONAR_DISPERSION,
+    );
+
+    if (global || gestionaDispersion) {
       return next();
     }
 
     const idArea = Number(req.usuario?.id_area);
+
     const idDispersion = Number(req.params.id);
 
     if (
@@ -103,6 +107,7 @@ const validarAccesoDispersion = async (req, res, next) => {
       where: {
         id_dispersion_id_area: {
           id_dispersion: idDispersion,
+
           id_area: idArea,
         },
       },
@@ -137,18 +142,65 @@ if (!fs.existsSync(carpetaDispersion)) {
   });
 }
 
+const extensionesPorMime = {
+  "application/pdf": ".pdf",
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "application/msword": ".doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    ".docx",
+};
+
+const obtenerExtensionArchivo = (file) => {
+  const extensionNombre = path.extname(file?.originalname || "");
+
+  if (extensionNombre) {
+    return extensionNombre.toLowerCase();
+  }
+
+  return extensionesPorMime[file?.mimetype] || "";
+};
+
+const obtenerNombreArchivo = (file) => {
+  const original = String(file?.originalname || "documento").trim();
+  const extension = obtenerExtensionArchivo(file);
+  const extensionOriginal = path.extname(original);
+
+  let nombreBase = extensionOriginal
+    ? path.basename(original, extensionOriginal)
+    : original;
+
+  try {
+    nombreBase = decodeURIComponent(nombreBase);
+  } catch {
+    // Se conserva el nombre recibido.
+  }
+
+  nombreBase = nombreBase
+    .replace(/^image:/i, "documento_")
+    .replace(/^document:/i, "documento_")
+    .replace(/[^a-zA-Z0-9_-]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+  if (!nombreBase) {
+    nombreBase = "documento";
+  }
+
+  return `${nombreBase}${extension}`;
+};
+
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, carpetaDispersion);
   },
 
   filename: (req, file, callback) => {
-    const extension = path.extname(file.originalname);
-    const nombreBase = path
-      .basename(file.originalname, extension)
-      .replace(/[^a-zA-Z0-9_-]/g, "_");
-
+    const nombreArchivo = obtenerNombreArchivo(file);
+    const extension = path.extname(nombreArchivo);
+    const nombreBase = path.basename(nombreArchivo, extension);
     const fecha = new Date().toISOString().replace(/[:.]/g, "-");
+
     callback(null, `${fecha}_${nombreBase}${extension}`);
   },
 });
@@ -177,6 +229,26 @@ const upload = multer({
   },
 });
 
+const uploadEscaneo = multer({
+  storage,
+
+  limits: {
+    fileSize: 20 * 1024 * 1024,
+
+    files: 30,
+  },
+
+  fileFilter: (req, file, callback) => {
+    const tipos = ["image/jpeg", "image/png"];
+
+    if (tipos.includes(file.mimetype)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("INVALID_SCANNED_IMAGE"));
+  },
+});
+
 // ERRORES
 const handleApiError = (res, error) => {
   console.error("[Error API Dispersión]:", {
@@ -194,29 +266,23 @@ const handleApiError = (res, error) => {
   const errores400 = {
     INVALID_ID: "El identificador no es válido.",
     INVALID_ORIGIN: "El origen debe ser web o app.",
-    INVALID_SEND_STATE:
-      "El estado de transferencia debe ser pendiente, enviado o error.",
-    INVALID_DOCUMENT_STATE:
-      "El estado del oficio debe ser turnado, recibido, en proceso, atendido o devuelto.",
+    INVALID_SEND_STATE: "El estado de transferencia debe ser pendiente, enviado o error.",
+    INVALID_DOCUMENT_STATE: "El estado del oficio debe ser turnado, recibido, en proceso, atendido o devuelto.",
     INVALID_RETURN_REASON: "El motivo de devolución no es válido.",
-    RETURN_COMMENT_REQUIRED:
-      "Debe escribir un comentario cuando seleccione el motivo Otro.",
-    RESPONSE_REQUIRED:
-      "Debe escribir una respuesta antes de marcar el oficio como Atendido.",
+    RETURN_COMMENT_REQUIRED: "Debe escribir un comentario cuando seleccione el motivo Otro.",
+    RESPONSE_REQUIRED: "Debe escribir una respuesta antes de marcar el oficio como Atendido.",
     INVALID_DATA: "Los datos proporcionados no son válidos.",
     INVALID_DATE: "La fecha proporcionada no es válida.",
     DEADLINE_REQUIRED: "Debe indicar la fecha límite de atención.",
     TEXT_TOO_LONG: "Uno de los campos supera la longitud permitida.",
     DESTINATIONS_REQUIRED: "Debe seleccionar al menos un área destino.",
     SEND_ERROR_REQUIRED: "Debe indicar el motivo del error de transferencia.",
-    INVALID_FILE_TYPE:
-      "El tipo de archivo no está permitido. Use PDF, JPG, PNG, DOC o DOCX.",
-    STATE_NOT_EDITABLE:
-      "El estado Turnado es asignado automáticamente por Oficialía.",
-    RECEIVE_REQUIRED:
-      "Primero debe confirmar que el documento fue recibido por el área.",
-    FINAL_STATE:
-      "El documento ya se encuentra en un estado final y no puede modificarse.",
+    INVALID_FILE_TYPE: "El tipo de archivo no está permitido. Use PDF, JPG, PNG, DOC o DOCX.",
+    INVALID_SCANNED_IMAGE: "Las páginas escaneadas deben ser imágenes JPG o PNG.",
+    SCANNED_PAGES_REQUIRED: "Debe escanear al menos una página.",
+    STATE_NOT_EDITABLE: "El estado Turnado es asignado automáticamente por Oficialía.",
+    RECEIVE_REQUIRED: "Primero debe confirmar que el documento fue recibido por el área.",
+    FINAL_STATE: "El documento ya se encuentra en un estado final y no puede modificarse.",
   };
 
   if (errores400[error.message]) {
@@ -273,15 +339,9 @@ const handleApiError = (res, error) => {
   });
 };
 
-// SUBIR ARCHIVO REAL
-router.post(
-  "/subir",
-
-  autenticar,
-  requierePrivilegio(PRIVILEGIO_GESTIONAR_DISPERSION),
-  upload.single("archivo"),
-
-  async (req, res) => {
+// PROCESAR ARCHIVO DE DISPERSIÓN
+const procesarArchivoDispersion = (origen) => {
+  return async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({
@@ -311,8 +371,9 @@ router.post(
         });
       }
 
-      const extension = path
-        .extname(req.file.originalname)
+      const nombreArchivo = obtenerNombreArchivo(req.file);
+
+      const extension = obtenerExtensionArchivo(req.file)
         .replace(".", "")
         .toLowerCase();
 
@@ -322,12 +383,12 @@ router.post(
 
       try {
         const nueva = await dispersionController.create({
-          nombre_archivo: req.file.originalname,
+          nombre_archivo: nombreArchivo,
           archivo: rutaRelativa,
           tipo_archivo: req.file.mimetype,
           tamano_archivo: req.file.size,
           extension,
-          origen: "web",
+          origen,
           fecha_limite: req.body.fecha_limite || null,
           destinos,
         });
@@ -340,6 +401,143 @@ router.post(
 
         throw error;
       }
+    } catch (error) {
+      return handleApiError(res, error);
+    }
+  };
+};
+
+const eliminarArchivos = async (archivos = []) => {
+  for (const archivo of archivos) {
+    try {
+      if (archivo?.path && fs.existsSync(archivo.path)) {
+        await fs.promises.unlink(archivo.path);
+      }
+    } catch (error) {
+      console.error("[LIMPIAR ESCANEO]", error);
+    }
+  }
+};
+
+const procesarEscaneoApp = async (req, res) => {
+  const paginas = Array.isArray(req.files) ? req.files : [];
+
+  let pdfGenerado = null;
+
+  try {
+    if (paginas.length === 0) {
+      throw new Error("SCANNED_PAGES_REQUIRED");
+    }
+
+    let destinos = [];
+
+    try {
+      destinos = JSON.parse(req.body.destinos || "[]");
+    } catch {
+      throw new Error("INVALID_DATA");
+    }
+
+    if (!Array.isArray(destinos) || destinos.length === 0) {
+      throw new Error("DESTINATIONS_REQUIRED");
+    }
+
+    destinos = destinos.map(Number);
+
+    if (destinos.some((id) => !Number.isInteger(id) || id <= 0)) {
+      throw new Error("INVALID_DATA");
+    }
+
+    if (!req.body.fecha_limite) {
+      throw new Error("DEADLINE_REQUIRED");
+    }
+
+    pdfGenerado = await generarPdfDesdeImagenes({
+      archivos: paginas,
+
+      carpetaDestino: carpetaDispersion,
+    });
+
+    const rutaRelativa = path
+      .relative(process.cwd(), pdfGenerado.rutaArchivo)
+      .replace(/\\/g, "/");
+
+    const nueva = await dispersionController.create({
+      nombre_archivo: pdfGenerado.nombreArchivo,
+      archivo: rutaRelativa,
+      tipo_archivo: "application/pdf",
+      tamano_archivo: pdfGenerado.tamano,
+      extension: "pdf",
+      origen: "app",
+      fecha_limite: req.body.fecha_limite,
+      destinos,
+    });
+
+    await eliminarArchivos(paginas);
+
+    return res.status(201).json(nueva);
+  } catch (error) {
+    await eliminarArchivos(paginas);
+
+    if (pdfGenerado?.rutaArchivo && fs.existsSync(pdfGenerado.rutaArchivo)) {
+      try {
+        await fs.promises.unlink(pdfGenerado.rutaArchivo);
+      } catch (errorEliminacion) {
+        console.error("[LIMPIAR PDF]", errorEliminacion);
+      }
+    }
+
+    return handleApiError(res, error);
+  }
+};
+
+// SUBIR ARCHIVO DESDE EL SISTEMA DE ESCRITORIO
+router.post(
+  "/subir",
+
+  autenticar,
+
+  requierePrivilegio(PRIVILEGIO_GESTIONAR_DISPERSION),
+
+  upload.single("archivo"),
+
+  procesarArchivoDispersion("web"),
+);
+
+// SUBIR ARCHIVO DESDE LA APLICACIÓN MÓVIL
+router.post(
+  "/subir-app",
+
+  autenticarAppMovil,
+
+  upload.single("archivo"),
+
+  procesarArchivoDispersion("app"),
+);
+
+// ESCANEAR DESDE LA APLICACIÓN MÓVIL
+router.post(
+  "/escanear-app",
+
+  autenticarAppMovil,
+
+  uploadEscaneo.array("paginas", 30),
+
+  procesarEscaneoApp,
+);
+
+// HISTORIAL DE LA APLICACIÓN MÓVIL
+router.get(
+  "/historial-app",
+
+  autenticarAppMovil,
+
+  async (req, res) => {
+    try {
+      const resultado = await dispersionController.getAll({
+        origen: "app",
+      });
+
+      return res.status(200).json(resultado);
     } catch (error) {
       return handleApiError(res, error);
     }

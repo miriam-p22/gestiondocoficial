@@ -25,6 +25,8 @@ const PRIVILEGIOS_BASE = [
   "Gestionar Roles y Privilegios",
   "Gestionar Archivo Físico",
   "Consultar Archivo Físico Global",
+  "Consultar Documentos Global",
+  "Generar Respaldos",
   "Gestionar Dispersión",
   "Gestionar Organigrama",
   "Revisar Organigrama",
@@ -38,6 +40,8 @@ const PERMISOS_BASE = {
     "Gestionar Configuración del Sistema",
     "Gestionar Roles y Privilegios",
     "Consultar Archivo Físico Global",
+    "Consultar Documentos Global",
+    "Generar Respaldos",
   ],
   "Recursos Humanos": [
     "Registrar usuarios",
@@ -47,7 +51,7 @@ const PERMISOS_BASE = {
     "Gestionar Roles y Privilegios",
   ],
   "Oficialía de Partes": ["Gestionar Dispersión"],
-  Presidencia: ["Revisar Organigrama"],
+  Presidencia: ["Revisar Organigrama", "Consultar Documentos Global"],
   "Responsable de Archivo": [
     "Gestionar Archivo Físico",
     "Consultar Archivo Físico Global",

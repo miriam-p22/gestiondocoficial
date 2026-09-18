@@ -3,54 +3,75 @@ const router = express.Router();
 
 const backupsController = require("../controllers/backups.controller");
 const { autenticar } = require("../middlewares/auth.middleware");
+const { requierePrivilegio } = require("../middlewares/permisos.middleware");
+const prisma = require("../db/client");
 
-// AUTORIZACIÓN DE RESPALDOS
-const esAdministrador = (usuario) => {
-  return String(usuario?.rol?.nombre_rol || "").trim() === "Administrador";
-};
+const PRIVILEGIO_GENERAR_RESPALDOS = "Generar Respaldos";
 
-const validarAccesoGeneral = (req, res, next) => {
-  if (!esAdministrador(req.usuario)) {
-    return res.status(403).json({
-      error: "Solo el Administrador puede generar un respaldo general.",
-    });
+const tienePrivilegio = async (usuario, tituloPrivilegio) => {
+  if (!usuario || !usuario.id_rol) {
+    return false;
   }
 
-  return next();
+  const permiso = await prisma.rolPermiso.findFirst({
+    where: {
+      id_rol: Number(usuario.id_rol),
+      privilegio: {
+        titulo_privilegio: tituloPrivilegio,
+      },
+    },
+    select: {
+      id_rol: true,
+    },
+  });
+
+  return Boolean(permiso);
 };
 
-const validarAccesoArea = (req, res, next) => {
-  const idAreaSolicitada = Number(req.params.idArea);
+//Validación para generar respaldos
+const validarAccesoArea = async (req, res, next) => {
+  try {
+    const idAreaSolicitada = Number(req.params.idArea);
 
-  if (!Number.isInteger(idAreaSolicitada) || idAreaSolicitada <= 0) {
-    return res.status(400).json({
-      error: "El identificador del área no es válido.",
-    });
-  }
+    if (!Number.isInteger(idAreaSolicitada) || idAreaSolicitada <= 0) {
+      return res.status(400).json({
+        error: "El identificador del área no es válido.",
+      });
+    }
 
-  /* El Administrador puede respaldar cualquier área. */
-  if (esAdministrador(req.usuario)) {
+    const puedeGenerarRespaldos = await tienePrivilegio(
+      req.usuario,
+      PRIVILEGIO_GENERAR_RESPALDOS,
+    );
+
+    if (puedeGenerarRespaldos) {
+      return next();
+    }
+
+    const idAreaUsuario = Number(req.usuario?.id_area);
+
+    if (!Number.isInteger(idAreaUsuario) || idAreaUsuario <= 0) {
+      return res.status(403).json({
+        error:
+          "Su usuario no tiene un área válida asignada para generar respaldos.",
+      });
+    }
+
+    if (idAreaSolicitada !== idAreaUsuario) {
+      return res.status(403).json({
+        error:
+          "Solo puede generar respaldos correspondientes a su propia área.",
+      });
+    }
+
     return next();
-  }
+  } catch (error) {
+    console.error("[BACKUPS ACCESO]", error);
 
-  /*
-    Los demás usuarios únicamente pueden respaldar el área asociada a su sesión. */
-  const idAreaUsuario = Number(req.usuario?.id_area);
-
-  if (!Number.isInteger(idAreaUsuario) || idAreaUsuario <= 0) {
-    return res.status(403).json({
-      error:
-        "Su usuario no tiene un área válida asignada para generar respaldos.",
+    return res.status(500).json({
+      error: "No fue posible validar el acceso al respaldo solicitado.",
     });
   }
-
-  if (idAreaSolicitada !== idAreaUsuario) {
-    return res.status(403).json({
-      error: "Solo puede generar respaldos correspondientes a su propia área.",
-    });
-  }
-
-  return next();
 };
 
 // ERRORES
@@ -97,10 +118,8 @@ const handleApiError = (res, error) => {
 // RESPALDO GENERAL
 router.get(
   "/general",
-
   autenticar,
-  validarAccesoGeneral,
-
+  requierePrivilegio(PRIVILEGIO_GENERAR_RESPALDOS),
   async (req, res) => {
     try {
       await backupsController.general(res, req.query);
@@ -111,19 +130,12 @@ router.get(
 );
 
 // RESPALDO POR ÁREA
-router.get(
-  "/area/:idArea",
-
-  autenticar,
-  validarAccesoArea,
-
-  async (req, res) => {
-    try {
-      await backupsController.porArea(res, req.params.idArea, req.query);
-    } catch (error) {
-      return handleApiError(res, error);
-    }
-  },
-);
+router.get("/area/:idArea", autenticar, validarAccesoArea, async (req, res) => {
+  try {
+    await backupsController.porArea(res, req.params.idArea, req.query);
+  } catch (error) {
+    return handleApiError(res, error);
+  }
+});
 
 module.exports = router;

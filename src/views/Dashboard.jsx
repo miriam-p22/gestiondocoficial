@@ -26,6 +26,7 @@ import DashboardTable from "../components/DashboardTable";
 import DashboardChart from "../components/DashboardChart";
 
 import useDashboardData from "../hooks/useDashboardData";
+import usePermisosUsuario from "../hooks/usePermisosUsuario";
 
 import "../styles/Dashboard.css";
 
@@ -84,14 +85,32 @@ const Dashboard = () => {
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
 
-  const idRol = Number(localStorage.getItem("id_rol"));
   const idArea = Number(localStorage.getItem("id_area"));
   const nombre = localStorage.getItem("nombre_completo") || "";
   const nombreArea = localStorage.getItem("nombre_area") || "";
   const nombreRol = localStorage.getItem("nombre_rol") || "";
-  const esAdministrador = String(nombreRol).trim() === "Administrador";
-  const esRecursosHumanos = String(nombreRol).trim() === "Recursos Humanos";
-  const esPresidencia = String(nombreArea).trim() === "Presidencia Municipal";
+
+  const { loading: loadingPermisos, tienePrivilegio } = usePermisosUsuario();
+
+  const puedeConsultarDocumentosGlobal =
+    !loadingPermisos && tienePrivilegio("Consultar Documentos Global");
+  const puedeRegistrarUsuarios =
+    !loadingPermisos && tienePrivilegio("Registrar usuarios");
+  const puedeRevisarOrganigrama =
+    !loadingPermisos && tienePrivilegio("Revisar Organigrama");
+  const puedeGestionarArchivo =
+    !loadingPermisos && tienePrivilegio("Gestionar Archivo Físico");
+  const puedeConsultarArchivoGlobal =
+    !loadingPermisos && tienePrivilegio("Consultar Archivo Físico Global");
+  const puedeGestionarAreas =
+    !loadingPermisos && tienePrivilegio("Gestionar Áreas");
+  const puedeGestionarIps =
+    !loadingPermisos && tienePrivilegio("Gestionar Direcciones IP");
+  const puedeGestionarNotificaciones =
+    !loadingPermisos && tienePrivilegio("Gestionar Notificaciones");
+  const puedeGestionarConfiguracion =
+    !loadingPermisos &&
+    tienePrivilegio("Gestionar Configuración del Sistema");
 
   const {
     loading,
@@ -105,9 +124,9 @@ const Dashboard = () => {
     organigramaVigente,
     organigramasRevision,
   } = useDashboardData({
-    esAdministrador,
-    esPresidencia,
-    esRecursosHumanos,
+    puedeConsultarDocumentosGlobal,
+    puedeRegistrarUsuarios,
+    puedeRevisarOrganigrama,
     idArea,
   });
 
@@ -128,7 +147,7 @@ const Dashboard = () => {
 
   // TARJETAS
   const cards = useMemo(() => {
-    if (esPresidencia) {
+    if (puedeConsultarDocumentosGlobal && puedeRevisarOrganigrama) {
       return [
         {
           title: "Documentos",
@@ -165,7 +184,7 @@ const Dashboard = () => {
       ];
     }
 
-    if (esAdministrador) {
+    if (puedeConsultarDocumentosGlobal) {
       return [
         {
           title: "Documentos",
@@ -175,14 +194,23 @@ const Dashboard = () => {
           tone: "neutral",
           onClick: () => irADocumentos(),
         },
-        {
-          title: "Usuarios activos",
-          value: metricasUsuarios.activos,
-          subtitle: `${metricasUsuarios.total} usuarios registrados`,
-          icon: <FiUsers />,
-          tone: "neutral",
-          onClick: () => irADocumentos("en-proceso"),
-        },
+        puedeRegistrarUsuarios
+          ? {
+              title: "Usuarios activos",
+              value: metricasUsuarios.activos,
+              subtitle: `${metricasUsuarios.total} usuarios registrados`,
+              icon: <FiUsers />,
+              tone: "neutral",
+              onClick: () => irAModulo("/Usuarios"),
+            }
+          : {
+              title: "Pendientes",
+              value: metricas.pendientes,
+              subtitle: "Documentos activos",
+              icon: <FiFileText />,
+              tone: "neutral",
+              onClick: () => irADocumentos("pendientes"),
+            },
         {
           title: "Vencidos",
           value: metricas.vencidos,
@@ -202,7 +230,7 @@ const Dashboard = () => {
       ];
     }
 
-    if (esRecursosHumanos) {
+    if (puedeRegistrarUsuarios) {
       return [
         {
           title: "Mis documentos",
@@ -274,9 +302,9 @@ const Dashboard = () => {
       },
     ];
   }, [
-    esAdministrador,
-    esPresidencia,
-    esRecursosHumanos,
+    puedeConsultarDocumentosGlobal,
+    puedeRevisarOrganigrama,
+    puedeRegistrarUsuarios,
     metricas,
     metricasUsuarios,
   ]);
@@ -301,11 +329,11 @@ const Dashboard = () => {
       });
     }
 
-    if (esPresidencia && organigramasRevision.length > 0) {
+    if (puedeRevisarOrganigrama && organigramasRevision.length > 0) {
       lista.push({
         type: "info",
         title: "Organigramas pendientes",
-        text: `${organigramasRevision.length} versión(es) requieren revisión de Presidencia.`,
+        text: `${organigramasRevision.length} versión(es) requieren revisión y autorización.`,
       });
     }
 
@@ -318,11 +346,11 @@ const Dashboard = () => {
     }
 
     return lista;
-  }, [metricas, esPresidencia, organigramasRevision]);
+  }, [metricas, puedeRevisarOrganigrama, organigramasRevision]);
 
   // TABLA
   const tabla = useMemo(() => {
-    if (esAdministrador || esPresidencia) {
+    if (puedeConsultarDocumentosGlobal) {
       return {
         title: "Cumplimiento por área",
 
@@ -399,11 +427,11 @@ const Dashboard = () => {
         fechaTexto: formatearFecha(item.fecha_limite),
       })),
     };
-  }, [esAdministrador, esPresidencia, resumenAreas, documentosRecientes]);
+  }, [puedeConsultarDocumentosGlobal, resumenAreas, documentosRecientes]);
 
   // SEGUIMIENTO DETALLADO PARA PRESIDENCIA
   const documentosFiltrados = useMemo(() => {
-    if (!esPresidencia) return [];
+    if (!puedeConsultarDocumentosGlobal) return [];
 
     return documentosSeguimiento
       .filter((documento) => {
@@ -447,7 +475,7 @@ const Dashboard = () => {
         );
       });
   }, [
-    esPresidencia,
+    puedeConsultarDocumentosGlobal,
     documentosSeguimiento,
     filtroArea,
     filtroEstado,
@@ -500,7 +528,7 @@ const Dashboard = () => {
   // ACCESOS RÁPIDOS
   const accesos = [];
 
-  if (esAdministrador || esRecursosHumanos) {
+  if (puedeRegistrarUsuarios) {
     accesos.push({
       id: "usuarios",
       title: "Usuarios",
@@ -525,14 +553,21 @@ const Dashboard = () => {
     onClick: () => irAModulo("/organigrama"),
   });
 
-  if (esAdministrador) {
+  if (puedeGestionarArchivo || puedeConsultarArchivoGlobal) {
     accesos.push({
       id: "ley-archivo",
       title: "Ley de Archivo",
       icon: <FiArchive />,
       onClick: () => irAModulo("/LeyArchivo"),
     });
+  }
 
+  if (
+    puedeGestionarAreas ||
+    puedeGestionarIps ||
+    puedeGestionarNotificaciones ||
+    puedeGestionarConfiguracion
+  ) {
     accesos.push({
       id: "configuracion",
       title: "Configuración",
@@ -541,7 +576,7 @@ const Dashboard = () => {
     });
   }
 
-  if (esRecursosHumanos) {
+  if (puedeGestionarIps) {
     accesos.push({
       id: "direcciones-ip",
       title: "Direcciones IP",
@@ -558,13 +593,11 @@ const Dashboard = () => {
           area={nombreArea}
           rol={nombreRol}
           mensaje={
-            esPresidencia
+            puedeConsultarDocumentosGlobal
               ? "Supervisión general del cumplimiento documental de las áreas municipales."
-              : esAdministrador
-                ? "Supervisión general del sistema y sus principales indicadores."
-                : esRecursosHumanos
-                  ? "Resumen de Recursos Humanos, usuarios, organigrama y carga documental."
-                  : "Consulta el estado de los documentos asignados a tu área."
+              : puedeRegistrarUsuarios
+                ? "Resumen de usuarios, organigrama y carga documental de tu área."
+                : "Consulta el estado de los documentos asignados a tu área."
           }
         />
 
@@ -582,7 +615,7 @@ const Dashboard = () => {
               ))}
             </div>
 
-            {esPresidencia && (
+            {puedeConsultarDocumentosGlobal && (
               <section className="dashboard-panel dashboard-followup-panel">
                 <div className="dashboard-panel-header dashboard-followup-header">
                   <div>
@@ -749,7 +782,7 @@ const Dashboard = () => {
               <div className="dashboard-main-column">
                 <DashboardProgress
                   title={
-                    esPresidencia || esAdministrador
+                    puedeConsultarDocumentosGlobal
                       ? "Cumplimiento municipal"
                       : `Cumplimiento${nombreArea ? ` — ${nombreArea}` : ""}`
                   }
@@ -759,7 +792,7 @@ const Dashboard = () => {
 
                 <DashboardChart
                   title={
-                    esPresidencia || esAdministrador
+                    puedeConsultarDocumentosGlobal
                       ? "Distribución de estados"
                       : "Estado de mi carga documental"
                   }

@@ -654,10 +654,9 @@
 }
 .dashboard-followup-filters {
   display: grid;
-  grid-template-columns: minmax(180px, 1.4fr) minmax(150px, 1fr) minmax(
-      145px,
-      0.8fr
-    ) minmax(145px, 0.8fr) auto;
+  grid-template-columns:
+    minmax(180px, 1.4fr) minmax(150px, 1fr) minmax(145px, 0.8fr)
+    minmax(145px, 0.8fr) auto;
   gap: 10px;
   align-items: end;
   padding: 14px;
@@ -915,16 +914,62 @@
   max-width: 230px;
 }
 
-.dashboard-main-column .dashboard-table th:first-child,
-.dashboard-main-column .dashboard-table td:first-child {
-  width: 38%;
-  min-width: 180px;
+/* cumplimiento por área */
+.dashboard-main-column .dashboard-table {
+  width: 100%;
+  table-layout: auto;
+}
+
+.dashboard-main-column .dashboard-table th,
+.dashboard-main-column .dashboard-table td {
+  padding: 10px 8px;
+}
+
+.dashboard-main-column .dashboard-table th {
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+/* Área */
+.dashboard-main-column .dashboard-table th:nth-child(1),
+.dashboard-main-column .dashboard-table td:nth-child(1) {
+  width: 44%;
+  min-width: 170px;
+  text-align: left;
   line-height: 1.25;
 }
 
-.dashboard-main-column .dashboard-table th:not(:first-child),
-.dashboard-main-column .dashboard-table td:not(:first-child) {
-  white-space: nowrap;
+/* Documentos */
+.dashboard-main-column .dashboard-table th:nth-child(2),
+.dashboard-main-column .dashboard-table td:nth-child(2) {
+  width: 13%;
+  min-width: 76px;
+  text-align: center;
+}
+
+/* A tiempo */
+.dashboard-main-column .dashboard-table th:nth-child(3),
+.dashboard-main-column .dashboard-table td:nth-child(3) {
+  width: 12%;
+  min-width: 65px;
+  text-align: center;
+}
+
+/* Vencidos */
+.dashboard-main-column .dashboard-table th:nth-child(4),
+.dashboard-main-column .dashboard-table td:nth-child(4) {
+  width: 12%;
+  min-width: 65px;
+  text-align: center;
+}
+
+/* Cumplimiento */
+.dashboard-main-column .dashboard-table th:nth-child(5),
+.dashboard-main-column .dashboard-table td:nth-child(5) {
+  width: 19%;
+  min-width: 100px;
+  text-align: center;
 }
 
 .dashboard-activity-item {

@@ -394,7 +394,7 @@ const create = async (data) => {
     data: {
       titulo,
       version,
-      fecha_solicitud: null,
+      fecha_solicitud: new Date(),
       fecha_autorizacion: null,
       autorizado: false,
       estado: ESTADOS.EDICION,
@@ -755,7 +755,7 @@ module.exports = {
 
   getVigente,
   getPendientesRevision,
-  
+
   create,
   update,
 
